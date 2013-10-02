@@ -1,15 +1,15 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='pyDruid',
-    version='0.01.3',
+    version='0.1.4',
     author='Deep Ganguli',
     author_email='deep@metamarkets.com',
     packages=['pydruid', 'pydruid.utils'],
     url='http://pypi.python.org/pypi/pyDruid/',
     license='LICENSE',
     description='Druid analytical data-store Python library',
-    long_description=open('README').read(),
+    long_description=open('README.txt').read(),
     install_requires=[
         "pandas >= 0.12",
         "simplejson >= 3.3.0",
