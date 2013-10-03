@@ -24,10 +24,10 @@ import pandas
 import dateutil.parser
 from matplotlib import *
 from matplotlib.pyplot import *
-from pyDruidUtils.aggregators import *
-from pyDruidUtils.postaggregator import *
-from pyDruidUtils.filters import *
-from pyDruidUtils.query_utils import *
+from utils.aggregators import *
+from utils.postaggregator import *
+from utils.filters import *
+from utils.query_utils import *
 
 
 class pyDruid:
