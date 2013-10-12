@@ -6,3 +6,4 @@ v0.1.4, 9/30/2013 -- Still working on getting around README.md errors
 v0.1.5, 10/2/2013 -- Still working on build problems
 v0.1.6, 10/2/2013 -- Still working on build problems
 v0.1.7, 10/2/2013 -- still working on build problems
+v0.1.8, 10/11/2013 -- Pull pandas, matplotlib and scipy as requirements
