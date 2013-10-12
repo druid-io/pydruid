@@ -8,3 +8,4 @@ v0.1.6, 10/2/2013 -- Still working on build problems
 v0.1.7, 10/2/2013 -- still working on build problems
 v0.1.8, 10/11/2013 -- Pull pandas, matplotlib and scipy as requirements
 v0.1.9, 10/11/2013 -- Finishing previous task
+v0.1.10, 10/11/2013 -- Removing reference to dateutil.parser
