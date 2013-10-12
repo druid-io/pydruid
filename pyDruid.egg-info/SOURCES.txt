@@ -1,0 +1,16 @@
+CHANGES.txt
+MANIFEST.in
+README.txt
+setup.py
+pyDruid.egg-info/PKG-INFO
+pyDruid.egg-info/SOURCES.txt
+pyDruid.egg-info/dependency_links.txt
+pyDruid.egg-info/requires.txt
+pyDruid.egg-info/top_level.txt
+pydruid/__init__.py
+pydruid/client.py
+pydruid/utils/__init__.py
+pydruid/utils/aggregators.py
+pydruid/utils/filters.py
+pydruid/utils/postaggregator.py
+pydruid/utils/query_utils.py

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pyDruid',
-    version='0.1.10',
+    version='0.1.11',
     author='Deep Ganguli',
     author_email='deep@metamarkets.com',
     packages=['pydruid', 'pydruid.utils'],
