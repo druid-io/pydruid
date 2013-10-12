@@ -20,10 +20,10 @@ import csv
 import re
 import os
 import sys
-import pandas
+#import pandas
 import dateutil.parser
-from matplotlib import *
-from matplotlib.pyplot import *
+# from matplotlib import *
+# from matplotlib.pyplot import *
 from utils.aggregators import *
 from utils.postaggregator import *
 from utils.filters import *
@@ -101,19 +101,19 @@ class pyDruid:
 		f.close()
 
 	# Exports a JSON query object into a Pandas data-frame
-	def export_pandas(self): 
-		if self.result:
-			if self.query_type == "timeseries":
-				nres = [v['result'].items() + [('timestamp',v['timestamp'])] for v in self.result]
-				nres = [dict(v) for v in nres]
-			else:
-				print('not implemented yet')
-				return None
-
-			df = pandas.DataFrame(nres)
-			df['timestamp'] = df['timestamp'].map(lambda x: dateutil.parser.parse(x))
-			df['t'] = dates.date2num(df['timestamp'])
-			return df	
+    # def export_pandas(self): 
+    #   if self.result:
+    #       if self.query_type == "timeseries":
+    #           nres = [v['result'].items() + [('timestamp',v['timestamp'])] for v in self.result]
+    #           nres = [dict(v) for v in nres]
+    #       else:
+    #           print('not implemented yet')
+    #           return None
+    # 
+    #       df = pandas.DataFrame(nres)
+    #       df['timestamp'] = df['timestamp'].map(lambda x: dateutil.parser.parse(x))
+    #       df['t'] = dates.date2num(df['timestamp'])
+    #       return df   
 
 	# implements a timeseries query
 	def timeseries(self, **args): 
