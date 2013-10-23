@@ -29,14 +29,10 @@ try:
     import pandas
 except ImportError:
     pass
-# try:
-#     from matplotlib.pyplot import *
-# except ImportError:
-#     pass
-# try:
-#     from matplotlib import *
-# except ImportError:
-#     pass
+try:
+    from matplotlib import *
+except ImportError:
+    pass
 try:
     import dateutil.parser
 except ImportError:
@@ -125,8 +121,11 @@ class pyDruid:
             df['timestamp'] = df['timestamp'].map(lambda x: dateutil.parser.parse(x))
             df['t'] = dates.date2num(df['timestamp'])
             return df
-        except ImportError:
-            print "Please install and import the pandas module to use the export_pandas feature."
+        except (ImportError, NameError) as e:
+            print "Please install and import the pandas, matplotlib and python-dateutil modules to use the export_pandas feature: " + e.message
+            print """import pandas
+from matplotlib import *
+import dateutil.parser"""
         
     # implements a timeseries query
     def timeseries(self, **args):
