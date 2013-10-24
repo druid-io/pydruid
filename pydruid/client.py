@@ -21,9 +21,6 @@ import re
 import os
 import sys
 import pandas
-import dateutil.parser
-from matplotlib import *
-from matplotlib.pyplot import *
 from utils.aggregators import *
 from utils.postaggregator import *
 from utils.filters import *
@@ -111,8 +108,6 @@ class pyDruid:
 				return None
 
 			df = pandas.DataFrame(nres)
-			df['timestamp'] = df['timestamp'].map(lambda x: dateutil.parser.parse(x))
-			df['t'] = dates.date2num(df['timestamp'])
 			return df	
 
 	# implements a timeseries query
