@@ -12,7 +12,7 @@ often looks like this::
     # Druid Config
     endpoint = 'druid/v2/?pretty'
     demo_bard_url =  'http://localhost:8083'
-    dataSource = 'wikipedia'
+    dataSource = 'webstream'
     intervals = ["2013-01-01/p1y"]
 
     query = pyDruid(demo_bard_url, endpoint)
@@ -20,7 +20,7 @@ often looks like this::
     counts = query.timeseries(dataSource = dataSource, 
     	          granularity = "minute", 
     			  intervals = intervals, 
-    			  aggregations = {"count" : doubleSum("edits")}
+    			  aggregations = {"count" : doubleSum("rows")}
     		      )
 
     print counts
