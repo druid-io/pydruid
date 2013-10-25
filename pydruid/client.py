@@ -103,6 +103,9 @@ class pyDruid:
 			if self.query_type == "timeseries":
 				nres = [v['result'].items() + [('timestamp',v['timestamp'])] for v in self.result]
 				nres = [dict(v) for v in nres]
+			if self.query_type == "groupby"	: 
+				nres = [v['event'].items() + [('timestamp', v['timestamp'])] for v in self.result]
+				nres = [dict(v) for v in nres]
 			else:
 				print('not implemented yet')
 				return None
