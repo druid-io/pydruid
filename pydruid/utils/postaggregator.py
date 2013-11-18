@@ -13,44 +13,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import pprint as pp
-import re
+from __future__ import division
 
-# determine whether arguments are strings or numeric constants
-def is_numeric(field):
-    for obj in [int, float, long]:
-        try:
-            obj(field)
-            return True
-        except:
-            pass
+class Postaggregator:
 
-    return False
+    def __init__(self, fn, fields, name):
+        
+        self.post_aggregator =   {'type'  : 'arithmetic',
+                                  'name'  : name,
+                                  'fn'    : fn,
+                                  'fields': fields}
+        self.name = name                          
 
-# specify field type as source field name (string) or constant and build json
-def field_spec(field):   
-    if is_numeric(field):
-        return {"type" : "constant",
-                "name" : "constant_%d" % int(field),
-                "value" : field}
-    else:
-        return {"type" : "fieldAccess", 
-                "fieldName" : field}
+    def __mul__(self, other):
+        return Postaggregator('*', self.fields(other), self.name + 'mul' + other.name)
+        
 
-# use regex to extract fields and operand from user-submitted postAgg string 
-def parse_calc(postAggOpString):
-    fields = []
-    rgx = "(.+)[ ]?([*+/-])[ ]?(.+)"
-    postAggOp = re.findall(rgx, postAggOpString).pop()
-    
-    if postAggOp:
-        operation = postAggOp[0]
-        fn = postAggOp[1]
-        fields.append(field_spec(postAggOp[0]))
-        fields.append(field_spec(postAggOp[2]))
-        base = {"type" : "arithmetic",
-                "fn" : fn,
-                "fields" : fields}       
-        return base
-    else:
-        raise Exception("Not a valid postAggregation operation")
+    def __sub__(self, other):
+        return Postaggregator('-', self.fields(other), self.name + 'sub' + other.name)
+        
+
+    def __add__(self, other):
+        return Postaggregator('+', self.fields(other), self.name + 'add' + other.name)
+
+    def __truediv__(self, other):
+        return Postaggregator('/', self.fields(other), self.name + 'div' + other.name)
+
+    def fields(self, other):
+        return [self.post_aggregator, other.post_aggregator]
+
+
+class Field(Postaggregator):
+
+    def __init__(self, aggregatorName):
+        
+        self.post_aggregator = {'type' : 'fieldAccess', 'fieldName' : aggregatorName}
+        self.name = aggregatorName
+        
+
+class Const(Postaggregator):
+
+    def __init__(self, value, output_name=None):
+        
+        if output_name is None:
+            name = 'const'
+        else:
+            name = output_name
+
+        self.post_aggregator = {'type'  : 'constant', 'name'  : name, 'value' : value}
+        self.name = name
