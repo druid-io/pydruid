@@ -46,8 +46,7 @@ class Field(Postaggregator):
         
         self.post_aggregator = {'type' : 'fieldAccess', 'fieldName' : aggregatorName}
         self.name = aggregatorName
-        
-
+                
 class Const(Postaggregator):
 
     def __init__(self, value, output_name=None):
