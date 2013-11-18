@@ -35,9 +35,6 @@ class pyDruid:
 		self.result_json = 	None
 		self.query_type = None
 
-	# serializes a dict representation of the query into a json
-	# object, and sends it to bard via post, and gets back the
-	# json representation of the query result
 	def post(self,query):
 		querystr = json.dumps(query)
 		url = self.url + '/' + self.endpoint
@@ -49,8 +46,6 @@ class pyDruid:
 		self.querystr = querystr
 		res.close()
 
-	# de-serializes the data returned from druid into a
-	# list of dicts
 	def parse(self):
 		if self.result_json:
 			res = json.loads(self.result_json)
@@ -58,6 +53,8 @@ class pyDruid:
 		else:
 			print("Empty query")
 			return None
+
+	# --------- Export implementations --------- 
 
 	def export_tsv(self,dest_path):
 
@@ -74,7 +71,6 @@ class pyDruid:
 
 		tsv_file.writerow(header)
 
-		# use unicodewriter to encode results in unicode 
 		w = query_utils.UnicodeWriter(f)
 
 		if self.result:
@@ -96,7 +92,6 @@ class pyDruid:
 
 		f.close()
 
-	# Exports a JSON query object into a Pandas data-frame
 	def export_pandas(self): 
 		if self.result:
 			if self.query_type == "timeseries":
@@ -112,7 +107,8 @@ class pyDruid:
 			df = pandas.DataFrame(nres)
 			return df	
 
-	# implements a timeseries query
+	# --------- Query implementations --------- 
+
 	def timeseries(self, **args): 
 		
 		query_dict = {"queryType" : "timeseries"}
@@ -141,7 +137,6 @@ class pyDruid:
 			self.query_type = "timeseries"
 			return self.result
 
-	# Implements a groupBy query
 	def groupBy(self, **args): 
 		
 		query_dict = {"queryType" : "groupBy"}
@@ -171,8 +166,6 @@ class pyDruid:
 			self.query_type = "groupby"
 			return self.parse()
 
-	# Implements a segmentMetadata query.  This query type is for pulling the tsv-equivalent 
-	# size and cardinality broken out by dimension in a specified data source.
 	def segmentMetadata(self, **args): 
 		
 		query_dict = {"queryType" : "segmentMetadata"}
@@ -194,7 +187,6 @@ class pyDruid:
 			self.result = self.parse()
 			return self.parse()
 
-	# implements a time boundary query
 	def timeBoundary(self, **args):
 
 		query_dict = {"queryType" : "timeBoundary"}
@@ -213,7 +205,3 @@ class pyDruid:
 		else:
 			self.result = self.parse()
 			return self.parse()
-
-	# prints internal variables of the object
-	def describe(self):
-		print("url: " + self.url)
