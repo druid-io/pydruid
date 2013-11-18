@@ -28,20 +28,17 @@ class Postaggregator:
     def __mul__(self, other):
         return Postaggregator('*', self.fields(other), self.name + 'mul' + other.name)
         
-
     def __sub__(self, other):
         return Postaggregator('-', self.fields(other), self.name + 'sub' + other.name)
         
-
     def __add__(self, other):
         return Postaggregator('+', self.fields(other), self.name + 'add' + other.name)
 
-    def __truediv__(self, other):
+    def __div__(self, other):
         return Postaggregator('/', self.fields(other), self.name + 'div' + other.name)
 
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
-
 
 class Field(Postaggregator):
 
@@ -62,3 +59,10 @@ class Const(Postaggregator):
 
         self.post_aggregator = {'type'  : 'constant', 'name'  : name, 'value' : value}
         self.name = name
+
+def build_post_aggregators(postaggs):
+    return [rename_postagg(new_name, postagg.post_aggregator) for (new_name,postagg) in postaggs.iteritems()]
+
+def rename_postagg(new_name, post_aggregator):
+    post_aggregator['name'] = new_name
+    return post_aggregator
