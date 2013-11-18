@@ -26,7 +26,6 @@ from utils.postaggregator import *
 from utils.filters import *
 from utils.query_utils import *
 
-
 class pyDruid:
 
 	def __init__(self,url,endpoint):
@@ -103,7 +102,7 @@ class pyDruid:
 			if self.query_type == "timeseries":
 				nres = [v['result'].items() + [('timestamp',v['timestamp'])] for v in self.result]
 				nres = [dict(v) for v in nres]
-			if self.query_type == "groupby"	: 
+			elif self.query_type == "groupby": 
 				nres = [v['event'].items() + [('timestamp', v['timestamp'])] for v in self.result]
 				nres = [dict(v) for v in nres]
 			else:
