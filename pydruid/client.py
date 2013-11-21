@@ -36,15 +36,21 @@ class pyDruid:
 		self.query_type = None
 
 	def post(self,query):
-		querystr = json.dumps(query)
-		url = self.url + '/' + self.endpoint
-		headers = {'Content-Type' : 'application/json'}
-		req = urllib2.Request(url, querystr, headers)
-		res = urllib2.urlopen(req)
-		data = res.read()
-		self.result_json = data;
-		self.querystr = querystr
-		res.close()
+		try:
+			querystr = json.dumps(query)
+			url = self.url + '/' + self.endpoint
+			headers = {'Content-Type' : 'application/json'}
+			req = urllib2.Request(url, querystr, headers)
+			res = urllib2.urlopen(req)
+			data = res.read()
+			self.result_json = data;
+			res.close()			
+		except urllib2.HTTPError, e:
+			raise IOError('Malformed query: \n {0}'.format(json.dumps(self.query_dict, indent = 4)))
+		else:
+			self.result = self.parse()
+			parsed = self.parse()
+			return parsed
 
 	def parse(self):
 		if self.result_json:
@@ -126,16 +132,9 @@ class pyDruid:
 			else:
 				query_dict[key] = val
 
-		self.query_dict = query_dict
-
-		try:
-			self.post(query_dict)
-		except urllib2.HTTPError, e:
-			raise IOError('Malformed query: \n {0}'.format(json.dumps(self.query_dict ,indent = 4)))
-		else:
-			self.result = self.parse()
-			self.query_type = "timeseries"
-			return self.result
+		self.query_dict = query_dict	
+		self.query_type = 'timeseries'	
+		return self.post(query_dict)
 
 	def groupBy(self, **args): 
 		
@@ -156,15 +155,8 @@ class pyDruid:
 				query_dict[key] = val
 
 		self.query_dict = query_dict
-
-		try:
-			self.post(query_dict)
-		except urllib2.HTTPError, e:
-			raise IOError('Malformed query: \n {0}'.format(json.dumps(self.query_dict ,indent = 4)))
-		else:
-			self.result = self.parse()
-			self.query_type = "groupby"
-			return self.parse()
+		self.query_type = 'groupby'	
+		return self.post(query_dict)
 
 	def segmentMetadata(self, **args): 
 		
@@ -178,14 +170,8 @@ class pyDruid:
 				query_dict[key] = val
 
 		self.query_dict = query_dict
-
-		try:
-			self.post(query_dict)
-		except urllib2.HTTPError, e:
-			raise IOError('Malformed query: \n {0}'.format(json.dumps(self.query_dict ,indent = 4)))
-		else:
-			self.result = self.parse()
-			return self.parse()
+		self.query_type = 'segmentMetadata'	
+		return self.post(query_dict)
 
 	def timeBoundary(self, **args):
 
@@ -198,10 +184,6 @@ class pyDruid:
 			else:
 				query_dict[key] = val
 
-		try:
-			self.post(query_dict)
-		except urllib2.HTTPError, e:
-			raise IOError('Malformed query: \n {0}'.format(json.dumps(self.query_dict ,indent = 4)))
-		else:
-			self.result = self.parse()
-			return self.parse()
+		self.query_dict = query_dict
+		self.query_type = 'timeBoundary'	
+		return self.post(query_dict)
