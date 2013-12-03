@@ -35,3 +35,6 @@ def count(raw_metric):
 
 def build_aggregators(agg_input):
 	return [dict([('name',k)] + v.items()) for (k,v) in agg_input.iteritems()]
+
+def build_post_aggregators(agg_input):
+	return build_aggregators(agg_input)
