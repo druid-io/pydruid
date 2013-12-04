@@ -20,7 +20,6 @@ import csv
 import re
 import os
 import sys
-import pandas
 from utils.aggregators import *
 from utils.postaggregator import *
 from utils.filters import *
@@ -98,20 +97,6 @@ class pyDruid:
 
 		f.close()
 
-	def export_pandas(self): 
-		if self.result:
-			if self.query_type == "timeseries":
-				nres = [v['result'].items() + [('timestamp',v['timestamp'])] for v in self.result]
-				nres = [dict(v) for v in nres]
-			elif self.query_type == "groupby": 
-				nres = [v['event'].items() + [('timestamp', v['timestamp'])] for v in self.result]
-				nres = [dict(v) for v in nres]
-			else:
-				print('not implemented yet')
-				return None
-
-			df = pandas.DataFrame(nres)
-			return df	
 
 	# --------- Query implementations --------- 
 
