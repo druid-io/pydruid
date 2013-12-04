@@ -11,7 +11,7 @@ setup(
     description='Druid analytical data-store Python library',
     long_description=open('README.txt').read(),
     install_requires=[
-        "pandas >= 0.12",
+        # "pandas >= 0.12",
         "simplejson >= 3.3.0"
     ],
 )
