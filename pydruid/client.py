@@ -38,7 +38,10 @@ class pyDruid:
 	def post(self,query):
 		try:
 			querystr = json.dumps(query)
-			url = self.url + '/' + self.endpoint
+			if self.url.endswith('/'):
+				url = self.url + self.endpoint
+			else:
+				url = self.url + '/' + self.endpoint
 			headers = {'Content-Type' : 'application/json'}
 			req = urllib2.Request(url, querystr, headers)
 			res = urllib2.urlopen(req)
