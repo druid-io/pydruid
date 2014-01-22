@@ -90,7 +90,7 @@ class pyDruid:
 							w.writerow(line.values() + [timestamp])
 					else: #timeseries
 						w.writerow(result.values() + [timestamp])
-			elif self.query_type == "groupby":
+			elif self.query_type == "groupBy":
 				for item in self.result:
 					timestamp = item['timestamp']
 					version = item['version']
