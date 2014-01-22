@@ -52,8 +52,7 @@ class pyDruid:
 			raise IOError('{0} \n Query is: {1}'.format(e, json.dumps(self.query_dict, indent = 4)))
 		else:
 			self.result = self.parse()
-			parsed = self.parse()
-			return parsed
+			return self.result
 
 	def parse(self):
 		if self.result_json:
