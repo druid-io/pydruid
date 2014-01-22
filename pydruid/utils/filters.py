@@ -26,7 +26,7 @@ class Filter:
         elif args["type"] == "and":
             self.filter = {"filter": {"type" : "and",
                                       "fields" : args["fields"]}}
-         # construct an or filter
+        # construct an or filter
         elif args["type"] == "or":
             self.filter = {"filter": {"type" : "or",
                                       "fields" : args["fields"]}}
@@ -35,7 +35,7 @@ class Filter:
             self.filter = {"filter" : {"type" : "not",
                                        "field" : args["field"]}}
         else:
-            print("you've slain me. nevermind the teeth and the fingernails. the show must go on.")
+            raise NotImplemented('Filter type: {0} does not exist'.format(args['type']))
 
     def show(self):
         print(json.dumps(self.filter, indent = 4))
@@ -56,3 +56,6 @@ class Dimension:
 
     def __eq__(self,other):
         return Filter(dimension = self.dimension, value = other)
+
+def build_filter(filterObj):
+    return filterObj.filter['filter']
