@@ -15,52 +15,64 @@
 #
 from __future__ import division
 
+
 class Postaggregator:
 
     def __init__(self, fn, fields, name):
-        
-        self.post_aggregator =   {'type'  : 'arithmetic',
-                                  'name'  : name,
-                                  'fn'    : fn,
-                                  'fields': fields}
-        self.name = name                          
+
+        self.post_aggregator = {'type': 'arithmetic',
+                                'name': name,
+                                'fn': fn,
+                                'fields': fields}
+        self.name = name
 
     def __mul__(self, other):
-        return Postaggregator('*', self.fields(other), self.name + 'mul' + other.name)
-        
+        return Postaggregator('*', self.fields(other),
+                              self.name + 'mul' + other.name)
+
     def __sub__(self, other):
-        return Postaggregator('-', self.fields(other), self.name + 'sub' + other.name)
-        
+        return Postaggregator('-', self.fields(other),
+                              self.name + 'sub' + other.name)
+
     def __add__(self, other):
-        return Postaggregator('+', self.fields(other), self.name + 'add' + other.name)
+        return Postaggregator('+', self.fields(other),
+                              self.name + 'add' + other.name)
 
     def __div__(self, other):
-        return Postaggregator('/', self.fields(other), self.name + 'div' + other.name)
+        return Postaggregator('/', self.fields(other),
+                              self.name + 'div' + other.name)
 
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
 
+
 class Field(Postaggregator):
 
     def __init__(self, aggregatorName):
-        
-        self.post_aggregator = {'type' : 'fieldAccess', 'fieldName' : aggregatorName}
+
+        self.post_aggregator = {
+            'type': 'fieldAccess', 'fieldName': aggregatorName}
         self.name = aggregatorName
-                
+
+
 class Const(Postaggregator):
 
     def __init__(self, value, output_name=None):
-        
+
         if output_name is None:
             name = 'const'
         else:
             name = output_name
 
-        self.post_aggregator = {'type'  : 'constant', 'name'  : name, 'value' : value}
+        self.post_aggregator = {
+            'type': 'constant', 'name': name, 'value': value}
         self.name = name
 
+
 def build_post_aggregators(postaggs):
-    return [rename_postagg(new_name, postagg.post_aggregator) for (new_name,postagg) in postaggs.iteritems()]
+    return [rename_postagg(new_name, postagg.post_aggregator)
+            for (new_name, postagg) in postaggs.iteritems()]
+
 
 def rename_postagg(new_name, post_aggregator):
     post_aggregator['name'] = new_name

@@ -13,49 +13,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+
 class Filter:
 
     def __init__(self, **args):
 
-        # constrct a selector
         if 'type' not in args.keys():
             self.filter = {"filter": {"type": "selector",
-                                      "dimension" : args["dimension"],
-                                      "value" : args["value"]}}
-        # construct an and filter
+                                      "dimension": args["dimension"],
+                                      "value": args["value"]}}
+
         elif args["type"] == "and":
-            self.filter = {"filter": {"type" : "and",
-                                      "fields" : args["fields"]}}
-        # construct an or filter
+            self.filter = {"filter": {"type": "and",
+                                      "fields": args["fields"]}}
+
         elif args["type"] == "or":
-            self.filter = {"filter": {"type" : "or",
-                                      "fields" : args["fields"]}}
-        # construct a not filter
+            self.filter = {"filter": {"type": "or",
+                                      "fields": args["fields"]}}
+
         elif args["type"] == "not":
-            self.filter = {"filter" : {"type" : "not",
-                                       "field" : args["field"]}}
+            self.filter = {"filter": {"type": "not",
+                                      "field": args["field"]}}
         else:
-            raise NotImplemented('Filter type: {0} does not exist'.format(args['type']))
+            raise NotImplemented(
+                'Filter type: {0} does not exist'.format(args['type']))
 
     def show(self):
-        print(json.dumps(self.filter, indent = 4))
+        print(json.dumps(self.filter, indent=4))
 
     def __and__(self, x):
-        return Filter(type = "and", fields = [self.filter['filter'], x.filter['filter']])
+        return Filter(type="and",
+                      fields=[self.filter['filter'], x.filter['filter']])
 
-    def __or__(self,x):
-        return Filter(type = "or", fields = [self.filter['filter'], x.filter['filter']])
+    def __or__(self, x):
+        return Filter(type="or",
+                      fields=[self.filter['filter'], x.filter['filter']])
 
     def __invert__(self):
-        return Filter(type = "not", field = self.filter['filter'])
+        return Filter(type="not", field=self.filter['filter'])
+
 
 class Dimension:
 
     def __init__(self, dim):
         self.dimension = dim
 
-    def __eq__(self,other):
-        return Filter(dimension = self.dimension, value = other)
+    def __eq__(self, other):
+        return Filter(dimension=self.dimension, value=other)
+
 
 def build_filter(filterObj):
     return filterObj.filter['filter']
