@@ -32,7 +32,7 @@ class pyDruid:
 		self.url = url
 		self.endpoint = endpoint
 		self.result = None
-		self.result_json = 	None
+		self.result_json = None
 		self.query_type = None
 
 	def post(self,query):
