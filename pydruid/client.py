@@ -80,6 +80,8 @@ class PyDruid:
             header = self.result[0]['event'].keys()
             header.append('timestamp')
             header.append('version')
+        else:
+            raise NotImplementedError('TSV export not implemented for query type: {0}'.format(self.query_type))
 
         tsv_file.writerow(header)
 
@@ -123,9 +125,7 @@ class PyDruid:
                         for v in self.result]
                 nres = [dict(v) for v in nres]
             else:
-                raise NotImplementedError(
-                    'Pandas export not implemented for query type: {0}'
-                    .format(self.query_type))
+                raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
 
             df = pandas.DataFrame(nres)
             return df
