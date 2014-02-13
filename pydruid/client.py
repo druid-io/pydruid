@@ -15,26 +15,29 @@
 #
 from __future__ import division
 import urllib2
+
 import simplejson as json
-import csv
-import re
-import os
-import sys
-import pandas
+
+try:
+    import pandas
+except ImportError:
+    print 'Warning: unable to import Pandas. The export_pandas method will not work.'
+    pass
+
 from utils.aggregators import *
 from utils.postaggregator import *
 from utils.filters import *
 from utils.query_utils import *
 
 
-class pyDruid:
-
+class PyDruid:
     def __init__(self, url, endpoint):
         self.url = url
         self.endpoint = endpoint
         self.result = None
         self.result_json = None
         self.query_type = None
+        self.query_dict = None
 
     def post(self, query):
         try:
@@ -70,17 +73,17 @@ class pyDruid:
         f = open(dest_path, 'wb')
         tsv_file = csv.writer(f, delimiter='\t')
 
-        if(self.query_type == "timeseries"):
+        if self.query_type == "timeseries":
             header = self.result[0]['result'].keys()
             header.append('timestamp')
-        elif(self.query_type == "groupBy"):
+        elif self.query_type == "groupBy":
             header = self.result[0]['event'].keys()
             header.append('timestamp')
             header.append('version')
 
         tsv_file.writerow(header)
 
-        w = query_utils.UnicodeWriter(f)
+        w = UnicodeWriter(f)
 
         if self.result:
             if self.query_type == "topN" or self.query_type == "timeseries":
@@ -129,7 +132,8 @@ class pyDruid:
 
     # --------- Query implementations ---------
 
-    def validateQuery(self, valid_parts, args):
+    @staticmethod
+    def validate_query(valid_parts, args):
         for key, val in args.iteritems():
             if key not in valid_parts:
                 raise ValueError(
@@ -138,7 +142,7 @@ class pyDruid:
                     'The list of valid components is: \n {0}'
                     .format(valid_parts))
 
-    def buildQuery(self, query_type, args):
+    def build_query(self, query_type, args):
         query_dict = {'queryType': query_type}
 
         for key, val in args.iteritems():
@@ -154,14 +158,14 @@ class pyDruid:
         self.query_dict = query_dict
         self.query_type = query_type
 
-    def topN(self, **args):
+    def topn(self, **args):
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
-        self.validateQuery(valid_parts, args)
-        self.buildQuery('topN', args)
+        self.validate_query(valid_parts, args)
+        self.build_query('topN', args)
         return self.post(self.query_dict)
 
     def timeseries(self, **args):
@@ -169,27 +173,27 @@ class pyDruid:
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals'
         ]
-        self.validateQuery(valid_parts, args)
-        self.buildQuery('timeseries', args)
+        self.validate_query(valid_parts, args)
+        self.build_query('timeseries', args)
         return self.post(self.query_dict)
 
-    def groupBy(self, **args):
+    def groupby(self, **args):
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimensions'
         ]
-        self.validateQuery(valid_parts, args)
-        self.buildQuery('groupBy', args)
+        self.validate_query(valid_parts, args)
+        self.build_query('groupBy', args)
         return self.post(self.query_dict)
 
-    def segmentMetadata(self, **args):
+    def segment_metadata(self, **args):
         valid_parts = ['dataSource', 'intervals']
-        self.validateQuery(valid_parts, args)
-        self.buildQuery('segmentMetaData', args)
+        self.validate_query(valid_parts, args)
+        self.build_query('segmentMetaData', args)
         return self.post(self.query_dict)
 
-    def timeBoundary(self, **args):
+    def time_boundary(self, **args):
         valid_parts = ['dataSource']
-        self.validateQuery(valid_parts, args)
-        self.buildQuery('timeBoundary', args)
+        self.validate_query(valid_parts, args)
+        self.build_query('timeBoundary', args)
         return self.post(self.query_dict)
