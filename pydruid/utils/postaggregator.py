@@ -17,9 +17,7 @@ from __future__ import division
 
 
 class Postaggregator:
-
     def __init__(self, fn, fields, name):
-
         self.post_aggregator = {'type': 'arithmetic',
                                 'name': name,
                                 'fn': fn,
@@ -47,16 +45,13 @@ class Postaggregator:
 
 
 class Field(Postaggregator):
-
-    def __init__(self, aggregatorName):
-
+    def __init__(self, name):
+        Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
-            'type': 'fieldAccess', 'fieldName': aggregatorName}
-        self.name = aggregatorName
+            'type': 'fieldAccess', 'fieldName': name}
 
 
 class Const(Postaggregator):
-
     def __init__(self, value, output_name=None):
 
         if output_name is None:
@@ -64,9 +59,9 @@ class Const(Postaggregator):
         else:
             name = output_name
 
+        Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
             'type': 'constant', 'name': name, 'value': value}
-        self.name = name
 
 
 def build_post_aggregators(postaggs):
