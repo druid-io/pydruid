@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import simplejson as json
 
 
 class Filter:
-
     def __init__(self, **args):
 
         if 'type' not in args.keys():
@@ -55,7 +55,6 @@ class Filter:
 
 
 class Dimension:
-
     def __init__(self, dim):
         self.dimension = dim
 
@@ -63,5 +62,5 @@ class Dimension:
         return Filter(dimension=self.dimension, value=other)
 
 
-def build_filter(filterObj):
-    return filterObj.filter['filter']
+def build_filter(filter_obj):
+    return filter_obj.filter['filter']
