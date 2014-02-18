@@ -15,11 +15,11 @@
 #
 
 
-def longSum(raw_metric):
+def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
 
 
-def doubleSum(raw_metric):
+def sum(raw_metric):
     return {"type": "doubleSum", "fieldName": raw_metric}
 
 
