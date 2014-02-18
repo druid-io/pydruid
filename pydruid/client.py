@@ -16,8 +16,6 @@
 from __future__ import division
 import urllib2
 
-import simplejson as json
-
 try:
     import pandas
 except ImportError:
@@ -159,6 +157,41 @@ class PyDruid:
         self.query_type = query_type
 
     def topn(self, **args):
+        """
+        A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
+        topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
+        faster and more resource efficient than GroupBy for this use case.
+
+        :param args: key word arguments discussed below
+        :return: a dict representing the query result
+
+        Required key/values are:
+
+        dataSource:         A string that defines the data source to query
+        granularity:        A string that defines how data gets aggregated by hour, day, minute, etc.,
+        intervals:          A string or list of strings that represent ISO-8601 Intervals for which to run the query on
+        aggregations:       A dict with string key = 'aggregator_name', and value = one of the pydruid.utils.aggregators
+        dimension:          A string that defines which dimension to run the query against
+        metric:             A string that defines the metric over which to sort the specified dimension by
+        threshold:          An integer defining how many of the top items to return
+
+        Optional key/values are:
+
+        filter:             A pydruid.utils.filters.Filter object indicating which rows of data to include in the query
+        postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+
+
+        Example:
+
+        >> top = query.topn(dataSource='my_data',
+                            granularity='hour',
+                            intervals='["2013-06-14/pt2h"]',
+                            aggregations={"count": doubleSum("count")},
+                            dimension='my_dimension',
+                            metric='count',
+                            threshold= 5
+                            )
+        """
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimension', 'threshold',
