@@ -19,7 +19,7 @@ def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
 
 
-def sum(raw_metric):
+def doublesum(raw_metric):
     return {"type": "doubleSum", "fieldName": raw_metric}
 
 

@@ -130,18 +130,17 @@ class PyDruid:
 
     # --------- Query implementations ---------
 
-    @staticmethod
-    def validate_query(valid_parts, args):
+    def validate_query(self, valid_parts, args):
         for key, val in args.iteritems():
             if key not in valid_parts:
                 raise ValueError(
-                    '{0} is not a valid query component.'
-                    .format(key) +
+                    'Query component: {0} is not valid for query type: {1}.'
+                    .format(key, self.query_type) +
                     'The list of valid components is: \n {0}'
                     .format(valid_parts))
 
-    def build_query(self, query_type, args):
-        query_dict = {'queryType': query_type}
+    def build_query(self, args):
+        query_dict = {'queryType': self.query_type}
 
         for key, val in args.iteritems():
             if key == "aggregations":
@@ -154,7 +153,6 @@ class PyDruid:
                 query_dict[key] = val
 
         self.query_dict = query_dict
-        self.query_type = query_type
 
     def topn(self, **args):
         """
@@ -192,41 +190,46 @@ class PyDruid:
                             threshold= 5
                             )
         """
+        self.query_type = 'topN'
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
         self.validate_query(valid_parts, args)
-        self.build_query('topN', args)
+        self.build_query(args)
         return self.post(self.query_dict)
 
     def timeseries(self, **args):
+        self.query_type = 'timeseries'
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals'
         ]
         self.validate_query(valid_parts, args)
-        self.build_query('timeseries', args)
+        self.build_query(args)
         return self.post(self.query_dict)
 
     def groupby(self, **args):
+        self.query_type = 'groupBy'
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimensions'
         ]
         self.validate_query(valid_parts, args)
-        self.build_query('groupBy', args)
+        self.build_query(args)
         return self.post(self.query_dict)
 
     def segment_metadata(self, **args):
+        self.query_type = 'segmentMetaData'
         valid_parts = ['dataSource', 'intervals']
         self.validate_query(valid_parts, args)
-        self.build_query('segmentMetaData', args)
+        self.build_query(args)
         return self.post(self.query_dict)
 
     def time_boundary(self, **args):
+        self.query_type = 'timeBoundary'
         valid_parts = ['dataSource']
         self.validate_query(valid_parts, args)
-        self.build_query('timeBoundary', args)
+        self.build_query(args)
         return self.post(self.query_dict)
