@@ -310,6 +310,25 @@ class PyDruid:
         return self.post(self.query_dict)
 
     def time_boundary(self, **kwargs):
+        """
+        A time boundary query returns the min and max timestamps present in a data source.
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> bound = query.time_boundary(datasource='twitterstream')
+                >>> print bound
+                >>> [{'timestamp': '2011-09-14T15:00:00.000Z', 'result': {'minTime': '2011-09-14T15:00:00.000Z', 'maxTime': '2014-03-04T23:44:00.000Z'}}]
+        """
         self.query_type = 'timeBoundary'
         valid_parts = ['datasource']
         self.__validate_query(valid_parts, kwargs)
