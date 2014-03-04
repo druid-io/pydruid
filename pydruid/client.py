@@ -130,7 +130,7 @@ class PyDruid:
 
     # --------- Query implementations ---------
 
-    def validate_query(self, valid_parts, args):
+    def __validate_query(self, valid_parts, args):
         for key, val in args.iteritems():
             if key not in valid_parts:
                 raise ValueError(
@@ -139,7 +139,10 @@ class PyDruid:
                     'The list of valid components is: \n {0}'
                     .format(valid_parts))
 
-    def build_query(self, args):
+    def __build_query(self, args):
+        """
+
+        """
         query_dict = {'queryType': self.query_type}
 
         for key, val in args.iteritems():
@@ -197,40 +200,55 @@ class PyDruid:
             'postAggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
+        self.__validate_query(valid_parts, kwargs)
+        self.__build_query(kwargs)
         return self.post(self.query_dict)
 
-    def timeseries(self, **args):
+    def timeseries(self, **kwargs):
+        """
+        LOL I'm a timeseries!
+
+        :param str sender: The person sending the message
+        :param str recipient: The recipient of the message
+        :param str message_body: The body of the message
+        :param priority: The priority of the message, can be a number 1-5
+        :type priority: integer or None
+        :return: the message id
+        :rtype: int
+        :raises ValueError: if the message_body exceeds 160 characters
+        :raises TypeError: if the message_body is not a basestring
+
+        """
         self.query_type = 'timeseries'
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
+        self.__validate_query(valid_parts, kwargs)
+        self.__build_query(kwargs)
         return self.post(self.query_dict)
 
-    def groupby(self, **args):
+    def groupby(self, **kwargs):
+
         self.query_type = 'groupBy'
         valid_parts = [
             'dataSource', 'granularity', 'filter', 'aggregations',
             'postAggregations', 'intervals', 'dimensions'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
+        self.__validate_query(valid_parts, kwargs)
+        self.__build_query(kwargs)
         return self.post(self.query_dict)
 
-    def segment_metadata(self, **args):
+    def segment_metadata(self, **kwargs):
         self.query_type = 'segmentMetaData'
         valid_parts = ['dataSource', 'intervals']
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
+        self.__validate_query(valid_parts, kwargs)
+        self.__build_query(kwargs)
         return self.post(self.query_dict)
 
-    def time_boundary(self, **args):
+    def time_boundary(self, **kwargs):
         self.query_type = 'timeBoundary'
         valid_parts = ['dataSource']
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
+        self.__validate_query(valid_parts, kwargs)
+        self.__build_query(kwargs)
         return self.post(self.query_dict)
