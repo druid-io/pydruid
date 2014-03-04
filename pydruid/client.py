@@ -154,30 +154,31 @@ class PyDruid:
 
         self.query_dict = query_dict
 
-    def topn(self, **args):
+    def topn(self, **kwargs):
         """
+
         A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
         topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
         faster and more resource efficient than GroupBy for this use case.
 
-        :param args: key word arguments discussed below
-        :return: a dict representing the query result
+        Required key/value pairs:
 
-        Required key/values are:
+        :param str dataSource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
+        :param intervals:  ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+        :param dict aggregations: Key is 'aggregator_name', and value is one of the pydruid.utils.aggregators
+        :param str dimension: Dimension to run the query against
+        :param str metric: Metric over which to sort the specified dimension by
+        :param int threshold: How many of the top items to return
 
-        dataSource:         A string that defines the data source to query
-        granularity:        A string that defines how data gets aggregated by hour, day, minute, etc.,
-        intervals:          A string or list of strings that represent ISO-8601 Intervals for which to run the query on
-        aggregations:       A dict with string key = 'aggregator_name', and value = one of the pydruid.utils.aggregators
-        dimension:          A string that defines which dimension to run the query against
-        metric:             A string that defines the metric over which to sort the specified dimension by
-        threshold:          An integer defining how many of the top items to return
+        :return: The query result
+        :rtype: dict
 
-        Optional key/values are:
+        Optional key/value pairs:
 
-        filter:             A pydruid.utils.filters.Filter object indicating which rows of data to include in the query
-        postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
-
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
 

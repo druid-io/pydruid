@@ -55,32 +55,80 @@
 <dt id="client.PyDruid">
 <em class="property">class </em><tt class="descclassname">client.</tt><tt class="descname">PyDruid</tt><big>(</big><em>url</em>, <em>endpoint</em><big>)</big><a class="headerlink" href="#client.PyDruid" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="client.PyDruid.topn">
-<tt class="descname">topn</tt><big>(</big><em>**args</em><big>)</big><a class="headerlink" href="#client.PyDruid.topn" title="Permalink to this definition">¶</a></dt>
-<dd><p>A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
-topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
-faster and more resource efficient than GroupBy for this use case.</p>
+<dt id="client.PyDruid.timeseries">
+<tt class="descname">timeseries</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>LOL I&#8217;m a timeseries!</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> &#8211; key word arguments discussed below</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sender</strong> (<em>str</em>) &#8211; The person sending the message</li>
+<li><strong>recipient</strong> (<em>str</em>) &#8211; The recipient of the message</li>
+<li><strong>message_body</strong> (<em>str</em>) &#8211; The body of the message</li>
+<li><strong>priority</strong> (<em>integer or None</em>) &#8211; The priority of the message, can be a number 1-5</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a dict representing the query result</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the message id</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">int</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; if the message_body exceeds 160 characters</li>
+<li><strong>TypeError</strong> &#8211; if the message_body is not a basestring</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-<p>Required key/values are:</p>
-<p>dataSource:         A string that defines the data source to query
-granularity:        A string that defines how data gets aggregated by hour, day, minute, etc.,
-intervals:          A string or list of strings that represent ISO-8601 Intervals for which to run the query on
-aggregations:       A dict with string key = &#8216;aggregator_name&#8217;, and value = one of the pydruid.utils.aggregators
-dimension:          A string that defines which dimension to run the query against
-metric:             A string that defines the metric over which to sort the specified dimension by
-threshold:          An integer defining how many of the top items to return</p>
-<p>Optional key/values are:</p>
-<p>filter:             A pydruid.utils.filters.Filter object indicating which rows of data to include in the query
-postAggregations:   A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="client.PyDruid.topn">
+<tt class="descname">topn</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.topn" title="Permalink to this definition">¶</a></dt>
+<dd><p>A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
+topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
+faster and more resource efficient than GroupBy for this use case.</p>
+<p>Required key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataSource</strong> (<em>str</em>) &#8211; Data source to query</li>
+<li><strong>granularity</strong> (<em>str</em>) &#8211; Time bucket to aggregate data by hour, day, minute, etc.,</li>
+<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals for which to run the query on</li>
+<li><strong>aggregations</strong> (<em>dict</em>) &#8211; Key is &#8216;aggregator_name&#8217;, and value is one of the pydruid.utils.aggregators</li>
+<li><strong>dimension</strong> (<em>str</em>) &#8211; Dimension to run the query against</li>
+<li><strong>metric</strong> (<em>str</em>) &#8211; Metric over which to sort the specified dimension by</li>
+<li><strong>threshold</strong> (<em>int</em>) &#8211; How many of the top items to return</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The query result</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Optional key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filter</strong> (<em>pydruid.utils.filters.Filter</em>) &#8211; Indicates which rows of data to include in the query</li>
+<li><strong>postAggregations</strong> &#8211; A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Example:</p>
 <dl class="docutils">
 <dt>&gt;&gt; top = query.topn(dataSource=&#8217;my_data&#8217;,</dt>
