@@ -37,7 +37,7 @@ class PyDruid:
         self.query_type = None
         self.query_dict = None
 
-    def post(self, query):
+    def __post(self, query):
         try:
             querystr = json.dumps(query)
             if self.url.endswith('/'):
@@ -54,10 +54,10 @@ class PyDruid:
             raise IOError('{0} \n Query is: {1}'.format(
                 e, json.dumps(self.query_dict, indent=4)))
         else:
-            self.result = self.parse()
+            self.result = self.__parse()
             return self.result
 
-    def parse(self):
+    def __parse(self):
         if self.result_json:
             res = json.loads(self.result_json)
             return res
@@ -130,7 +130,7 @@ class PyDruid:
 
     # --------- Query implementations ---------
 
-    def __validate_query(self, valid_parts, args):
+    def validate_query(self, valid_parts, args):
         for key, val in args.iteritems():
             if key not in valid_parts:
                 raise ValueError(
@@ -139,7 +139,7 @@ class PyDruid:
                     'The list of valid components is: \n {0}'
                     .format(valid_parts))
 
-    def __build_query(self, args):
+    def build_query(self, args):
         query_dict = {'queryType': self.query_type}
 
         for key, val in args.iteritems():
@@ -166,7 +166,7 @@ class PyDruid:
 
         :param str datasource: Data source to query
         :param str granularity: Aggregate data by hour, day, minute, etc.,
-        :param intervals:  ISO-8601 intervals of data to query
+        :param intervals: ISO-8601 intervals of data to query
         :type intervals: str or list
         :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
         :param str dimension: Dimension to run the query against
@@ -205,9 +205,9 @@ class PyDruid:
             'post_aggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
-        self.__validate_query(valid_parts, kwargs)
-        self.__build_query(kwargs)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
     def timeseries(self, **kwargs):
         """
@@ -217,7 +217,7 @@ class PyDruid:
 
         :param str datasource: Data source to query
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
-        :param intervals:  ISO-8601 intervals for which to run the query on
+        :param intervals: ISO-8601 intervals for which to run the query on
         :type intervals: str or list
         :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
 
@@ -249,9 +249,9 @@ class PyDruid:
             'datasource', 'granularity', 'filter', 'aggregations',
             'post_aggregations', 'intervals'
         ]
-        self.__validate_query(valid_parts, kwargs)
-        self.__build_query(kwargs)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
     def groupby(self, **kwargs):
         """
@@ -261,7 +261,7 @@ class PyDruid:
 
         :param str datasource: Data source to query
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
-        :param intervals:  ISO-8601 intervals for which to run the query on
+        :param intervals: ISO-8601 intervals for which to run the query on
         :type intervals: str or list
         :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
         :param list dimensions: The dimensions to group by
@@ -298,16 +298,16 @@ class PyDruid:
             'datasource', 'granularity', 'filter', 'aggregations',
             'post_aggregations', 'intervals', 'dimensions'
         ]
-        self.__validate_query(valid_parts, kwargs)
-        self.__build_query(kwargs)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
     def segment_metadata(self, **kwargs):
         self.query_type = 'segmentMetaData'
         valid_parts = ['datasource', 'intervals']
-        self.__validate_query(valid_parts, kwargs)
-        self.__build_query(kwargs)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
     def time_boundary(self, **kwargs):
         """
@@ -331,6 +331,6 @@ class PyDruid:
         """
         self.query_type = 'timeBoundary'
         valid_parts = ['datasource']
-        self.__validate_query(valid_parts, kwargs)
-        self.__build_query(kwargs)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
