@@ -159,7 +159,6 @@ class PyDruid:
 
     def topn(self, **kwargs):
         """
-
         A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
         topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
         faster and more resource efficient than GroupBy for this use case.
@@ -167,10 +166,10 @@ class PyDruid:
         Required key/value pairs:
 
         :param str dataSource: Data source to query
-        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
-        :param intervals:  ISO-8601 intervals for which to run the query on
+        :param str granularity: Aggregate data by hour, day, minute, etc.,
+        :param intervals:  ISO-8601 intervals of data to query
         :type intervals: str or list
-        :param dict aggregations: Key is 'aggregator_name', and value is one of the pydruid.utils.aggregators
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doubleSum
         :param str dimension: Dimension to run the query against
         :param str metric: Metric over which to sort the specified dimension by
         :param int threshold: How many of the top items to return
@@ -185,14 +184,21 @@ class PyDruid:
 
         Example:
 
-        >> top = query.topn(dataSource='my_data',
-                            granularity='hour',
-                            intervals='["2013-06-14/pt2h"]',
-                            aggregations={"count": doubleSum("count")},
-                            dimension='my_dimension',
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                            dataSource='twitter',
+                            granularity='all',
+                            intervals='2013-06-14/pt2h',
+                            aggregations={"count": doublesum("count")},
+                            dimension='user',
                             metric='count',
-                            threshold= 5
-                            )
+                            filter=Dimension('language') == 'en',
+                            threshold=1
+                        )
+                >>> print top
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': [{'count': 22.0, 'user': "cool_user"}}]}]
         """
         self.query_type = 'topN'
         valid_parts = [
