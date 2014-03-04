@@ -169,13 +169,13 @@ class PyDruid:
         :param str granularity: Aggregate data by hour, day, minute, etc.,
         :param intervals:  ISO-8601 intervals of data to query
         :type intervals: str or list
-        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doubleSum
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
         :param str dimension: Dimension to run the query against
         :param str metric: Metric over which to sort the specified dimension by
         :param int threshold: How many of the top items to return
 
         :return: The query result
-        :rtype: dict
+        :rtype: list[dict]
 
         Optional key/value pairs:
 
@@ -190,7 +190,7 @@ class PyDruid:
                 >>> top = query.topn(
                             dataSource='twitter',
                             granularity='all',
-                            intervals='2013-06-14/pt2h',
+                            intervals='2013-06-14/pt1h',
                             aggregations={"count": doublesum("count")},
                             dimension='user',
                             metric='count',
@@ -212,18 +212,38 @@ class PyDruid:
 
     def timeseries(self, **kwargs):
         """
-        LOL I'm a timeseries!
+        A timeseries query returns the values of the requested metrics (in aggregate) for each timestamp.
 
-        :param str sender: The person sending the message
-        :param str recipient: The recipient of the message
-        :param str message_body: The body of the message
-        :param priority: The priority of the message, can be a number 1-5
-        :type priority: integer or None
-        :return: the message id
-        :rtype: int
-        :raises ValueError: if the message_body exceeds 160 characters
-        :raises TypeError: if the message_body is not a basestring
+        Required key/value pairs:
 
+        :param str dataSource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
+        :param intervals:  ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> counts = query.timeseries(
+                        dataSource=twitter,
+                        granularity='hour',
+                        intervals='2013-06-14/pt1h',
+                        aggregations={"count": doublesum("count"), "rows": count("rows")},
+                        postAggregations={'percent': (Field('count') / Field('rows')) * Const(100))}
+                    )
+                >>> print counts
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'count': 9619.0, 'rows': 8007, 'percent': 120.13238416385663}}]
         """
         self.query_type = 'timeseries'
         valid_parts = [
@@ -235,6 +255,44 @@ class PyDruid:
         return self.post(self.query_dict)
 
     def groupby(self, **kwargs):
+        """
+        A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).
+
+        Required key/value pairs:
+
+        :param str dataSource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
+        :param intervals:  ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param list dimensions: The dimensions to group by
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> group = query.groupby(
+                        dataSource='twitterstream',
+                        granularity='hour',
+                        intervals='2013-10-04/pt1h',
+                        dimensions=["user_name", "reply_to_name"],
+                        filter=~(Dimension("reply_to_name") == "Not A Reply"),
+                        aggregations={"count": doublesum("count")}
+                    )
+                >>> for k in range(2):
+                    ...     print group[k]
+                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_1', 'reply_to_name': 'user_2'}}
+                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_2', 'reply_to_name': 'user_3'}}
+        """
 
         self.query_type = 'groupBy'
         valid_parts = [
