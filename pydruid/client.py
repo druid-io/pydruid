@@ -140,16 +140,15 @@ class PyDruid:
                     .format(valid_parts))
 
     def __build_query(self, args):
-        """
-
-        """
         query_dict = {'queryType': self.query_type}
 
         for key, val in args.iteritems():
-            if key == "aggregations":
+            if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
-            elif key == "postAggregations":
-                query_dict[key] = build_post_aggregators(val)
+            elif key == 'post_aggregations':
+                query_dict['postAggregations'] = build_post_aggregators(val)
+            elif key == 'datasource':
+                query_dict['dataSource'] = val
             elif key == "filter":
                 query_dict[key] = build_filter(val)
             else:
@@ -165,7 +164,7 @@ class PyDruid:
 
         Required key/value pairs:
 
-        :param str dataSource: Data source to query
+        :param str datasource: Data source to query
         :param str granularity: Aggregate data by hour, day, minute, etc.,
         :param intervals:  ISO-8601 intervals of data to query
         :type intervals: str or list
@@ -180,7 +179,7 @@ class PyDruid:
         Optional key/value pairs:
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
 
@@ -188,7 +187,7 @@ class PyDruid:
             :linenos:
 
                 >>> top = query.topn(
-                            dataSource='twitter',
+                            datasource='twitterstream',
                             granularity='all',
                             intervals='2013-06-14/pt1h',
                             aggregations={"count": doublesum("count")},
@@ -202,8 +201,8 @@ class PyDruid:
         """
         self.query_type = 'topN'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals', 'dimension', 'threshold',
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
         self.__validate_query(valid_parts, kwargs)
@@ -216,7 +215,7 @@ class PyDruid:
 
         Required key/value pairs:
 
-        :param str dataSource: Data source to query
+        :param str datasource: Data source to query
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
         :param intervals:  ISO-8601 intervals for which to run the query on
         :type intervals: str or list
@@ -228,7 +227,7 @@ class PyDruid:
         Optional key/value pairs:
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
 
@@ -236,19 +235,19 @@ class PyDruid:
             :linenos:
 
                 >>> counts = query.timeseries(
-                        dataSource=twitter,
+                        datasource=twitterstream,
                         granularity='hour',
                         intervals='2013-06-14/pt1h',
                         aggregations={"count": doublesum("count"), "rows": count("rows")},
-                        postAggregations={'percent': (Field('count') / Field('rows')) * Const(100))}
+                        post_aggregations={'percent': (Field('count') / Field('rows')) * Const(100))}
                     )
                 >>> print counts
                 >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'count': 9619.0, 'rows': 8007, 'percent': 120.13238416385663}}]
         """
         self.query_type = 'timeseries'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals'
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals'
         ]
         self.__validate_query(valid_parts, kwargs)
         self.__build_query(kwargs)
@@ -260,7 +259,7 @@ class PyDruid:
 
         Required key/value pairs:
 
-        :param str dataSource: Data source to query
+        :param str datasource: Data source to query
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
         :param intervals:  ISO-8601 intervals for which to run the query on
         :type intervals: str or list
@@ -273,7 +272,7 @@ class PyDruid:
         Optional key/value pairs:
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
 
@@ -296,8 +295,8 @@ class PyDruid:
 
         self.query_type = 'groupBy'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals', 'dimensions'
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals', 'dimensions'
         ]
         self.__validate_query(valid_parts, kwargs)
         self.__build_query(kwargs)
@@ -305,14 +304,14 @@ class PyDruid:
 
     def segment_metadata(self, **kwargs):
         self.query_type = 'segmentMetaData'
-        valid_parts = ['dataSource', 'intervals']
+        valid_parts = ['datasource', 'intervals']
         self.__validate_query(valid_parts, kwargs)
         self.__build_query(kwargs)
         return self.post(self.query_dict)
 
     def time_boundary(self, **kwargs):
         self.query_type = 'timeBoundary'
-        valid_parts = ['dataSource']
+        valid_parts = ['datasource']
         self.__validate_query(valid_parts, kwargs)
         self.__build_query(kwargs)
         return self.post(self.query_dict)
