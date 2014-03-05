@@ -303,7 +303,38 @@ class PyDruid:
         return self.__post(self.query_dict)
 
     def segment_metadata(self, **kwargs):
-        self.query_type = 'segmentMetaData'
+        """
+        A segment meta-data query returns per segment information about:
+
+        * Cardinality of all the columns present
+        * Column type
+        * Estimated size in bytes
+        * Estimated size in bytes of each column
+        * Interval the segment covers
+        * Segment ID
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> meta = query.segment_metadata(datasource='twitterstream', intervals = '2013-10-04/pt1h')
+                >>> print meta[0].keys()
+                >>> ['intervals', 'id', 'columns', 'size']
+                >>> print meta[0]['columns']['tweet_length']
+                >>> {'errorMessage': None, 'cardinality': None, 'type': 'FLOAT', 'size': 30908008}
+
+        """
+        self.query_type = 'segmentMetadata'
         valid_parts = ['datasource', 'intervals']
         self.validate_query(valid_parts, kwargs)
         self.build_query(kwargs)
