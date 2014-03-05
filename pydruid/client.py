@@ -32,7 +32,8 @@ class PyDruid:
     """
     PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes
     a method for exporting query results into pandas.DataFrame objects for subsequent analysis
-    with the python scientific computing stack.
+    with the python scientific computing stack, or simply exporting query results to a TSV file
+    for analysis with your favorite tool, e.g., R, Julia, Matlab, Excel.
 
     :param str url: URL of Bard node in the Druid cluster
     :param str endpoint: Endpoint that Bard listens for queries on
@@ -135,11 +136,42 @@ class PyDruid:
     # --------- Export implementations ---------
 
     def export_tsv(self, dest_path):
+        """
+        Export the current query result to a tsv file.
+
+        :param str dest_path: file to write query results to
+        :raise NotImplementedError:
+
+        Example
+
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                        datasource='twitterstream',
+                        granularity='all',
+                        intervals='2013-10-04/pt1h',
+                        aggregations={"count": doublesum("count")},
+                        dimension='user_name',
+                        filter = Dimension('user_lang') == 'en',
+                        metric='count',
+                        threshold=2
+                    )
+
+                >>> query.export_tsv('top.tsv')
+                >>> !cat top.tsv
+                >>> count	user_name	timestamp
+                    7.0	user_1	2013-10-04T00:00:00.000Z
+                    6.0	user_2	2013-10-04T00:00:00.000Z
+        """
         f = open(dest_path, 'wb')
         tsv_file = csv.writer(f, delimiter='\t')
 
         if self.query_type == "timeseries":
             header = self.result[0]['result'].keys()
+            header.append('timestamp')
+        if self.query_type == 'topN':
+            header = self.result[0]['result'][0].keys()
             header.append('timestamp')
         elif self.query_type == "groupBy":
             header = self.result[0]['event'].keys()
@@ -172,6 +204,35 @@ class PyDruid:
         f.close()
 
     def export_pandas(self):
+        """
+        Export the current query result to a Pandas DataFrame object.
+
+        :return: The DataFrame representing the query result
+        :rtype: DataFrame
+        :raise NotImplementedError:
+
+        Example
+
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                        datasource='twitterstream',
+                        granularity='all',
+                        intervals='2013-10-04/pt1h',
+                        aggregations={"count": doublesum("count")},
+                        dimension='user_name',
+                        filter = Dimension('user_lang') == 'en',
+                        metric='count',
+                        threshold=2
+                    )
+
+                >>> df = query.export_pandas()
+                >>> print df
+                >>>    count                 timestamp      user_name
+                    0      7  2013-10-04T00:00:00.000Z         user_1
+                    1      6  2013-10-04T00:00:00.000Z         user_2
+        """
         if self.result:
             if self.query_type == "timeseries":
                 nres = [v['result'].items() + [('timestamp', v['timestamp'])]
