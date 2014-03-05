@@ -53,6 +53,10 @@ class Filter:
     def __invert__(self):
         return Filter(type="not", field=self.filter['filter'])
 
+    @staticmethod
+    def build_filter(filter_obj):
+        return filter_obj.filter['filter']
+
 
 class Dimension:
     def __init__(self, dim):
@@ -61,6 +65,3 @@ class Dimension:
     def __eq__(self, other):
         return Filter(dimension=self.dimension, value=other)
 
-
-def build_filter(filter_obj):
-    return filter_obj.filter['filter']

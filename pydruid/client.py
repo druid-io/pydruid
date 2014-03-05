@@ -213,11 +213,11 @@ class PyDruid:
             if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
             elif key == 'post_aggregations':
-                query_dict['postAggregations'] = build_post_aggregators(val)
+                query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
             elif key == 'datasource':
                 query_dict['dataSource'] = val
             elif key == "filter":
-                query_dict[key] = build_filter(val)
+                query_dict[key] = Filter.build_filter(val)
             else:
                 query_dict[key] = val
 
