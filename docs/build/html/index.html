@@ -54,7 +54,231 @@
 <span class="target" id="module-pydruid"></span><dl class="class">
 <dt id="client.PyDruid">
 <em class="property">class </em><tt class="descclassname">client.</tt><tt class="descname">PyDruid</tt><big>(</big><em>url</em>, <em>endpoint</em><big>)</big><a class="headerlink" href="#client.PyDruid" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes
+a method for exporting query results into pandas.DataFrame objects for subsequent analysis
+with the python scientific computing stack, or simply exporting query results to a TSV file
+for analysis with your favorite tool, e.g., R, Julia, Matlab, Excel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; URL of Bard node in the Druid cluster</li>
+<li><strong>endpoint</strong> (<em>str</em>) &#8211; Endpoint that Bard listens for queries on</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>result_json</strong> (<em>str</em>) &#8211; JSON object representing a query result. Initial value: None</li>
+<li><strong>result</strong> (<em>list</em>) &#8211; Query result parsed into a list of dicts. Initial value: None</li>
+<li><strong>query_type</strong> (<em>str</em>) &#8211; Name of most recently run query, e.g., topN. Initial value: None</li>
+<li><strong>query_dict</strong> (<em>dict</em>) &#8211; JSON object representing the query. Initial value: None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pydruid.client</span> <span class="kn">import</span> <span class="o">*</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">query</span> <span class="o">=</span> <span class="n">PyDruid</span><span class="p">(</span><span class="s">&#39;http://localhost:8083&#39;</span><span class="p">,</span> <span class="s">&#39;druid/v2/&#39;</span><span class="p">)</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">top</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">topn</span><span class="p">(</span>
+            <span class="n">datasource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">,</span>
+            <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-10-04/pt1h&#39;</span><span class="p">,</span>
+            <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)},</span>
+            <span class="n">dimension</span><span class="o">=</span><span class="s">&#39;user_name&#39;</span><span class="p">,</span>
+            <span class="nb">filter</span> <span class="o">=</span> <span class="n">Dimension</span><span class="p">(</span><span class="s">&#39;user_lang&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;en&#39;</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">query_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">{</span>
+          <span class="s">&quot;metric&quot;</span><span class="p">:</span> <span class="s">&quot;count&quot;</span><span class="p">,</span>
+          <span class="s">&quot;aggregations&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;doubleSum&quot;</span><span class="p">,</span>
+              <span class="s">&quot;fieldName&quot;</span><span class="p">:</span> <span class="s">&quot;count&quot;</span><span class="p">,</span>
+              <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;count&quot;</span>
+            <span class="p">}</span>
+          <span class="p">],</span>
+          <span class="s">&quot;dimension&quot;</span><span class="p">:</span> <span class="s">&quot;user_name&quot;</span><span class="p">,</span>
+          <span class="s">&quot;filter&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&quot;type&quot;</span><span class="p">:</span> <span class="s">&quot;selector&quot;</span><span class="p">,</span>
+            <span class="s">&quot;dimension&quot;</span><span class="p">:</span> <span class="s">&quot;user_lang&quot;</span><span class="p">,</span>
+            <span class="s">&quot;value&quot;</span><span class="p">:</span> <span class="s">&quot;en&quot;</span>
+          <span class="p">},</span>
+          <span class="s">&quot;intervals&quot;</span><span class="p">:</span> <span class="s">&quot;2013-10-04/pt1h&quot;</span><span class="p">,</span>
+          <span class="s">&quot;dataSource&quot;</span><span class="p">:</span> <span class="s">&quot;twitterstream&quot;</span><span class="p">,</span>
+          <span class="s">&quot;granularity&quot;</span><span class="p">:</span> <span class="s">&quot;all&quot;</span><span class="p">,</span>
+          <span class="s">&quot;threshold&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+          <span class="s">&quot;queryType&quot;</span><span class="p">:</span> <span class="s">&quot;topN&quot;</span>
+        <span class="p">}</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">query</span><span class="o">.</span><span class="n">result</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">[{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2013-10-04T00:00:00.000Z&#39;</span><span class="p">,</span>
+        <span class="s">&#39;result&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span> <span class="s">&#39;user_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_1&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span> <span class="s">&#39;user_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_2&#39;</span><span class="p">}]}]</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">export_pandas</span><span class="p">()</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">df</span>
+    <span class="o">&gt;&gt;&gt;</span>    <span class="n">count</span>                 <span class="n">timestamp</span>      <span class="n">user_name</span>
+        <span class="mi">0</span>      <span class="mi">7</span>  <span class="mi">2013</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mo">04</span><span class="n">T00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">00.000</span><span class="n">Z</span>         <span class="n">user_1</span>
+        <span class="mi">1</span>      <span class="mi">6</span>  <span class="mi">2013</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mo">04</span><span class="n">T00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">00.000</span><span class="n">Z</span>         <span class="n">user_2</span>
+</pre></div>
+</td></tr></table></div>
+<dl class="method">
+<dt id="client.PyDruid.export_pandas">
+<tt class="descname">export_pandas</tt><big>(</big><big>)</big><a class="headerlink" href="#client.PyDruid.export_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the current query result to a Pandas DataFrame object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The DataFrame representing the query result</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">DataFrame</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Raises NotImplementedError:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>Example</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">top</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">topn</span><span class="p">(</span>
+            <span class="n">datasource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">,</span>
+            <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-10-04/pt1h&#39;</span><span class="p">,</span>
+            <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)},</span>
+            <span class="n">dimension</span><span class="o">=</span><span class="s">&#39;user_name&#39;</span><span class="p">,</span>
+            <span class="nb">filter</span> <span class="o">=</span> <span class="n">Dimension</span><span class="p">(</span><span class="s">&#39;user_lang&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;en&#39;</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">export_pandas</span><span class="p">()</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">df</span>
+    <span class="o">&gt;&gt;&gt;</span>    <span class="n">count</span>                 <span class="n">timestamp</span>      <span class="n">user_name</span>
+        <span class="mi">0</span>      <span class="mi">7</span>  <span class="mi">2013</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mo">04</span><span class="n">T00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">00.000</span><span class="n">Z</span>         <span class="n">user_1</span>
+        <span class="mi">1</span>      <span class="mi">6</span>  <span class="mi">2013</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mo">04</span><span class="n">T00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mf">00.000</span><span class="n">Z</span>         <span class="n">user_2</span>
+</pre></div>
+</td></tr></table></div>
+</dd></dl>
+
+<dl class="method">
+<dt id="client.PyDruid.export_tsv">
+<tt class="descname">export_tsv</tt><big>(</big><em>dest_path</em><big>)</big><a class="headerlink" href="#client.PyDruid.export_tsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the current query result to a tsv file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dest_path</strong> (<em>str</em>) &#8211; file to write query results to</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises NotImplementedError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>Example</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre>    &gt;&gt;&gt; top = query.topn(
+            datasource=&#39;twitterstream&#39;,
+            granularity=&#39;all&#39;,
+            intervals=&#39;2013-10-04/pt1h&#39;,
+            aggregations={&quot;count&quot;: doublesum(&quot;count&quot;)},
+            dimension=&#39;user_name&#39;,
+            filter = Dimension(&#39;user_lang&#39;) == &#39;en&#39;,
+            metric=&#39;count&#39;,
+            threshold=2
+        )
+
+    &gt;&gt;&gt; query.export_tsv(&#39;top.tsv&#39;)
+    &gt;&gt;&gt; !cat top.tsv
+    &gt;&gt;&gt; count       user_name       timestamp
+        7.0 user_1  2013-10-04T00:00:00.000Z
+        6.0 user_2  2013-10-04T00:00:00.000Z
+</pre></div>
+</td></tr></table></div>
+</dd></dl>
+
+<dl class="method">
 <dt id="client.PyDruid.groupby">
 <tt class="descname">groupby</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.groupby" title="Permalink to this definition">¶</a></dt>
 <dd><p>A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).</p>
@@ -313,9 +537,9 @@ faster and more resource efficient than GroupBy for this use case.</p>
                 <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">,</span>
                 <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-06-14/pt1h&#39;</span><span class="p">,</span>
                 <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)},</span>
-                <span class="n">dimension</span><span class="o">=</span><span class="s">&#39;user&#39;</span><span class="p">,</span>
+                <span class="n">dimension</span><span class="o">=</span><span class="s">&#39;user_name&#39;</span><span class="p">,</span>
                 <span class="n">metric</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">,</span>
-                <span class="nb">filter</span><span class="o">=</span><span class="n">Dimension</span><span class="p">(</span><span class="s">&#39;language&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;en&#39;</span><span class="p">,</span>
+                <span class="nb">filter</span><span class="o">=</span><span class="n">Dimension</span><span class="p">(</span><span class="s">&#39;user_lang&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;en&#39;</span><span class="p">,</span>
                 <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">)</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">top</span>
