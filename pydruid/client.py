@@ -29,6 +29,65 @@ from utils.query_utils import *
 
 
 class PyDruid:
+    """
+    PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes a method for exporting
+    query results into pandas.DataFrame objects for subsequent analysis with the python scientific computing stack.
+
+    :param str url: URL of Bard node in the Druid cluster
+    :param str endpoint: Endpoint that Bard listens for queries on
+
+    :ivar str result_json: JSON object representing a query result. Initial value: None
+    :ivar list result: Query result parsed into a list of dicts. Initial value: None
+    :ivar str query_type: Name of most recently run query, e.g., topN. Initial value: None
+    :ivar dict query_dict: JSON object representing the query. Initial value: None
+
+    Example
+
+    .. code-block:: python
+        :linenos:
+
+            >>> from pydruid.client import *
+
+            >>> query = PyDruid('http://localhost:8083', 'druid/v2/')
+
+            >>> top = query.topn(
+                        datasource='twitterstream',
+                        granularity='all',
+                        intervals='2013-06-14/pt1h',
+                        aggregations={"count": doublesum("count")},
+                        dimension='user',
+                        metric='count',
+                        filter=Dimension('language') == 'en',
+                        threshold=1
+                    )
+
+            >>> print json.dumps(query.query_dict, indent=2)
+            >>> {
+                  "metric": "count",
+                  "aggregations": [
+                    {
+                      "type": "doubleSum",
+                      "fieldName": "count",
+                      "name": "count"
+                    }
+                  ],
+                  "dimension": "user",
+                  "filter": {
+                    "type": "selector",
+                    "dimension": "language",
+                    "value": "en"
+                  },
+                  "intervals": "2013-06-14/pt1h",
+                  "dataSource": "twitterstream",
+                  "granularity": "all",
+                  "threshold": 1,
+                  "queryType": "topN"
+                }
+
+            >>> print query.result
+            >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': [{'count': 22.0, 'user': "cool_user"}}]}]
+    """
+
     def __init__(self, url, endpoint):
         self.url = url
         self.endpoint = endpoint
