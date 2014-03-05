@@ -30,8 +30,9 @@ from utils.query_utils import *
 
 class PyDruid:
     """
-    PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes a method for exporting
-    query results into pandas.DataFrame objects for subsequent analysis with the python scientific computing stack.
+    PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes
+    a method for exporting query results into pandas.DataFrame objects for subsequent analysis
+    with the python scientific computing stack.
 
     :param str url: URL of Bard node in the Druid cluster
     :param str endpoint: Endpoint that Bard listens for queries on
@@ -51,15 +52,15 @@ class PyDruid:
             >>> query = PyDruid('http://localhost:8083', 'druid/v2/')
 
             >>> top = query.topn(
-                        datasource='twitterstream',
-                        granularity='all',
-                        intervals='2013-06-14/pt1h',
-                        aggregations={"count": doublesum("count")},
-                        dimension='user',
-                        metric='count',
-                        filter=Dimension('language') == 'en',
-                        threshold=1
-                    )
+                    datasource='twitterstream',
+                    granularity='all',
+                    intervals='2013-10-04/pt1h',
+                    aggregations={"count": doublesum("count")},
+                    dimension='user_name',
+                    filter = Dimension('user_lang') == 'en',
+                    metric='count',
+                    threshold=2
+                )
 
             >>> print json.dumps(query.query_dict, indent=2)
             >>> {
@@ -71,21 +72,28 @@ class PyDruid:
                       "name": "count"
                     }
                   ],
-                  "dimension": "user",
+                  "dimension": "user_name",
                   "filter": {
                     "type": "selector",
-                    "dimension": "language",
+                    "dimension": "user_lang",
                     "value": "en"
                   },
-                  "intervals": "2013-06-14/pt1h",
+                  "intervals": "2013-10-04/pt1h",
                   "dataSource": "twitterstream",
                   "granularity": "all",
-                  "threshold": 1,
+                  "threshold": 2,
                   "queryType": "topN"
                 }
 
             >>> print query.result
-            >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': [{'count': 22.0, 'user': "cool_user"}}]}]
+            >>> [{'timestamp': '2013-10-04T00:00:00.000Z',
+                'result': [{'count': 7.0, 'user_name': 'user_1'}, {'count': 6.0, 'user_name': 'user_2'}]}]
+
+            >>> df = query.export_pandas()
+            >>> print df
+            >>>    count                 timestamp      user_name
+                0      7  2013-10-04T00:00:00.000Z         user_1
+                1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
     def __init__(self, url, endpoint):
