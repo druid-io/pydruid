@@ -258,9 +258,9 @@ class PyDruid:
                             granularity='all',
                             intervals='2013-06-14/pt1h',
                             aggregations={"count": doublesum("count")},
-                            dimension='user',
+                            dimension='user_name',
                             metric='count',
-                            filter=Dimension('language') == 'en',
+                            filter=Dimension('user_lang') == 'en',
                             threshold=1
                         )
                 >>> print top
