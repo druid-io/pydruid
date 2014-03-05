@@ -55,35 +55,202 @@
 <dt id="client.PyDruid">
 <em class="property">class </em><tt class="descclassname">client.</tt><tt class="descname">PyDruid</tt><big>(</big><em>url</em>, <em>endpoint</em><big>)</big><a class="headerlink" href="#client.PyDruid" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="client.PyDruid.timeseries">
-<tt class="descname">timeseries</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.timeseries" title="Permalink to this definition">¶</a></dt>
-<dd><p>LOL I&#8217;m a timeseries!</p>
+<dt id="client.PyDruid.groupby">
+<tt class="descname">groupby</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.groupby" title="Permalink to this definition">¶</a></dt>
+<dd><p>A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).</p>
+<p>Required key/value pairs:</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sender</strong> (<em>str</em>) &#8211; The person sending the message</li>
-<li><strong>recipient</strong> (<em>str</em>) &#8211; The recipient of the message</li>
-<li><strong>message_body</strong> (<em>str</em>) &#8211; The body of the message</li>
-<li><strong>priority</strong> (<em>integer or None</em>) &#8211; The priority of the message, can be a number 1-5</li>
+<li><strong>datasource</strong> (<em>str</em>) &#8211; Data source to query</li>
+<li><strong>granularity</strong> (<em>str</em>) &#8211; Time bucket to aggregate data by hour, day, minute, etc.,</li>
+<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals for which to run the query on</li>
+<li><strong>aggregations</strong> (<em>dict</em>) &#8211; A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum</li>
+<li><strong>dimensions</strong> (<em>list</em>) &#8211; The dimensions to group by</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the message id</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The query result</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">int</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list[dict]</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ValueError</strong> &#8211; if the message_body exceeds 160 characters</li>
-<li><strong>TypeError</strong> &#8211; if the message_body is not a basestring</li>
+</tbody>
+</table>
+<p>Optional key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filter</strong> (<em>pydruid.utils.filters.Filter</em>) &#8211; Indicates which rows of data to include in the query</li>
+<li><strong>post_aggregations</strong> &#8211; A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<p>Example:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">group</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="n">dataSource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;hour&#39;</span><span class="p">,</span>
+            <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-10-04/pt1h&#39;</span><span class="p">,</span>
+            <span class="n">dimensions</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;user_name&quot;</span><span class="p">,</span> <span class="s">&quot;reply_to_name&quot;</span><span class="p">],</span>
+            <span class="nb">filter</span><span class="o">=~</span><span class="p">(</span><span class="n">Dimension</span><span class="p">(</span><span class="s">&quot;reply_to_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Not A Reply&quot;</span><span class="p">),</span>
+            <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)}</span>
+        <span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="o">...</span>     <span class="k">print</span> <span class="n">group</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2013-10-04T00:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="s">&#39;v1&#39;</span><span class="p">,</span> <span class="s">&#39;event&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;user_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_1&#39;</span><span class="p">,</span> <span class="s">&#39;reply_to_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_2&#39;</span><span class="p">}}</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2013-10-04T00:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="s">&#39;v1&#39;</span><span class="p">,</span> <span class="s">&#39;event&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;user_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_2&#39;</span><span class="p">,</span> <span class="s">&#39;reply_to_name&#39;</span><span class="p">:</span> <span class="s">&#39;user_3&#39;</span><span class="p">}}</span>
+</pre></div>
+</td></tr></table></div>
+</dd></dl>
+
+<dl class="method">
+<dt id="client.PyDruid.segment_metadata">
+<tt class="descname">segment_metadata</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.segment_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>A segment meta-data query returns per segment information about:</p>
+<ul class="simple">
+<li>Cardinality of all the columns present</li>
+<li>Column type</li>
+<li>Estimated size in bytes</li>
+<li>Estimated size in bytes of each column</li>
+<li>Interval the segment covers</li>
+<li>Segment ID</li>
+</ul>
+<p>Required key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>datasource</strong> (<em>str</em>) &#8211; Data source to query</li>
+<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals for which to run the query on</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The query result</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list[dict]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">segment_metadata</span><span class="p">(</span><span class="n">datasource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">,</span> <span class="n">intervals</span> <span class="o">=</span> <span class="s">&#39;2013-10-04/pt1h&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">meta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="s">&#39;intervals&#39;</span><span class="p">,</span> <span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;columns&#39;</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">]</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">meta</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;columns&#39;</span><span class="p">][</span><span class="s">&#39;tweet_length&#39;</span><span class="p">]</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s">&#39;errorMessage&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;cardinality&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;FLOAT&#39;</span><span class="p">,</span> <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="mi">30908008</span><span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</dd></dl>
+
+<dl class="method">
+<dt id="client.PyDruid.time_boundary">
+<tt class="descname">time_boundary</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.time_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A time boundary query returns the min and max timestamps present in a data source.</p>
+<p>Required key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>datasource</strong> (<em>str</em>) &#8211; Data source to query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The query result</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list[dict]</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">time_boundary</span><span class="p">(</span><span class="n">datasource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">bound</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">[{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2011-09-14T15:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;result&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;minTime&#39;</span><span class="p">:</span> <span class="s">&#39;2011-09-14T15:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;maxTime&#39;</span><span class="p">:</span> <span class="s">&#39;2014-03-04T23:44:00.000Z&#39;</span><span class="p">}}]</span>
+</pre></div>
+</td></tr></table></div>
+</dd></dl>
+
+<dl class="method">
+<dt id="client.PyDruid.timeseries">
+<tt class="descname">timeseries</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#client.PyDruid.timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A timeseries query returns the values of the requested metrics (in aggregate) for each timestamp.</p>
+<p>Required key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>datasource</strong> (<em>str</em>) &#8211; Data source to query</li>
+<li><strong>granularity</strong> (<em>str</em>) &#8211; Time bucket to aggregate data by hour, day, minute, etc.,</li>
+<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals for which to run the query on</li>
+<li><strong>aggregations</strong> (<em>dict</em>) &#8211; A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The query result</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list[dict]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Optional key/value pairs:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filter</strong> (<em>pydruid.utils.filters.Filter</em>) &#8211; Indicates which rows of data to include in the query</li>
+<li><strong>post_aggregations</strong> &#8211; A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">timeseries</span><span class="p">(</span>
+            <span class="n">datasource</span><span class="o">=</span><span class="n">twitterstream</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;hour&#39;</span><span class="p">,</span>
+            <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-06-14/pt1h&#39;</span><span class="p">,</span>
+            <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">),</span> <span class="s">&quot;rows&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="s">&quot;rows&quot;</span><span class="p">)},</span>
+            <span class="n">post_aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;percent&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">Field</span><span class="p">(</span><span class="s">&#39;count&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">Field</span><span class="p">(</span><span class="s">&#39;rows&#39;</span><span class="p">))</span> <span class="o">*</span> <span class="n">Const</span><span class="p">(</span><span class="mi">100</span><span class="p">))}</span>
+        <span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">counts</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">[{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2013-06-14T00:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;result&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">9619.0</span><span class="p">,</span> <span class="s">&#39;rows&#39;</span><span class="p">:</span> <span class="mi">8007</span><span class="p">,</span> <span class="s">&#39;percent&#39;</span><span class="p">:</span> <span class="mf">120.13238416385663</span><span class="p">}}]</span>
+</pre></div>
+</td></tr></table></div>
 </dd></dl>
 
 <dl class="method">
@@ -98,10 +265,10 @@ faster and more resource efficient than GroupBy for this use case.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataSource</strong> (<em>str</em>) &#8211; Data source to query</li>
-<li><strong>granularity</strong> (<em>str</em>) &#8211; Time bucket to aggregate data by hour, day, minute, etc.,</li>
-<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals for which to run the query on</li>
-<li><strong>aggregations</strong> (<em>dict</em>) &#8211; Key is &#8216;aggregator_name&#8217;, and value is one of the pydruid.utils.aggregators</li>
+<li><strong>datasource</strong> (<em>str</em>) &#8211; Data source to query</li>
+<li><strong>granularity</strong> (<em>str</em>) &#8211; Aggregate data by hour, day, minute, etc.,</li>
+<li><strong>intervals</strong> (<em>str or list</em>) &#8211; ISO-8601 intervals of data to query</li>
+<li><strong>aggregations</strong> (<em>dict</em>) &#8211; A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum</li>
 <li><strong>dimension</strong> (<em>str</em>) &#8211; Dimension to run the query against</li>
 <li><strong>metric</strong> (<em>str</em>) &#8211; Metric over which to sort the specified dimension by</li>
 <li><strong>threshold</strong> (<em>int</em>) &#8211; How many of the top items to return</li>
@@ -111,7 +278,7 @@ faster and more resource efficient than GroupBy for this use case.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The query result</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list[dict]</p>
 </td>
 </tr>
 </tbody>
@@ -123,23 +290,38 @@ faster and more resource efficient than GroupBy for this use case.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filter</strong> (<em>pydruid.utils.filters.Filter</em>) &#8211; Indicates which rows of data to include in the query</li>
-<li><strong>postAggregations</strong> &#8211; A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</li>
+<li><strong>post_aggregations</strong> &#8211; A dict with string key = &#8216;post_aggregator_name&#8217;, and value pydruid.utils.PostAggregator</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p>Example:</p>
-<dl class="docutils">
-<dt>&gt;&gt; top = query.topn(dataSource=&#8217;my_data&#8217;,</dt>
-<dd>granularity=&#8217;hour&#8217;,
-intervals=&#8217;[&#8220;2013-06-14/pt2h&#8221;]&#8217;,
-aggregations={&#8220;count&#8221;: doubleSum(&#8220;count&#8221;)},
-dimension=&#8217;my_dimension&#8217;,
-metric=&#8217;count&#8217;,
-threshold= 5
-)</dd>
-</dl>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="o">&gt;&gt;&gt;</span> <span class="n">top</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">topn</span><span class="p">(</span>
+                <span class="n">datasource</span><span class="o">=</span><span class="s">&#39;twitterstream&#39;</span><span class="p">,</span>
+                <span class="n">granularity</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">,</span>
+                <span class="n">intervals</span><span class="o">=</span><span class="s">&#39;2013-06-14/pt1h&#39;</span><span class="p">,</span>
+                <span class="n">aggregations</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;count&quot;</span><span class="p">:</span> <span class="n">doublesum</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)},</span>
+                <span class="n">dimension</span><span class="o">=</span><span class="s">&#39;user&#39;</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="s">&#39;count&#39;</span><span class="p">,</span>
+                <span class="nb">filter</span><span class="o">=</span><span class="n">Dimension</span><span class="p">(</span><span class="s">&#39;language&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;en&#39;</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">top</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="p">[{</span><span class="s">&#39;timestamp&#39;</span><span class="p">:</span> <span class="s">&#39;2013-06-14T00:00:00.000Z&#39;</span><span class="p">,</span> <span class="s">&#39;result&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="s">&quot;cool_user&quot;</span><span class="p">}}]}]</span>
+</pre></div>
+</td></tr></table></div>
 </dd></dl>
 
 </dd></dl>
