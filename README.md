@@ -1,27 +1,8 @@
-===========
-pyDruid
-===========
+#pydruid
+pydruid exposes a simple API to create, execute, and analyze [Druid](http://druid.io/) queries. pydruid can parse query results into [Pandas](http://pandas.pydata.org/) DataFrame objects for subsequent data analysis -- this offers a tight integration between [Druid](http://druid.io/), the [SciPy](http://www.scipy.org/stackspec.html) stack (for scientific computing) and [scikit-learn](http://scikit-learn.org/stable/) (for machine learning). Additionally, pydruid can export query results into TSV or JSON for further processing with your favorite tool, e.g., R, Julia, Matlab, Excel.
 
-pyDruid provides a python interface to the Druid analytic store. Typical usage
-often looks like this::
+#setup
 
-    #!/usr/bin/env python
+#documentation
 
-    from pydruid.client import *
-
-    # Druid Config
-    endpoint = 'druid/v2/?pretty'
-    demo_bard_url =  'http://localhost:8083'
-    dataSource = 'wikipedia'
-    intervals = ["2013-01-01/p1y"]
-
-    query = pyDruid(demo_bard_url, endpoint)
-
-    counts = query.timeseries(dataSource = dataSource, 
-    	          granularity = "minute", 
-    			  intervals = intervals, 
-    			  aggregations = {"count" : doubleSum("edits")}
-    		      )
-
-    print counts
-    [{'timestamp': '2013-09-30T23:31:00.000Z', 'result': {'count': 0.0}}, {'timestamp': '2013-09-30T23:32:00.000Z', 'result': {'count': 0.0}}, {'timestamp': '2013-09-30T23:33:00.000Z', 'result': {'count': 0.0}}, {'timestamp': '2013-09-30T23:34:00.000Z', 'result': {'count': 0.0}}]
+#examples
