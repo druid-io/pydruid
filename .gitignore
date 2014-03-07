@@ -1,4 +1,5 @@
 *.pyc
 test.py
 pydruid/bard.py
+.DS_store
 .idea/

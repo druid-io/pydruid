@@ -29,6 +29,74 @@ from utils.query_utils import *
 
 
 class PyDruid:
+    """
+    PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes
+    a method for exporting query results into pandas.DataFrame objects for subsequent analysis
+    with the python scientific computing stack, or simply exporting query results to a TSV file
+    for analysis with your favorite tool, e.g., R, Julia, Matlab, Excel.
+
+    :param str url: URL of Bard node in the Druid cluster
+    :param str endpoint: Endpoint that Bard listens for queries on
+
+    :ivar str result_json: JSON object representing a query result. Initial value: None
+    :ivar list result: Query result parsed into a list of dicts. Initial value: None
+    :ivar str query_type: Name of most recently run query, e.g., topN. Initial value: None
+    :ivar dict query_dict: JSON object representing the query. Initial value: None
+
+    Example
+
+    .. code-block:: python
+        :linenos:
+
+            >>> from pydruid.client import *
+
+            >>> query = PyDruid('http://localhost:8083', 'druid/v2/')
+
+            >>> top = query.topn(
+                    datasource='twitterstream',
+                    granularity='all',
+                    intervals='2013-10-04/pt1h',
+                    aggregations={"count": doublesum("count")},
+                    dimension='user_name',
+                    filter = Dimension('user_lang') == 'en',
+                    metric='count',
+                    threshold=2
+                )
+
+            >>> print json.dumps(query.query_dict, indent=2)
+            >>> {
+                  "metric": "count",
+                  "aggregations": [
+                    {
+                      "type": "doubleSum",
+                      "fieldName": "count",
+                      "name": "count"
+                    }
+                  ],
+                  "dimension": "user_name",
+                  "filter": {
+                    "type": "selector",
+                    "dimension": "user_lang",
+                    "value": "en"
+                  },
+                  "intervals": "2013-10-04/pt1h",
+                  "dataSource": "twitterstream",
+                  "granularity": "all",
+                  "threshold": 2,
+                  "queryType": "topN"
+                }
+
+            >>> print query.result
+            >>> [{'timestamp': '2013-10-04T00:00:00.000Z',
+                'result': [{'count': 7.0, 'user_name': 'user_1'}, {'count': 6.0, 'user_name': 'user_2'}]}]
+
+            >>> df = query.export_pandas()
+            >>> print df
+            >>>    count                 timestamp      user_name
+                0      7  2013-10-04T00:00:00.000Z         user_1
+                1      6  2013-10-04T00:00:00.000Z         user_2
+    """
+
     def __init__(self, url, endpoint):
         self.url = url
         self.endpoint = endpoint
@@ -37,7 +105,7 @@ class PyDruid:
         self.query_type = None
         self.query_dict = None
 
-    def post(self, query):
+    def __post(self, query):
         try:
             querystr = json.dumps(query)
             if self.url.endswith('/'):
@@ -54,10 +122,10 @@ class PyDruid:
             raise IOError('{0} \n Query is: {1}'.format(
                 e, json.dumps(self.query_dict, indent=4)))
         else:
-            self.result = self.parse()
+            self.result = self.__parse()
             return self.result
 
-    def parse(self):
+    def __parse(self):
         if self.result_json:
             res = json.loads(self.result_json)
             return res
@@ -68,11 +136,42 @@ class PyDruid:
     # --------- Export implementations ---------
 
     def export_tsv(self, dest_path):
+        """
+        Export the current query result to a tsv file.
+
+        :param str dest_path: file to write query results to
+        :raise NotImplementedError:
+
+        Example
+
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                        datasource='twitterstream',
+                        granularity='all',
+                        intervals='2013-10-04/pt1h',
+                        aggregations={"count": doublesum("count")},
+                        dimension='user_name',
+                        filter = Dimension('user_lang') == 'en',
+                        metric='count',
+                        threshold=2
+                    )
+
+                >>> query.export_tsv('top.tsv')
+                >>> !cat top.tsv
+                >>> count	user_name	timestamp
+                    7.0	user_1	2013-10-04T00:00:00.000Z
+                    6.0	user_2	2013-10-04T00:00:00.000Z
+        """
         f = open(dest_path, 'wb')
         tsv_file = csv.writer(f, delimiter='\t')
 
         if self.query_type == "timeseries":
             header = self.result[0]['result'].keys()
+            header.append('timestamp')
+        if self.query_type == 'topN':
+            header = self.result[0]['result'][0].keys()
             header.append('timestamp')
         elif self.query_type == "groupBy":
             header = self.result[0]['event'].keys()
@@ -105,6 +204,35 @@ class PyDruid:
         f.close()
 
     def export_pandas(self):
+        """
+        Export the current query result to a Pandas DataFrame object.
+
+        :return: The DataFrame representing the query result
+        :rtype: DataFrame
+        :raise NotImplementedError:
+
+        Example
+
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                        datasource='twitterstream',
+                        granularity='all',
+                        intervals='2013-10-04/pt1h',
+                        aggregations={"count": doublesum("count")},
+                        dimension='user_name',
+                        filter = Dimension('user_lang') == 'en',
+                        metric='count',
+                        threshold=2
+                    )
+
+                >>> df = query.export_pandas()
+                >>> print df
+                >>>    count                 timestamp      user_name
+                    0      7  2013-10-04T00:00:00.000Z         user_1
+                    1      6  2013-10-04T00:00:00.000Z         user_2
+        """
         if self.result:
             if self.query_type == "timeseries":
                 nres = [v['result'].items() + [('timestamp', v['timestamp'])]
@@ -143,93 +271,225 @@ class PyDruid:
         query_dict = {'queryType': self.query_type}
 
         for key, val in args.iteritems():
-            if key == "aggregations":
+            if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
-            elif key == "postAggregations":
-                query_dict[key] = build_post_aggregators(val)
+            elif key == 'post_aggregations':
+                query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
+            elif key == 'datasource':
+                query_dict['dataSource'] = val
             elif key == "filter":
-                query_dict[key] = build_filter(val)
+                query_dict[key] = Filter.build_filter(val)
             else:
                 query_dict[key] = val
 
         self.query_dict = query_dict
 
-    def topn(self, **args):
+    def topn(self, **kwargs):
         """
         A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
         topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
         faster and more resource efficient than GroupBy for this use case.
 
-        :param args: key word arguments discussed below
-        :return: a dict representing the query result
+        Required key/value pairs:
 
-        Required key/values are:
+        :param str datasource: Data source to query
+        :param str granularity: Aggregate data by hour, day, minute, etc.,
+        :param intervals: ISO-8601 intervals of data to query
+        :type intervals: str or list
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param str dimension: Dimension to run the query against
+        :param str metric: Metric over which to sort the specified dimension by
+        :param int threshold: How many of the top items to return
 
-        dataSource:         A string that defines the data source to query
-        granularity:        A string that defines how data gets aggregated by hour, day, minute, etc.,
-        intervals:          A string or list of strings that represent ISO-8601 Intervals for which to run the query on
-        aggregations:       A dict with string key = 'aggregator_name', and value = one of the pydruid.utils.aggregators
-        dimension:          A string that defines which dimension to run the query against
-        metric:             A string that defines the metric over which to sort the specified dimension by
-        threshold:          An integer defining how many of the top items to return
+        :return: The query result
+        :rtype: list[dict]
 
-        Optional key/values are:
+        Optional key/value pairs:
 
-        filter:             A pydruid.utils.filters.Filter object indicating which rows of data to include in the query
-        postAggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
-
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
 
-        >> top = query.topn(dataSource='my_data',
-                            granularity='hour',
-                            intervals='["2013-06-14/pt2h"]',
-                            aggregations={"count": doubleSum("count")},
-                            dimension='my_dimension',
+        .. code-block:: python
+            :linenos:
+
+                >>> top = query.topn(
+                            datasource='twitterstream',
+                            granularity='all',
+                            intervals='2013-06-14/pt1h',
+                            aggregations={"count": doublesum("count")},
+                            dimension='user_name',
                             metric='count',
-                            threshold= 5
-                            )
+                            filter=Dimension('user_lang') == 'en',
+                            threshold=1
+                        )
+                >>> print top
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': [{'count': 22.0, 'user': "cool_user"}}]}]
         """
         self.query_type = 'topN'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals', 'dimension', 'threshold',
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals', 'dimension', 'threshold',
             'metric'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
-    def timeseries(self, **args):
+    def timeseries(self, **kwargs):
+        """
+        A timeseries query returns the values of the requested metrics (in aggregate) for each timestamp.
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> counts = query.timeseries(
+                        datasource=twitterstream,
+                        granularity='hour',
+                        intervals='2013-06-14/pt1h',
+                        aggregations={"count": doublesum("count"), "rows": count("rows")},
+                        post_aggregations={'percent': (Field('count') / Field('rows')) * Const(100))}
+                    )
+                >>> print counts
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'count': 9619.0, 'rows': 8007, 'percent': 120.13238416385663}}]
+        """
         self.query_type = 'timeseries'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals'
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
-    def groupby(self, **args):
+    def groupby(self, **kwargs):
+        """
+        A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param list dimensions: The dimensions to group by
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> group = query.groupby(
+                        dataSource='twitterstream',
+                        granularity='hour',
+                        intervals='2013-10-04/pt1h',
+                        dimensions=["user_name", "reply_to_name"],
+                        filter=~(Dimension("reply_to_name") == "Not A Reply"),
+                        aggregations={"count": doublesum("count")}
+                    )
+                >>> for k in range(2):
+                    ...     print group[k]
+                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_1', 'reply_to_name': 'user_2'}}
+                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_2', 'reply_to_name': 'user_3'}}
+        """
+
         self.query_type = 'groupBy'
         valid_parts = [
-            'dataSource', 'granularity', 'filter', 'aggregations',
-            'postAggregations', 'intervals', 'dimensions'
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'post_aggregations', 'intervals', 'dimensions'
         ]
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
-        return self.post(self.query_dict)
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
 
-    def segment_metadata(self, **args):
-        self.query_type = 'segmentMetaData'
-        valid_parts = ['dataSource', 'intervals']
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
-        return self.post(self.query_dict)
+    def segment_metadata(self, **kwargs):
+        """
+        A segment meta-data query returns per segment information about:
 
-    def time_boundary(self, **args):
+        * Cardinality of all the columns present
+        * Column type
+        * Estimated size in bytes
+        * Estimated size in bytes of each column
+        * Interval the segment covers
+        * Segment ID
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> meta = query.segment_metadata(datasource='twitterstream', intervals = '2013-10-04/pt1h')
+                >>> print meta[0].keys()
+                >>> ['intervals', 'id', 'columns', 'size']
+                >>> print meta[0]['columns']['tweet_length']
+                >>> {'errorMessage': None, 'cardinality': None, 'type': 'FLOAT', 'size': 30908008}
+
+        """
+        self.query_type = 'segmentMetadata'
+        valid_parts = ['datasource', 'intervals']
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
+
+    def time_boundary(self, **kwargs):
+        """
+        A time boundary query returns the min and max timestamps present in a data source.
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> bound = query.time_boundary(datasource='twitterstream')
+                >>> print bound
+                >>> [{'timestamp': '2011-09-14T15:00:00.000Z', 'result': {'minTime': '2011-09-14T15:00:00.000Z', 'maxTime': '2014-03-04T23:44:00.000Z'}}]
+        """
         self.query_type = 'timeBoundary'
-        valid_parts = ['dataSource']
-        self.validate_query(valid_parts, args)
-        self.build_query(args)
-        return self.post(self.query_dict)
+        valid_parts = ['datasource']
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)

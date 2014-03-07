@@ -43,6 +43,15 @@ class Postaggregator:
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
 
+    @staticmethod
+    def build_post_aggregators(postaggs):
+        def rename_postagg(new_name, post_aggregator):
+            post_aggregator['name'] = new_name
+            return post_aggregator
+
+        return [rename_postagg(new_name, postagg.post_aggregator)
+                for (new_name, postagg) in postaggs.iteritems()]
+
 
 class Field(Postaggregator):
     def __init__(self, name):
@@ -62,13 +71,3 @@ class Const(Postaggregator):
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
             'type': 'constant', 'name': name, 'value': value}
-
-
-def build_post_aggregators(postaggs):
-    return [rename_postagg(new_name, postagg.post_aggregator)
-            for (new_name, postagg) in postaggs.iteritems()]
-
-
-def rename_postagg(new_name, post_aggregator):
-    post_aggregator['name'] = new_name
-    return post_aggregator
