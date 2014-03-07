@@ -6,3 +6,75 @@ pydruid exposes a simple API to create, execute, and analyze [Druid](http://drui
 #documentation
 
 #examples
+
+The following exampes show how to execute and analyze the results of three types of queries:timeseries, topN, and groupby. We analyze the twitter data set
+
+## timeseries 
+
+What was the average tweet length, per day, surrounding the 2014 Sochi olympics?
+
+```python
+from pydruid.client import *
+from pylab import plt
+
+query = PyDruid(bard_url_goes_here, 'druid/v2')
+
+ts = query.timeseries(
+    datasource='twitterstream',
+    granularity='day',
+    intervals='2014-02-02/p4w',
+    aggregations={'length': doublesum('tweet_length'), 'count': doublesum('count')},
+    post_aggregations={'avg_tweet_length': (Field('length') / Field('count'))},
+    filter=Dimension('first_hashtag') == 'sochi2014'
+)
+df = query.export_pandas()
+df['timestamp'] = df['timestamp'].map(lambda x: x.split('T')[0])
+df.plot(x='timestamp', y='avg_tweet_length', ylim=(80, 140), rot=20,
+        title='Sochi 2014')
+plt.ylabel('avg tweet length (chars)')
+plt.show()
+```
+
+![alt text](https://github.com/metamx/pydruid/raw/docs/docs/figures/avg_tweet_length.png "Avg. tweet length")
+
+## topN 
+
+Who were the top ten mentions (@user_name) during the 2014 Oscars?
+
+```python
+top = query.topn(
+    datasource='twitterstream',
+    granularity='all',
+    intervals='2014-03-03/p1d',  # utc time of 2014 oscars
+    aggregations={'count': doublesum('count')},
+    dimension='user_mention_name',
+    filter=(Dimension('user_lang') == 'en') & (Dimension('first_hashtag') == 'oscars') &
+           (Dimension('user_time_zone') == 'Pacific Time (US & Canada)') &
+           ~(Dimension('user_mention_name') == 'No Mention'),
+    metric='count',
+    threshold=10
+)
+
+df = query.export_pandas()
+print df
+
+   count                 timestamp user_mention_name
+0   1303  2014-03-03T00:00:00.000Z      TheEllenShow
+1     44  2014-03-03T00:00:00.000Z        TheAcademy
+2     21  2014-03-03T00:00:00.000Z               MTV
+3     21  2014-03-03T00:00:00.000Z         peoplemag
+4     17  2014-03-03T00:00:00.000Z               THR
+5     16  2014-03-03T00:00:00.000Z      ItsQueenElsa
+6     16  2014-03-03T00:00:00.000Z           eonline
+7     15  2014-03-03T00:00:00.000Z       PerezHilton
+8     14  2014-03-03T00:00:00.000Z     realjohngreen
+9     12  2014-03-03T00:00:00.000Z       KevinSpacey
+
+```
+
+
+
+
+
+
+
