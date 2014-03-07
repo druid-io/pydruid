@@ -3,3 +3,6 @@ test.py
 pydruid/bard.py
 .DS_store
 .idea/
+build/
+dist/
+pyDruid.egg-info/
