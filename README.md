@@ -31,7 +31,7 @@ plt.ylabel('avg tweet length (chars)')
 plt.show()
 ```
 
-![alt text](https://github.com/metamx/pydruid/raw/docs/docs/figures/avg_tweet_length.png "Avg. tweet length")
+![alt text](https://github.com/metamx/pydruid/raw/master/docs/figures/avg_tweet_length.png "Avg. tweet length")
 
 ## topN 
 
@@ -104,7 +104,7 @@ layout = g.layout_fruchterman_reingold()
 plot(g, "tweets.png", layout=layout, vertex_size=2, bbox=(400, 400), margin=25, edge_width=1, vertex_color="blue")
 ```
 
-![alt text](https://github.com/metamx/pydruid/raw/docs/docs/figures/twitter_graph.png "Social Network")
+![alt text](https://github.com/metamx/pydruid/raw/master/docs/figures/twitter_graph.png "Social Network")
 
 
 #documentation
