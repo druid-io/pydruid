@@ -7,7 +7,7 @@ pydruid exposes a simple API to create, execute, and analyze [Druid](http://drui
 
 #examples
 
-The following exampes show how to execute and analyze the results of three types of queries:timeseries, topN, and groupby. We analyze the twitter data set
+The following exampes show how to execute and analyze the results of three types of queries: timeseries, topN, and groupby. We will use these queries to ask simple questions about twitter's public data set.
 
 ## timeseries 
 
@@ -72,7 +72,43 @@ print df
 
 ```
 
+## groupby
 
+What does the social network of users replying to other users look like?
+
+```python
+from igraph import *
+from cairo import *
+from pandas import concat
+
+group = query.groupby(
+    datasource='twitterstream',
+    granularity='hour',
+    intervals='2013-10-04/pt12h',
+    dimensions=["user_name", "reply_to_name"],
+    filter=(~(Dimension("reply_to_name") == "Not A Reply")) &
+           (Dimension("user_location") == "California"),
+    aggregations={"count": doublesum("count")}
+)
+
+df = query.export_pandas()
+
+# map names to categorical variables with a lookup table
+names = concat([df['user_name'], df['reply_to_name']]).unique()
+nameLookup = dict([pair[::-1] for pair in enumerate(names)])
+df['user_name_lookup'] = df['user_name'].map(nameLookup.get)
+df['reply_to_name_lookup'] = df['reply_to_name'].map(nameLookup.get)
+
+# create the graph with igraph
+g = Graph(len(names), directed=False)
+vertices = zip(df['user_name_lookup'], df['reply_to_name_lookup'])
+g.vs["name"] = names
+g.add_edges(vertices)
+layout = g.layout_fruchterman_reingold()
+plot(g, "tweets.png", layout=layout, vertex_size=2, bbox=(400, 400), margin=25, edge_width=1, vertex_color="blue")
+```
+
+![alt text](https://github.com/metamx/pydruid/raw/docs/docs/figures/twitter_graph.png "Social Network")
 
 
 
