@@ -30,7 +30,7 @@ What was the average tweet length, per day, surrounding the 2014 Sochi olympics?
 from pydruid.client import *
 from pylab import plt
 
-query = PyDruid(bard_url_goes_here, 'druid/v2')
+query = PyDruid(druid_url_goes_here, 'druid/v2')
 
 ts = query.timeseries(
     datasource='twitterstream',
