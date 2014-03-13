@@ -3,7 +3,7 @@ pydruid exposes a simple API to create, execute, and analyze [Druid](http://drui
 
 To install:
 ```python
-pydruid>>  sudo python setup.py install
+pip install pydruid
 ```
 
 #documentation
