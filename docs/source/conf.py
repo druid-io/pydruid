@@ -20,6 +20,8 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+sys.path.insert(0, '/Users/igallevy/source/pydruid')
+sys.path.insert(0, '/Users/igallevy/source/pydruid/pydruid')
 sys.path.insert(0, '/Users/dganguli/src/pydruid/')
 sys.path.insert(0, '/Users/dganguli/src/pydruid/pydruid')
 # -- General configuration ------------------------------------------------
