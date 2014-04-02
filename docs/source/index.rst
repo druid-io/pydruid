@@ -8,7 +8,7 @@ Welcome to pydruid's documentation
 
 pydruid exposes a simple API to create, execute, and analyze `Druid <http://druid.io/>`_ queries. pydruid can parse query results into `Pandas <http://pandas.pydata.org/>`_ DataFrame objects for subsequent data analysis, which offers a tight integration between `Druid <http://druid.io/>`_, the `SciPy <http://www.scipy.org/stackspec.html>`_ stack (for scientific computing) and `scikit-learn <http://scikit-learn.org/stable/>`_ (for machine learning). Additionally, pydruid can export query results into TSV or JSON for further processing with your favorite tool, e.g., R, Julia, Matlab, or Excel.
 
-Below is a reference for the PyDruid class, describing the functions to use for querying and exporting, complete with examples.
+Below is a reference for the PyDruid class, describing the functions to use for querying and exporting, complete with examples. For additional examples, see the `pydruid README <https://github.com/metamx/pydruid>`_.
 
 PyDruid Reference
 =================
