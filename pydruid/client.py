@@ -30,10 +30,8 @@ from utils.query_utils import *
 
 class PyDruid:
     """
-    PyDruid exposes a simple API for creating and executing Druid queries. PyDruid also exposes
-    a method for exporting query results into pandas.DataFrame objects for subsequent analysis
-    with the python scientific computing stack, or simply exporting query results to a TSV file
-    for analysis with your favorite tool, e.g., R, Julia, Matlab, Excel.
+    PyDruid contains the functions for creating and executing Druid queries, as well as
+    for exporting query results into TSV files or pandas.DataFrame objects for subsequent analysis.
 
     :param str url: URL of Bard node in the Druid cluster
     :param str endpoint: Endpoint that Bard listens for queries on
