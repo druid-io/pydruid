@@ -34,6 +34,8 @@ def max(raw_metric):
 def count(raw_metric):
     return {"type": "count", "fieldName": raw_metric}
 
+def hyperunique(raw_metric):
+    return {"type": "hyperUnique", "fieldName": raw_metric}
 
 def build_aggregators(agg_input):
     return [dict([('name', k)] + v.items())
