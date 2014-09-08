@@ -275,6 +275,8 @@ class PyDruid:
                 query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
             elif key == 'datasource':
                 query_dict['dataSource'] = val
+            elif key == 'paging_spec':
+                query_dict['pagingSpec'] = val
             elif key == "filter":
                 query_dict[key] = Filter.build_filter(val)
             else:
@@ -488,6 +490,50 @@ class PyDruid:
         """
         self.query_type = 'timeBoundary'
         valid_parts = ['datasource']
+        self.validate_query(valid_parts, kwargs)
+        self.build_query(kwargs)
+        return self.__post(self.query_dict)
+
+    def select(self, **kwargs):
+        """
+        A select query returns raw Druid rows and supports pagination.
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.
+        :param dict paging_spec: Indicates offsets into different scanned segments
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param list dimensions: The list of dimensions to select. If left empty, all dimensions are returned
+        :param list metrics: The list of metrics to select. If left empty, all metrics are returned
+
+        :return: The query result
+        :rtype: list[dict]
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> raw_data = query.select(
+                        datasource=twitterstream,
+                        granularity='all',
+                        intervals='2013-06-14/pt1h',
+                        paging_spec={'pagingIdentifies': {}, 'threshold': 1}
+                    )
+                >>> print raw_data
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'pagingIdentifiers': {'twitterstream_2013-06-14T00:00:00.000Z_2013-06-15T00:00:00.000Z_2013-06-15T08:00:00.000Z_v1': 1, 'events': [{'segmentId': 'twitterstream_2013-06-14T00:00:00.000Z_2013-06-15T00:00:00.000Z_2013-06-15T08:00:00.000Z_v1', 'offset': 0, 'event': {'timestamp': '2013-06-14T00:00:00.000Z', 'dim': 'value'}}]}}]
+        """
+        self.query_type = 'select'
+        valid_parts = [
+            'datasource', 'granularity', 'filter', 'dimensions', 'metrics',
+            'paging_spec', 'intervals'
+        ]
         self.validate_query(valid_parts, kwargs)
         self.build_query(kwargs)
         return self.__post(self.query_dict)
