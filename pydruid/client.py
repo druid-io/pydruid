@@ -25,6 +25,7 @@ except ImportError:
 from utils.aggregators import *
 from utils.postaggregator import *
 from utils.filters import *
+from utils.having import *
 from utils.query_utils import *
 
 
@@ -279,6 +280,8 @@ class PyDruid:
                 query_dict['pagingSpec'] = val
             elif key == "filter":
                 query_dict[key] = Filter.build_filter(val)
+            elif key == "having":
+                query_dict[key] = Having.build_having(val)
             else:
                 query_dict[key] = val
 
@@ -400,6 +403,7 @@ class PyDruid:
         Optional key/value pairs:
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
+        :param pydruid.utils.having.Having having: Indicates which groups in results set of query to keep
         :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
 
         Example:
@@ -424,7 +428,7 @@ class PyDruid:
         self.query_type = 'groupBy'
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
-            'post_aggregations', 'intervals', 'dimensions'
+            'having', 'post_aggregations', 'intervals', 'dimensions'
         ]
         self.validate_query(valid_parts, kwargs)
         self.build_query(kwargs)
