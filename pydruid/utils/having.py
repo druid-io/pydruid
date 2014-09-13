@@ -42,27 +42,23 @@ class Having:
     def show(self):
         print(json.dumps(self.having, indent=4))
 
-    def __and__(self, x):
-        if self.having['having']['type']=='and':
-            havingSpecs=self.having['having']['havingSpecs'] + [x.having['having']]
-            return Having(type='and', havingSpecs=havingSpecs)
-        elif  x.having['having']['type']=='and':
-            havingSpecs=[self.having['having']]+x.having['having']['havingSpecs']
-            return Having(type='and', havingSpecs=havingSpecs)
+    def _combine(self, typ, x):
+        # collapse nested and/ors
+        if self.having['having']['type'] == typ:
+            havingSpecs = self.having['having']['havingSpecs'] + [x.having['having']]
+            return Having(type=typ, havingSpecs=havingSpecs)
+        elif x.having['having']['type']==typ:
+            havingSpecs = [self.having['having']] + x.having['having']['havingSpecs']
+            return Having(type=typ, havingSpecs=havingSpecs)
         else:
-            return Having(type='and',
+            return Having(type=typ,
                       havingSpecs=[self.having['having'], x.having['having']])
 
+    def __and__(self, x):
+        return self._combine('and', x)
+
     def __or__(self, x):
-        if self.having['having']['type']=='or':
-            havingSpecs=self.having['having']['havingSpecs'] +[x.having['having']]
-            return Having(type='or', havingSpecs=havingSpecs)
-        elif  x.having['having']['type']=='or':
-            havingSpecs=[self.having['having']]+x.having['having']['havingSpecs']
-            return Having(type='or', havingSpecs=havingSpecs)
-        else:
-            return Having(type='or',
-                      havingSpecs=[self.having['having'], x.having['having']])
+        return self._combine('or', x)
 
     def __invert__(self):
         return Having(type='not', havingSpec=self.having['having'])
@@ -71,16 +67,16 @@ class Having:
     def build_having(having_obj):
         return having_obj.having['having']
 
+
 class Aggregation:
     def __init__(self, agg):
         self.aggregation = agg
 
     def __eq__(self, other):
-        return Having(type='equal', aggregation=self.aggregation, value=other)
+        return Having(type='equalTo', aggregation=self.aggregation, value=other)
 
     def __lt__(self, other):
         return Having(type='lessThan', aggregation=self.aggregation, value=other)
 
     def __gt__(self, other):
         return Having(type='greaterThan', aggregation=self.aggregation, value=other)
-
