@@ -118,8 +118,18 @@ class PyDruid:
             self.result_json = data
             res.close()
         except urllib2.HTTPError, e:
-            raise IOError('{0} \n Query is: {1}'.format(
-                e, json.dumps(self.query_dict, indent=4)))
+            err=None
+            if e.code==500:
+                # has Druid returned an error?
+                try:
+                    err= json.loads(e.read())                    
+                except ValueError:
+                    pass
+                else:
+                    err= err.get('error',None)
+
+            raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
+                e, err,json.dumps(self.query_dict, indent=4)))
         else:
             self.result = self.__parse()
             return self.result
