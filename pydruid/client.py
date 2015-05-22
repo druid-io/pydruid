@@ -14,20 +14,22 @@
 # limitations under the License.
 #
 from __future__ import division
-import urllib2
+from __future__ import absolute_import
+
+from six import iteritems
+from six.moves import urllib
 
 try:
     import pandas
 except ImportError:
-    print 'Warning: unable to import Pandas. The export_pandas method will not work.'
+    print('Warning: unable to import Pandas. The export_pandas method will not work.')
     pass
 
-from utils.aggregators import *
-from utils.postaggregator import *
-from utils.filters import *
-from utils.having import *
-from utils.query_utils import *
-
+from .utils.aggregators import *
+from .utils.postaggregator import *
+from .utils.filters import *
+from .utils.having import *
+from .utils.query_utils import *
 
 class PyDruid:
     """
@@ -106,23 +108,24 @@ class PyDruid:
 
     def __post(self, query):
         try:
-            querystr = json.dumps(query)
+            querystr = json.dumps(query).encode('ascii')
             if self.url.endswith('/'):
                 url = self.url + self.endpoint
             else:
                 url = self.url + '/' + self.endpoint
             headers = {'Content-Type': 'application/json'}
-            req = urllib2.Request(url, querystr, headers)
-            res = urllib2.urlopen(req)
+            req = urllib.request.Request(url, querystr, headers)
+            res = urllib.request.urlopen(req)
             data = res.read()
             self.result_json = data
             res.close()
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError:
+            _, e, _ = sys.exc_info()
             err=None
             if e.code==500:
                 # has Druid returned an error?
                 try:
-                    err= json.loads(e.read())                    
+                    err= json.loads(e.read())
                 except ValueError:
                     pass
                 else:
@@ -244,7 +247,7 @@ class PyDruid:
         """
         if self.result:
             if self.query_type == "timeseries":
-                nres = [v['result'].items() + [('timestamp', v['timestamp'])]
+                nres = [list(v['result'].items()) + [('timestamp', v['timestamp'])]
                         for v in self.result]
                 nres = [dict(v) for v in nres]
             elif self.query_type == "topN":
@@ -252,11 +255,11 @@ class PyDruid:
                 for item in self.result:
                     timestamp = item['timestamp']
                     results = item['result']
-                    tres = [dict(res.items() + [('timestamp', timestamp)])
+                    tres = [dict(list(res.items()) + [('timestamp', timestamp)])
                             for res in results]
                     nres += tres
             elif self.query_type == "groupBy":
-                nres = [v['event'].items() + [('timestamp', v['timestamp'])]
+                nres = [list(v['event'].items()) + [('timestamp', v['timestamp'])]
                         for v in self.result]
                 nres = [dict(v) for v in nres]
             else:
@@ -280,7 +283,7 @@ class PyDruid:
         :raise ValueError: if an invalid object is given
         """
         valid_parts = valid_parts[:] + ['context']
-        for key, val in args.iteritems():
+        for key, val in iteritems(args):
             if key not in valid_parts:
                 raise ValueError(
                     'Query component: {0} is not valid for query type: {1}.'
@@ -291,7 +294,7 @@ class PyDruid:
     def build_query(self, args):
         query_dict = {'queryType': self.query_type}
 
-        for key, val in args.iteritems():
+        for key, val in iteritems(args):
             if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
             elif key == 'post_aggregations':

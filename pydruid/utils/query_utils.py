@@ -15,7 +15,7 @@
 #
 import csv
 import codecs
-import cStringIO
+from six import StringIO
 
 # A special CSV writer which will write rows to TSV file "f", which is encoded in utf-8.
 # this is necessary because the values in druid are not all ASCII.
@@ -26,7 +26,7 @@ class UnicodeWriter:
     # delimiter="\t"
     def __init__(self, f, dialect="excel-tab", encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()

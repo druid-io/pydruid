@@ -12,5 +12,6 @@ setup(
     long_description='See https://github.com/metamx/pydruid for more information.',
     install_requires=[
         "simplejson >= 3.3.0",
+        "six >= 1.9.0",
     ],
 )

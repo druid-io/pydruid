@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from six import iteritems
 
 def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
@@ -38,5 +38,5 @@ def hyperunique(raw_metric):
     return {"type": "hyperUnique", "fieldName": raw_metric}
 
 def build_aggregators(agg_input):
-    return [dict([('name', k)] + v.items())
-            for (k, v) in agg_input.iteritems()]
+    return [dict([('name', k)] + list(v.items()))
+            for (k, v) in iteritems(agg_input)]
