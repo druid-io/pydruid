@@ -1,4 +1,13 @@
+import sys
+
 from setuptools import setup
+
+
+install_requires = ["six >= 1.9.0"]
+
+# only require simplejson on python < 2.6
+if sys.version_info < (2, 6):
+    install_requires.append("simplejson >= 3.3.0")
 
 setup(
     name='pydruid',
@@ -10,8 +19,5 @@ setup(
     license='LICENSE',
     description='A Python connector for Druid.',
     long_description='See https://github.com/metamx/pydruid for more information.',
-    install_requires=[
-        "simplejson >= 3.3.0",
-        "six >= 1.9.0",
-    ],
+    install_requires=install_requires,
 )
