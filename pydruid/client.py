@@ -16,6 +16,8 @@
 from __future__ import division
 from __future__ import absolute_import
 
+import sys
+
 from six import iteritems
 from six.moves import urllib
 
