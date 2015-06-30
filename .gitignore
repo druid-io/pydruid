@@ -6,4 +6,5 @@ pydruid/bard.py
 build/
 dist/
 pyDruid.egg-info/
-
+__pycache__
+.eggs
