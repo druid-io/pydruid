@@ -306,6 +306,8 @@ class PyDruid:
                 query_dict['dataSource'] = val
             elif key == 'paging_spec':
                 query_dict['pagingSpec'] = val
+            elif key == 'limit_spec':
+                query_dict['limitSpec'] = val
             elif key == "filter":
                 query_dict[key] = Filter.build_filter(val)
             elif key == "having":
@@ -438,6 +440,7 @@ class PyDruid:
         :param pydruid.utils.having.Having having: Indicates which groups in results set of query to keep
         :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
         :param dict context: A dict of query context options
+        :param dict limit_spec: A dict of parameters defining how to limit the rows returned, as specified in the Druid api documentation
 
         Example:
 
@@ -445,13 +448,18 @@ class PyDruid:
             :linenos:
 
                 >>> group = query.groupby(
-                        dataSource='twitterstream',
+                        datasource='twitterstream',
                         granularity='hour',
                         intervals='2013-10-04/pt1h',
                         dimensions=["user_name", "reply_to_name"],
                         filter=~(Dimension("reply_to_name") == "Not A Reply"),
                         aggregations={"count": doublesum("count")},
                         context={"timeout": 1000}
+                        limit_spec={
+                            "type": "default",
+                            "limit": 50,
+                            "columns" : ["count"]
+                        }
                     )
                 >>> for k in range(2):
                     ...     print group[k]
@@ -462,7 +470,8 @@ class PyDruid:
         self.query_type = 'groupBy'
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
-            'having', 'post_aggregations', 'intervals', 'dimensions'
+            'having', 'post_aggregations', 'intervals', 'dimensions',
+            'limit_spec',
         ]
         self.validate_query(valid_parts, kwargs)
         self.build_query(kwargs)
