@@ -15,8 +15,7 @@
 #
 import csv
 import codecs
-from six import StringIO
-
+import six
 # A special CSV writer which will write rows to TSV file "f", which is encoded in utf-8.
 # this is necessary because the values in druid are not all ASCII.
 
@@ -25,24 +24,21 @@ class UnicodeWriter:
 
     # delimiter="\t"
     def __init__(self, f, dialect="excel-tab", encoding="utf-8", **kwds):
-        # Redirect output to a queue
-        self.queue = StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
+        self.writer = csv.writer(self.stream, dialect=dialect, **kwds)
         self.encoder = codecs.getincrementalencoder(encoding)()
 
+    def __encode(self, data):
+        data = str(data) if isinstance(data, six.integer_types) else data
+        if not six.PY3:
+            data = data.encode('utf-8') if isinstance(data, unicode) else data
+            data = data.decode('utf-8')
+            return self.encoder.encode(data)
+        return data
+
     def writerow(self, row):
-        self.writer.writerow(
-            [s.encode("utf-8") if isinstance(s, unicode) else s for s in row])
-        # Fetch UTF-8 output from the queue ...
-        data = self.queue.getvalue()
-        data = data.decode("utf-8")
-        # ... and reencode it into the target encoding
-        data = self.encoder.encode(data)
-        # write to the target stream
-        self.stream.write(data)
-        # empty queue
-        self.queue.truncate(0)
+        row = [self.__encode(s) for s in row]
+        self.writer.writerow(row)
 
     def writerows(self, rows):
         for row in rows:

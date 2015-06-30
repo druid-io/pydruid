@@ -16,7 +16,9 @@
 from __future__ import division
 from __future__ import absolute_import
 
-from six import iteritems
+import sys
+
+import six
 from six.moves import urllib
 
 try:
@@ -108,7 +110,7 @@ class PyDruid:
 
     def __post(self, query):
         try:
-            querystr = json.dumps(query).encode('ascii')
+            querystr = json.dumps(query).encode('utf-8')
             if self.url.endswith('/'):
                 url = self.url + self.endpoint
             else:
@@ -176,25 +178,26 @@ class PyDruid:
                     7.0	user_1	2013-10-04T00:00:00.000Z
                     6.0	user_2	2013-10-04T00:00:00.000Z
         """
-        f = open(dest_path, 'wb')
-        tsv_file = csv.writer(f, delimiter='\t')
+        if six.PY3:
+            f = open(dest_path, 'w', newline='', encoding='utf-8')
+        else:
+            f = open(dest_path, 'wb')
+        w = UnicodeWriter(f)
 
         if self.query_type == "timeseries":
-            header = self.result[0]['result'].keys()
+            header = list(self.result[0]['result'].keys())
             header.append('timestamp')
-        if self.query_type == 'topN':
-            header = self.result[0]['result'][0].keys()
+        elif self.query_type == 'topN':
+            header = list(self.result[0]['result'][0].keys())
             header.append('timestamp')
         elif self.query_type == "groupBy":
-            header = self.result[0]['event'].keys()
+            header = list(self.result[0]['event'].keys())
             header.append('timestamp')
             header.append('version')
         else:
             raise NotImplementedError('TSV export not implemented for query type: {0}'.format(self.query_type))
 
-        tsv_file.writerow(header)
-
-        w = UnicodeWriter(f)
+        w.writerow(header)
 
         if self.result:
             if self.query_type == "topN" or self.query_type == "timeseries":
@@ -203,15 +206,15 @@ class PyDruid:
                     result = item['result']
                     if type(result) is list:  # topN
                         for line in result:
-                            w.writerow(line.values() + [timestamp])
+                            w.writerow(list(line.values()) + [timestamp])
                     else:  # timeseries
-                        w.writerow(result.values() + [timestamp])
+                        w.writerow(list(result.values()) + [timestamp])
             elif self.query_type == "groupBy":
                 for item in self.result:
                     timestamp = item['timestamp']
                     version = item['version']
                     w.writerow(
-                        item['event'].values() + [timestamp] + [version])
+                        list(item['event'].values()) + [timestamp] + [version])
 
         f.close()
 
@@ -283,7 +286,7 @@ class PyDruid:
         :raise ValueError: if an invalid object is given
         """
         valid_parts = valid_parts[:] + ['context']
-        for key, val in iteritems(args):
+        for key, val in six.iteritems(args):
             if key not in valid_parts:
                 raise ValueError(
                     'Query component: {0} is not valid for query type: {1}.'
@@ -294,7 +297,7 @@ class PyDruid:
     def build_query(self, args):
         query_dict = {'queryType': self.query_type}
 
-        for key, val in iteritems(args):
+        for key, val in six.iteritems(args):
             if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
             elif key == 'post_aggregations':

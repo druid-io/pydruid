@@ -15,6 +15,7 @@
 #
 from __future__ import division
 
+import six
 
 class Postaggregator:
     def __init__(self, fn, fields, name):
@@ -40,6 +41,9 @@ class Postaggregator:
         return Postaggregator('/', self.fields(other),
                               self.name + 'div' + other.name)
 
+    def __truediv__(self, other):
+        return self.__div__(other)
+
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
 
@@ -50,7 +54,7 @@ class Postaggregator:
             return post_aggregator
 
         return [rename_postagg(new_name, postagg.post_aggregator)
-                for (new_name, postagg) in postaggs.iteritems()]
+                for (new_name, postagg) in six.iteritems(postaggs)]
 
 
 class Field(Postaggregator):
