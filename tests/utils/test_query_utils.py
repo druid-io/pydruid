@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import pytest
 from six import PY3
 from pydruid.utils import query_utils
 
