@@ -38,9 +38,10 @@ def line_ending():
 
 
 class TestClient:
+
     def test_build_query(self):
         client = create_client()
-        assert client.query_dict == None
+        assert client.query_dict is None
 
         client.build_query({
             'datasource': 'things',
