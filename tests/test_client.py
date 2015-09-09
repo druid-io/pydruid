@@ -6,13 +6,15 @@ import pandas
 from pandas.util.testing import assert_frame_equal
 from six import PY3
 from pydruid.client import PyDruid
-from pydruid.utils.aggregators import *
-from pydruid.utils.postaggregator import *
-from pydruid.utils.filters import *
-from pydruid.utils.having import *
+from pydruid.utils import aggregators
+from pydruid.utils import postaggregator
+from pydruid.utils import filters
+from pydruid.utils import having
+
 
 def create_client():
     return PyDruid('http://localhost:8083', 'druid/v2/')
+
 
 def create_client_with_results():
     client = create_client()
@@ -23,10 +25,12 @@ def create_client_with_results():
     ]
     return client
 
+
 def line_ending():
     if PY3:
         return os.linesep
     return "\r\n"
+
 
 class TestClient:
     def test_build_query(self):
@@ -36,17 +40,18 @@ class TestClient:
         client.build_query({
             'datasource': 'things',
             'aggregations': {
-                'count': count('thing'),
+                'count': aggregators.count('thing'),
             },
             'post_aggregations': {
-                'avg': Field('sum') / Field('count'),
+                'avg': (postaggregator.Field('sum') /
+                        postaggregator.Field('count')),
             },
             'paging_spec': {
                 'pagingIdentifies': {},
                 'threshold': 1,
             },
-            'filter': Dimension('one') == 1,
-            'having': Aggregation('sum') > 1,
+            'filter': filters.Dimension('one') == 1,
+            'having': having.Aggregation('sum') > 1,
             'new_key': 'value',
         })
         expected_query_dict = {
@@ -94,4 +99,3 @@ class TestClient:
             'value2': '㬓',
         }])
         assert_frame_equal(df, expected_df)
-
