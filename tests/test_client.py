@@ -2,8 +2,13 @@
 
 import os
 import pytest
-import pandas
-from pandas.util.testing import assert_frame_equal
+
+try:
+    import pandas
+    from pandas.util.testing import assert_frame_equal
+except ImportError:
+    pandas = None
+
 from six import PY3
 from pydruid.client import PyDruid
 from pydruid.utils import aggregators
@@ -86,6 +91,7 @@ class TestClient:
         client.export_tsv(str(file_path))
         assert file_path.read() == "value2\tvalue1\ttimestamp" + line_ending() + "㬓\t1\t2015-01-01T00:00:00.000-05:00" + line_ending() + "㬓\t2\t2015-01-02T00:00:00.000-05:00" + line_ending()
 
+    @pytest.mark.skipif(pandas is None, reason="requires pandas")
     def test_export_pandas(self):
         client = create_client_with_results()
         df = client.export_pandas()
