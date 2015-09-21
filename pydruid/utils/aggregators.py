@@ -15,6 +15,9 @@
 #
 from six import iteritems
 
+from .filters import Filter
+
+
 def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
 
@@ -34,9 +37,26 @@ def max(raw_metric):
 def count(raw_metric):
     return {"type": "count", "fieldName": raw_metric}
 
+
 def hyperunique(raw_metric):
     return {"type": "hyperUnique", "fieldName": raw_metric}
 
+
+def filtered(filter, agg):
+    return {"type": "filtered",
+            "filter": Filter.build_filter(filter),
+            "aggregator": agg}
+
+
 def build_aggregators(agg_input):
-    return [dict([('name', k)] + list(v.items()))
-            for (k, v) in iteritems(agg_input)]
+    return [_build_aggregator(name, kwargs)
+            for (name, kwargs) in iteritems(agg_input)]
+
+
+def _build_aggregator(name, kwargs):
+    if kwargs["type"] == "filtered":
+        kwargs["aggregator"]["name"] = name
+    else:
+        kwargs.update({"name": name})
+
+    return kwargs
