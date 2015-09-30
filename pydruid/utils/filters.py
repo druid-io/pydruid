@@ -39,7 +39,7 @@ class Filter:
             self.filter = {"filter": {"type": "not",
                                       "field": args["field"]}}
         else:
-            raise NotImplemented(
+            raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
 
     def show(self):
@@ -67,4 +67,3 @@ class Dimension:
 
     def __eq__(self, other):
         return Filter(dimension=self.dimension, value=other)
-
