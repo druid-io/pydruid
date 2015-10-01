@@ -38,8 +38,8 @@ class PyDruid:
     PyDruid contains the functions for creating and executing Druid queries, as well as
     for exporting query results into TSV files or pandas.DataFrame objects for subsequent analysis.
 
-    :param str url: URL of Bard node in the Druid cluster
-    :param str endpoint: Endpoint that Bard listens for queries on
+    :param str url: URL of Broker node in the Druid cluster
+    :param str endpoint: Endpoint that Broker listens for queries on
 
     :ivar str result_json: JSON object representing a query result. Initial value: None
     :ivar list result: Query result parsed into a list of dicts. Initial value: None
