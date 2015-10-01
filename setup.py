@@ -35,7 +35,7 @@ setup(
     url='http://pypi.python.org/pypi/pydruid/',
     license='Apache License, Version 2.0',
     description='A Python connector for Druid.',
-    long_description='See https://github.com/metamx/pydruid for more information.',
+    long_description='See https://github.com/druid-io/pydruid for more information.',
     install_requires=install_requires,
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
