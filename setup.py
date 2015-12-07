@@ -28,7 +28,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.2.3',
+    version='0.2.4',
     author='Deep Ganguli',
     author_email='deep@metamarkets.com',
     packages=['pydruid', 'pydruid.utils'],

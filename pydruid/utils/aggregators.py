@@ -42,6 +42,12 @@ def hyperunique(raw_metric):
     return {"type": "hyperUnique", "fieldName": raw_metric}
 
 
+def cardinality(raw_column, by_row=False):
+    if type(raw_column) is not list:
+        raw_column = [raw_column]
+    return {"type": "cardinality", "fieldNames": raw_column, "byRow": by_row}
+
+
 def filtered(filter, agg):
     return {"type": "filtered",
             "filter": Filter.build_filter(filter),
