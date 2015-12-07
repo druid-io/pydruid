@@ -25,7 +25,9 @@ class TestAggregators:
                 aggregators.doublesum('metric3'),
                 aggregators.min('metric4'),
                 aggregators.max('metric5'),
-                aggregators.hyperunique('metric6')]
+                aggregators.hyperunique('metric6'),
+                aggregators.cardinality('dim1'),
+                aggregators.cardinality(['dim1', 'dim2'], by_row=True)]
         for agg in aggs:
             expected = {
                 'type': 'filtered',
@@ -46,7 +48,9 @@ class TestAggregators:
             'agg3': aggregators.doublesum('metric3'),
             'agg4': aggregators.min('metric4'),
             'agg5': aggregators.max('metric5'),
-            'agg6': aggregators.hyperunique('metric6')
+            'agg6': aggregators.hyperunique('metric6'),
+            'agg7': aggregators.cardinality('dim1'),
+            'agg8': aggregators.cardinality(['dim1', 'dim2'], by_row=True)
         }
         built_agg = aggregators.build_aggregators(agg_input)
         expected = [
@@ -56,6 +60,8 @@ class TestAggregators:
             {'name': 'agg4', 'type': 'min', 'fieldName': 'metric4'},
             {'name': 'agg5', 'type': 'max', 'fieldName': 'metric5'},
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
+            {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
+            {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
         ]
         assert (sorted(built_agg, key=itemgetter('name')) ==
                 sorted(expected, key=itemgetter('name')))
@@ -74,7 +80,11 @@ class TestAggregators:
             'agg5': aggregators.filtered(filter_,
                                          aggregators.max('metric5')),
             'agg6': aggregators.filtered(filter_,
-                                         aggregators.hyperunique('metric6'))
+                                         aggregators.hyperunique('metric6')),
+            'agg7': aggregators.filtered(filter_,
+                                         aggregators.cardinality('dim1')),
+            'agg8': aggregators.filtered(filter_,
+                                         aggregators.cardinality(['dim1', 'dim2'], by_row=True)),
         }
         base = {
             'type': 'filtered',
@@ -92,6 +102,8 @@ class TestAggregators:
             {'name': 'agg4', 'type': 'min', 'fieldName': 'metric4'},
             {'name': 'agg5', 'type': 'max', 'fieldName': 'metric5'},
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
+            {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
+            {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
         ]
         expected = []
         for agg in aggs:
