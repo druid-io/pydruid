@@ -3,9 +3,11 @@
 .idea/
 build/
 dist/
-pyDruid.egg-info/
+pydruid.egg-info/
 __pycache__
+.cache
 .eggs
+*.egg/
 \#*#
 .#*
 *~

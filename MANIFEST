@@ -4,6 +4,7 @@ README.txt
 setup.py
 pydruid
 pydruid/__init__.py
+pydruid/async_client.py
 pydruid/client.py
 pydruid/utils/__init__.py
 pydruid/utils/aggregators.py
