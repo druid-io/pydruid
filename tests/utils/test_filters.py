@@ -22,6 +22,12 @@ class TestFilter:
         expected = {'type': 'selector', 'dimension': 'dim', 'value': 'val'}
         assert actual == expected
 
+    def test_javascript_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Filter(type='javascript', dimension='dim', function='function(x){return true}'))
+        expected = {'type': 'javascript', 'dimension': 'dim', 'function': 'function(x){return true}'}
+        assert actual == expected
+
     def test_and_filter(self):
         f1 = filters.Filter(dimension='dim1', value='val1')
         f2 = filters.Filter(dimension='dim2', value='val2')
