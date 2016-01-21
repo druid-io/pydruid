@@ -27,6 +27,11 @@ class Filter:
                                       "dimension": args["dimension"],
                                       "value": args["value"]}}
 
+        elif args["type"] == "javascript":
+            self.filter = {"filter": {"type": "javascript",
+                                      "dimension": args["dimension"],
+                                      "function": args["function"]}}                              
+
         elif args["type"] == "and":
             self.filter = {"filter": {"type": "and",
                                       "fields": args["fields"]}}
@@ -67,3 +72,10 @@ class Dimension:
 
     def __eq__(self, other):
         return Filter(dimension=self.dimension, value=other)
+
+class JavaScript:
+    def __init__(self, dim):
+        self.dimension = dim
+
+    def __eq__(self, func):
+        return Filter(type='javascript', dimension=self.dimension, function=func)
