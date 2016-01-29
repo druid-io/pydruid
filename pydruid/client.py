@@ -31,7 +31,9 @@ from .utils.aggregators import *
 from .utils.postaggregator import *
 from .utils.filters import *
 from .utils.having import *
+from .utils.dimensions import build_dimension
 from .utils.query_utils import *
+
 
 class PyDruid:
     """
@@ -312,6 +314,10 @@ class PyDruid:
                 query_dict[key] = Filter.build_filter(val)
             elif key == "having":
                 query_dict[key] = Having.build_having(val)
+            elif key == 'dimension':
+                query_dict[key] = build_dimension(val)
+            elif key == 'dimensions':
+                query_dict[key] = [build_dimension(v) for v in val]
             else:
                 query_dict[key] = val
 
