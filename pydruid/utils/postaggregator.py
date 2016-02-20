@@ -17,6 +17,7 @@ from __future__ import division
 
 import six
 
+
 class Postaggregator:
     def __init__(self, fn, fields, name):
         self.post_aggregator = {'type': 'arithmetic',
@@ -75,3 +76,10 @@ class Const(Postaggregator):
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
             'type': 'constant', 'name': name, 'value': value}
+
+
+class HyperUniqueCardinality(Postaggregator):
+    def __init__(self, name):
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+            'type': 'hyperUniqueCardinality', 'fieldName': name}
