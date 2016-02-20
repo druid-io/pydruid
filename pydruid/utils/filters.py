@@ -21,7 +21,6 @@ except ImportError:
 
 class Filter:
     def __init__(self, **args):
-
         if 'type' not in args.keys():
             self.filter = {"filter": {"type": "selector",
                                       "dimension": args["dimension"],
@@ -30,7 +29,7 @@ class Filter:
         elif args["type"] == "javascript":
             self.filter = {"filter": {"type": "javascript",
                                       "dimension": args["dimension"],
-                                      "function": args["function"]}}                              
+                                      "function": args["function"]}}
 
         elif args["type"] == "and":
             self.filter = {"filter": {"type": "and",
@@ -50,13 +49,23 @@ class Filter:
     def show(self):
         print(json.dumps(self.filter, indent=4))
 
+    def flatten(self):
+        if 'fields' in self.filter['filter']:
+            return self.filter['filter']['fields']
+
+        return [self.filter['filter']]
+
     def __and__(self, x):
-        return Filter(type="and",
-                      fields=[self.filter['filter'], x.filter['filter']])
+        flattened = self.flatten()
+        flattened.extend(x.flatten())
+
+        return Filter(type="and", fields=flattened)
 
     def __or__(self, x):
-        return Filter(type="or",
-                      fields=[self.filter['filter'], x.filter['filter']])
+        flattened = self.flatten()
+        flattened.extend(x.flatten())
+
+        return Filter(type="or", fields=flattened)
 
     def __invert__(self):
         return Filter(type="not", field=self.filter['filter'])
