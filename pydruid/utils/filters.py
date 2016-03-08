@@ -51,19 +51,31 @@ class Filter:
         print(json.dumps(self.filter, indent=4))
 
     def __and__(self, x):
-        return Filter(type="and",
-                      fields=[self.filter['filter'], x.filter['filter']])
+        if self.filter['filter']['type'] == 'and':
+            # if `self` is already `and`, don't create a new filter
+            # but just append `x` to the filter fields.
+            self.filter['filter']['fields'].append(x)
+            return self
+        return Filter(type="and", fields=[self, x])
 
     def __or__(self, x):
-        return Filter(type="or",
-                      fields=[self.filter['filter'], x.filter['filter']])
+        if self.filter['filter']['type'] == 'or':
+            # if `self` is already `or`, don't create a new filter
+            # but just append `x` to the filter fields.
+            self.filter['filter']['fields'].append(x)
+            return self
+        return Filter(type="or", fields=[self, x])
 
     def __invert__(self):
         return Filter(type="not", field=self.filter['filter'])
 
     @staticmethod
     def build_filter(filter_obj):
-        return filter_obj.filter['filter']
+        filter = filter_obj.filter['filter']
+        if filter['type'] in ['and', 'or']:
+            filter = filter.copy()  # make a copy so we don't overwrite `fields`
+            filter['fields'] = [Filter.build_filter(f) for f in filter['fields']]
+        return filter
 
 
 class Dimension:

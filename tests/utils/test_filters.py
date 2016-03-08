@@ -41,6 +41,22 @@ class TestFilter:
         }
         assert actual == expected
 
+    def test_and_filter_multiple(self):
+        f1 = filters.Filter(dimension='dim1', value='val1')
+        f2 = filters.Filter(dimension='dim2', value='val2')
+        f3 = filters.Filter(dimension='dim3', value='val3')
+        filter = filters.Filter(type='and', fields=[f1, f2, f3])
+        actual = filters.Filter.build_filter(filter)
+        expected = {
+            'type': 'and',
+            'fields': [
+                {'type': 'selector', 'dimension': 'dim1', 'value': 'val1'},
+                {'type': 'selector', 'dimension': 'dim2', 'value': 'val2'},
+                {'type': 'selector', 'dimension': 'dim3', 'value': 'val3'}
+            ]
+        }
+        assert actual == expected
+
     def test_or_filter(self):
         f1 = filters.Filter(dimension='dim1', value='val1')
         f2 = filters.Filter(dimension='dim2', value='val2')
@@ -50,6 +66,53 @@ class TestFilter:
             'fields': [
                 {'type': 'selector', 'dimension': 'dim1', 'value': 'val1'},
                 {'type': 'selector', 'dimension': 'dim2', 'value': 'val2'}
+            ]
+        }
+        assert actual == expected
+
+    def test_nested_mix_filter(self):
+        f1 = filters.Filter(dimension='dim1', value='val1')
+        f2 = filters.Filter(dimension='dim2', value='val2')
+        f3 = filters.Filter(dimension='dim3', value='val3')
+        f4 = filters.Filter(dimension='dim4', value='val4')
+        f5 = filters.Filter(dimension='dim5', value='val5')
+        f6 = filters.Filter(dimension='dim6', value='val6')
+        f7 = filters.Filter(dimension='dim7', value='val7')
+        f8 = filters.Filter(dimension='dim8', value='val8')
+        actual = filters.Filter.build_filter(f1 & ~f2 & f3 & (f4 | ~f5 | f6 | (f7 & ~f8)))
+        expected = {
+            'fields': [{'dimension': 'dim1', 'type': 'selector', 'value': 'val1'},
+                       {'field': {'dimension': 'dim2', 'type': 'selector', 'value': 'val2'},
+                        'type': 'not'},
+                       {'dimension': 'dim3', 'type': 'selector', 'value': 'val3'},
+                       {'fields': [{'dimension': 'dim4', 'type': 'selector', 'value': 'val4'},
+                                   {'field': {'dimension': 'dim5', 'type': 'selector',
+                                              'value': 'val5'},
+                                    'type': 'not'},
+                                   {'dimension': 'dim6', 'type': 'selector', 'value': 'val6'},
+                                   {'fields': [
+                                       {'dimension': 'dim7', 'type': 'selector', 'value': 'val7'},
+                                       {'field': {'dimension': 'dim8', 'type': 'selector',
+                                                  'value': 'val8'},
+                                        'type': 'not'}],
+                                    'type': 'and'}],
+                        'type': 'or'}],
+            'type': 'and'
+        }
+        assert actual == expected
+
+    def test_or_filter_multiple(self):
+        f1 = filters.Filter(dimension='dim1', value='val1')
+        f2 = filters.Filter(dimension='dim2', value='val2')
+        f3 = filters.Filter(dimension='dim3', value='val3')
+        filter = filters.Filter(type='or', fields=[f1, f2, f3])
+        actual = filters.Filter.build_filter(filter)
+        expected = {
+            'type': 'or',
+            'fields': [
+                {'type': 'selector', 'dimension': 'dim1', 'value': 'val1'},
+                {'type': 'selector', 'dimension': 'dim2', 'value': 'val2'},
+                {'type': 'selector', 'dimension': 'dim3', 'value': 'val3'}
             ]
         }
         assert actual == expected
