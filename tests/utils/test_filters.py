@@ -13,6 +13,13 @@ class TestDimension:
         expected = {'type': 'selector', 'dimension': 'dim', 'value': 'val'}
         assert actual == expected
 
+    def test_ne_dimension(self):
+        d = filters.Dimension('dim')
+        actual = filters.Filter.build_filter(d != 'val')
+        expected = {'field': {'dimension': 'dim', 'type': 'selector', 'value': 'val'},
+                    'type': 'not'}
+        assert actual == expected
+
 
 class TestFilter:
 
