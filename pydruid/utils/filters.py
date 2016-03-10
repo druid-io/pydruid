@@ -85,6 +85,9 @@ class Dimension:
     def __eq__(self, other):
         return Filter(dimension=self.dimension, value=other)
 
+    def __ne__(self, other):
+        return ~Filter(dimension=self.dimension, value=other)
+
 class JavaScript:
     def __init__(self, dim):
         self.dimension = dim
