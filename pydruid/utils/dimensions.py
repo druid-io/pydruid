@@ -112,3 +112,18 @@ class MapLookupExtraction(LookupExtraction):
         lookup['map'] = self._mapping
 
         return lookup
+
+
+class NamespaceLookupExtraction(LookupExtraction):
+
+    lookup_type = 'namespace'
+
+    def __init__(self, namespace, **kwargs):
+        super(NamespaceLookupExtraction, self).__init__(**kwargs)
+        self._namespace = namespace
+
+    def build_lookup(self):
+        lookup = super(NamespaceLookupExtraction, self).build_lookup()
+        lookup['namespace'] = self._namespace
+
+        return lookup
