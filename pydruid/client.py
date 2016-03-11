@@ -120,7 +120,7 @@ class PyDruid:
             headers = {'Content-Type': 'application/json'}
             req = urllib.request.Request(url, querystr, headers)
             res = urllib.request.urlopen(req)
-            data = res.read()
+            data = res.read().decode('utf-8')
             self.result_json = data
             res.close()
         except urllib.error.HTTPError:
@@ -129,7 +129,7 @@ class PyDruid:
             if e.code==500:
                 # has Druid returned an error?
                 try:
-                    err= json.loads(e.read())
+                    err= json.loads(e.read().decode('utf-8'))
                 except ValueError:
                     pass
                 else:
