@@ -30,7 +30,7 @@ class Filter:
         elif args["type"] == "javascript":
             self.filter = {"filter": {"type": "javascript",
                                       "dimension": args["dimension"],
-                                      "function": args["function"]}}                              
+                                      "function": args["function"]}}
 
         elif args["type"] == "and":
             self.filter = {"filter": {"type": "and",
@@ -87,6 +87,7 @@ class Dimension:
 
     def __ne__(self, other):
         return ~Filter(dimension=self.dimension, value=other)
+
 
 class JavaScript:
     def __init__(self, dim):
