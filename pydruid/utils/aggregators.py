@@ -61,7 +61,7 @@ def build_aggregators(agg_input):
 
 def _build_aggregator(name, kwargs):
     if kwargs["type"] == "filtered":
-        kwargs["aggregator"]["name"] = name
+        kwargs["aggregator"] = _build_aggregator(name, kwargs["aggregator"])
     else:
         kwargs.update({"name": name})
 

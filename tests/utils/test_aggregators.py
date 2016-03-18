@@ -41,6 +41,23 @@ class TestAggregators:
             actual = aggregators.filtered(filter_, agg)
             assert actual == expected
 
+    def test_nested_filtered_aggregator(self):
+        filter1 = filters.Filter(dimension='dim1', value='val')
+        filter2 = filters.Filter(dimension='dim2', value='val')
+        agg = aggregators.filtered(filter1,
+                                   aggregators.filtered(filter2, aggregators.count('metric1')))
+        actual = aggregators.build_aggregators({'agg_name': agg})
+        # the innermost aggregation must have 'agg_name'
+        expected = [{
+            'type': 'filtered',
+            'aggregator': {
+                'type': 'filtered',
+                'aggregator': {'fieldName': 'metric1', 'type': 'count', 'name': 'agg_name'},
+                'filter': {'dimension': 'dim2', 'value': 'val', 'type': 'selector'}},
+            'filter': {'dimension': 'dim1', 'value': 'val', 'type': 'selector'}
+        }]
+        assert expected == actual
+
     def test_build_aggregators(self):
         agg_input = {
             'agg1': aggregators.count('metric1'),
