@@ -74,6 +74,27 @@ class JavascriptExtraction(ExtractionFunction):
         return extractor
 
 
+class TimeFormatExtraction(ExtractionFunction):
+
+    extraction_type = 'timeFormat'
+
+    def __init__(self, format, locale=None, time_zone=None):
+        super(TimeFormatExtraction, self).__init__()
+        self._format = format
+        self._locale = locale
+        self._time_zone = time_zone
+
+    def build(self):
+        extractor = super(TimeFormatExtraction, self).build()
+        extractor['format'] = self._format
+        if self._locale:
+            extractor['locale'] = self._locale
+        if self._time_zone:
+            extractor['timeZone'] = self._time_zone
+
+        return extractor
+
+
 class LookupExtraction(ExtractionFunction):
 
     extraction_type = 'lookup'

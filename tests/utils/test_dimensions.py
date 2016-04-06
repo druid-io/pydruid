@@ -1,6 +1,7 @@
 from pydruid.utils.dimensions import RegexExtraction
 from pydruid.utils.dimensions import PartialExtraction
 from pydruid.utils.dimensions import JavascriptExtraction
+from pydruid.utils.dimensions import TimeFormatExtraction
 from pydruid.utils.dimensions import MapLookupExtraction
 from pydruid.utils.dimensions import DimensionSpec
 from pydruid.utils.dimensions import build_dimension
@@ -98,6 +99,42 @@ class TestJavascriptExtraction(object):
             'type': 'javascript',
             'function': js_func,
             'injective': False
+        }
+
+        assert actual == expected
+
+
+class TestTimeFormatExtraction(object):
+
+    def test_time_format_all_set(self):
+        ext_fn = TimeFormatExtraction('EEEE', 'en-US', 'Europe/Berlin')
+        actual = ext_fn.build()
+        expected = {
+            'type': 'timeFormat',
+            'format': 'EEEE',
+            'locale': 'en-US',
+            'timeZone': 'Europe/Berlin'
+        }
+
+        assert actual == expected
+
+    def test_time_format_no_timezone(self):
+        ext_fn = TimeFormatExtraction('EEEE', 'en-US')
+        actual = ext_fn.build()
+        expected = {
+            'type': 'timeFormat',
+            'format': 'EEEE',
+            'locale': 'en-US',
+        }
+
+        assert actual == expected
+
+    def test_time_format_only_format(self):
+        ext_fn = TimeFormatExtraction('EEEE')
+        actual = ext_fn.build()
+        expected = {
+            'type': 'timeFormat',
+            'format': 'EEEE',
         }
 
         assert actual == expected
