@@ -133,6 +133,18 @@ class TestFilter:
         }
         assert actual == expected
 
+    def test_nested_not_or_filter(self):
+        f1 = filters.Filter(dimension='dim1', value='val1')
+        f2 = filters.Filter(dimension='dim2', value='val2')
+        actual = filters.Filter.build_filter(~(f1 | f2))
+        expected = {
+            'type': 'not',
+            'field': {'type': 'or',
+                      'fields': [{'type': 'selector', 'dimension': 'dim1', 'value': 'val1'},
+                                 {'type': 'selector', 'dimension': 'dim2', 'value': 'val2'}]}
+        }
+        assert actual == expected
+
     def test_invalid_filter(self):
         with pytest.raises(NotImplementedError):
             filters.Filter(type='invalid', dimension='dim', value='val')
