@@ -43,6 +43,10 @@ class Filter:
         elif args["type"] == "not":
             self.filter = {"filter": {"type": "not",
                                       "field": args["field"]}}
+        elif args["type"] == "regex":
+            self.filter = {"filter": {"type": "regex",
+                                      "dimension": args["dimension"],
+                                      "pattern": args["pattern"]}}
         else:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
