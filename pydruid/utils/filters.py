@@ -71,7 +71,7 @@ class Filter:
         return Filter(type="or", fields=[self, x])
 
     def __invert__(self):
-        return Filter(type="not", field=self.filter['filter'])
+        return Filter(type="not", field=self)
 
     @staticmethod
     def build_filter(filter_obj):
@@ -79,6 +79,8 @@ class Filter:
         if filter['type'] in ['and', 'or']:
             filter = filter.copy()  # make a copy so we don't overwrite `fields`
             filter['fields'] = [Filter.build_filter(f) for f in filter['fields']]
+        elif filter['type'] in ['not']:
+            filter['field'] = Filter.build_filter(filter['field'])
         return filter
 
 
