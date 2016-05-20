@@ -53,6 +53,12 @@ def filtered(filter, agg):
             "filter": Filter.build_filter(filter),
             "aggregator": agg}
 
+def javascript(columns_list, fn_aggregate, fn_combine, fn_reset):
+    return {"type": "javascript",
+            "fieldNames": columns_list,
+            "fnAggregate":fn_aggregate,
+            "fnCombine":fn_combine,
+            "fnReset":fn_reset}
 
 def build_aggregators(agg_input):
     return [_build_aggregator(name, kwargs)
