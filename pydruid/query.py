@@ -24,12 +24,6 @@ from pydruid.utils.dimensions import build_dimension
 from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
 
-try:
-    import pandas
-except ImportError:
-    print('Warning: unable to import Pandas. The export_pandas method will not work.')
-    pass
-
 
 class Query(collections.MutableSequence):
     """
@@ -159,6 +153,8 @@ class Query(collections.MutableSequence):
                     0      7  2013-10-04T00:00:00.000Z         user_1
                     1      6  2013-10-04T00:00:00.000Z         user_2
         """
+        import pandas
+
         if self.result:
             if self.query_type == "timeseries":
                 nres = [list(v['result'].items()) + [('timestamp', v['timestamp'])]
