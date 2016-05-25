@@ -145,6 +145,27 @@ class TestFilter:
         }
         assert actual == expected
 
+    def test_in_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Filter(type='in', dimension='dim',
+                           values=['val1', 'val2', 'val3']))
+        expected = {'type': 'in', 'dimension': 'dim',
+                    'values': ['val1', 'val2', 'val3']}
+        assert actual == expected
+
+    def test_not_in_filter(self):
+        actual = filters.Filter.build_filter(
+            ~filters.Filter(type='in', dimension='dim',
+                            values=['val1', 'val2', 'val3']))
+        expected = {
+            'type': 'not',
+            'field': {
+                'type': 'in', 'dimension': 'dim',
+                'values': ['val1', 'val2', 'val3']
+            }
+        }
+        assert actual == expected
+
     def test_invalid_filter(self):
         with pytest.raises(NotImplementedError):
             filters.Filter(type='invalid', dimension='dim', value='val')
