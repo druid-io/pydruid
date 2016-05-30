@@ -295,7 +295,7 @@ class QueryBuilder(object):
         """
         query_type = 'timeseries'
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'aggregations',
+            'datasource', 'granularity', 'filter', 'aggregations', 'descending',
             'post_aggregations', 'intervals'
         ]
         self.validate_query(query_type, valid_parts, args)
