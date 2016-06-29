@@ -111,6 +111,44 @@ class TestQueryBuilder:
         # then
         assert query.query_dict == expected_query_dict
 
+    def test_build_query_none_type(self):
+        # given
+        expected_query_dict = {
+            'queryType': None,
+            'dataSource': 'things',
+            'aggregations': [{'fieldName': 'thing', 'name': 'count', 'type': 'count'}],
+            'filter': {'dimension': 'one', 'type': 'selector', 'value': 1},
+            'having': {'aggregation': 'sum', 'type': 'greaterThan', 'value': 1},
+            'dimension': 'dim1',
+        }
+
+        builder = QueryBuilder()
+
+        # when
+        builder_dict = {
+            'datasource': 'things',
+            'aggregations': {
+                'count': aggregators.count('thing'),
+            },
+            'filter': filters.Dimension('one') == 1,
+            'having': having.Aggregation('sum') > 1,
+            'dimension': 'dim1',
+        }
+        query = builder.build_query(None, builder_dict)
+
+        # then
+        assert query.query_dict == expected_query_dict
+
+        # you should be able to pass `None` to dimension/having/filter
+        for v in ['dimension', 'having', 'filter']:
+            expected_query_dict[v] = None
+            builder_dict[v] = None
+
+            query = builder.build_query(None, builder_dict)
+
+            assert query.query_dict == expected_query_dict
+
+
     def test_validate_query(self):
         # given
         builder = QueryBuilder()
