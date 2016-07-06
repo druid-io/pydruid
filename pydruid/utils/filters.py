@@ -31,18 +31,19 @@ class Filter:
             self.filter = {"filter": {"type": "javascript",
                                       "dimension": args["dimension"],
                                       "function": args["function"]}}
-
         elif args["type"] == "and":
             self.filter = {"filter": {"type": "and",
                                       "fields": args["fields"]}}
-
         elif args["type"] == "or":
             self.filter = {"filter": {"type": "or",
                                       "fields": args["fields"]}}
-
         elif args["type"] == "not":
             self.filter = {"filter": {"type": "not",
                                       "field": args["field"]}}
+        elif args["type"] == "in":
+            self.filter = {"filter": {"type": "in",
+                                      "dimension": args["dimension"],
+                                      "values": args["values"]}}
         elif args["type"] == "regex":
             self.filter = {"filter": {"type": "regex",
                                       "dimension": args["dimension"],
@@ -81,6 +82,7 @@ class Filter:
             filter['fields'] = [Filter.build_filter(f) for f in filter['fields']]
         elif filter['type'] in ['not']:
             filter['field'] = Filter.build_filter(filter['field'])
+
         return filter
 
 
