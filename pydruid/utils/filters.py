@@ -48,6 +48,14 @@ class Filter:
             self.filter = {"filter": {"type": "regex",
                                       "dimension": args["dimension"],
                                       "pattern": args["pattern"]}}
+        elif args["type"] == "bound":
+            self.filter = {"filter": {"type": "bound",
+                                      "dimension": args["dimension"],
+                                      "lower": args["lower"],
+                                      "lowerStrict": args["lowerStrict"],
+                                      "upper": args["upper"],
+                                      "upperStrict": args["upperStrict"],
+                                      "alphaNumeric": args["alphaNumeric"]}}
         else:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
@@ -103,3 +111,23 @@ class JavaScript:
 
     def __eq__(self, func):
         return Filter(type='javascript', dimension=self.dimension, function=func)
+
+
+class Bound(Filter):
+    """
+    Bound filter can be used to filter by comparing dimension values to an upper value or/and a lower value. 
+
+    :ivar str dimension: Dimension to filter on.
+    :ivar str lower: Lower bound.
+    :ivar str upper: Upper bound.
+    :ivar bool lowerStrict: Strict lower inclusion. Initial value: False
+    :ivar bool upperStrict: Strict upper inclusion. Initial value: False
+    :ivar bool alphaNumeric: Numeric comparison. Initial value: False
+    """
+    def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False, alphaNumeric=False):
+
+        Filter.__init__(self,
+            type='bound', dimension=dimension,
+            lower=lower, upper=upper,
+            lowerStrict=lowerStrict, upperStrict=upperStrict,
+            alphaNumeric=alphaNumeric)

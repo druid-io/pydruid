@@ -35,6 +35,12 @@ class TestFilter:
         expected = {'type': 'javascript', 'dimension': 'dim', 'function': 'function(x){return true}'}
         assert actual == expected
 
+    def test_bound_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True, upper='10', upperStrict=True, alphaNumeric=True))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
+        assert actual == expected
+
     def test_and_filter(self):
         f1 = filters.Filter(dimension='dim1', value='val1')
         f2 = filters.Filter(dimension='dim2', value='val2')
