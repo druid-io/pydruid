@@ -125,8 +125,11 @@ class TestFilter:
         assert actual == expected
 
     def test_not_filter(self):
-        f = filters.Filter(dimension='dim', value='val')
-        actual = filters.Filter.build_filter(~f)
+        f = ~filters.Filter(dimension='dim', value='val')
+        actual = filters.Filter.build_filter(f)
+        # Call `build_filter` twice to make sure it does not
+        # change the passed filter object argument `f`.
+        actual = filters.Filter.build_filter(f)
         expected = {
             'type': 'not',
             'field': {'type': 'selector', 'dimension': 'dim', 'value': 'val'}

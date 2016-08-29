@@ -81,6 +81,7 @@ class Filter:
             filter = filter.copy()  # make a copy so we don't overwrite `fields`
             filter['fields'] = [Filter.build_filter(f) for f in filter['fields']]
         elif filter['type'] in ['not']:
+            filter = filter.copy()
             filter['field'] = Filter.build_filter(filter['field'])
 
         return filter
