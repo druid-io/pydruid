@@ -58,6 +58,21 @@ class Postaggregator:
                 for (new_name, postagg) in six.iteritems(postaggs)]
 
 
+class Quantile(Postaggregator):
+    def __init__(self, name, probability):
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+            'type': 'quantile', 'fieldName': name, 'probability': probability}
+
+
+class Quantiles(Postaggregator):
+    def __init__(self, name, probabilities):
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+            'type': 'quantiles', 'fieldName': name,
+            'probabilities': probabilities}
+
+
 class Field(Postaggregator):
     def __init__(self, name):
         Postaggregator.__init__(self, None, None, name)
