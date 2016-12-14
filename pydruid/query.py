@@ -246,11 +246,11 @@ class QueryBuilder(object):
                 query_dict['pagingSpec'] = val
             elif key == 'limit_spec':
                 query_dict['limitSpec'] = val
-            elif key == "filter":
+            elif key == "filter" and val is not None:
                 query_dict[key] = Filter.build_filter(val)
-            elif key == "having":
+            elif key == "having" and val is not None:
                 query_dict[key] = Having.build_having(val)
-            elif key == 'dimension':
+            elif key == 'dimension' and val is not None:
                 query_dict[key] = build_dimension(val)
             elif key == 'dimensions':
                 query_dict[key] = [build_dimension(v) for v in val]
