@@ -363,3 +363,20 @@ class QueryBuilder(object):
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
+
+    def search(self, args):
+        """
+        A search query returns dimension values that match the search specification.
+
+        :param dict args: dict of args
+
+        :return: search query
+        :rtype: Query
+        """
+        query_type = 'search'
+        valid_parts = [
+            'datasource', 'granularity', 'filter', 'searchDimensions', 'query',
+            'limit', 'intervals', 'sort'
+        ]
+        self.validate_query(query_type, valid_parts, args)
+        return self.build_query(query_type, args)
