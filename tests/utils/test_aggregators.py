@@ -27,7 +27,11 @@ class TestAggregators:
                 aggregators.max('metric5'),
                 aggregators.hyperunique('metric6'),
                 aggregators.cardinality('dim1'),
-                aggregators.cardinality(['dim1', 'dim2'], by_row=True)]
+                aggregators.cardinality(['dim1', 'dim2'], by_row=True),
+                aggregators.thetasketch('dim1'),
+                aggregators.thetasketch('metric7'),
+                aggregators.thetasketch('metric8', isinputthetasketch=True, size=8192)
+               ]
         for agg in aggs:
             expected = {
                 'type': 'filtered',
@@ -67,7 +71,10 @@ class TestAggregators:
             'agg5': aggregators.max('metric5'),
             'agg6': aggregators.hyperunique('metric6'),
             'agg7': aggregators.cardinality('dim1'),
-            'agg8': aggregators.cardinality(['dim1', 'dim2'], by_row=True)
+            'agg8': aggregators.cardinality(['dim1', 'dim2'], by_row=True),
+            'agg9': aggregators.thetasketch('dim1'),
+            'agg10': aggregators.thetasketch('metric7'),
+            'agg11': aggregators.thetasketch('metric8', isinputthetasketch = True, size=8192)
         }
         built_agg = aggregators.build_aggregators(agg_input)
         expected = [
@@ -79,6 +86,10 @@ class TestAggregators:
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
             {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
             {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
+            {'name': 'agg9', 'type': 'thetaSketch', 'fieldName': 'dim1', 'isInputThetaSketch': False, 'size': 16384},
+            {'name': 'agg10', 'type': 'thetaSketch', 'fieldName': 'metric7', 'isInputThetaSketch': False, 'size': 16384},
+            {'name': 'agg11', 'type': 'thetaSketch', 'fieldName': 'metric8', 'isInputThetaSketch': True, 'size': 8192}
+
         ]
         assert (sorted(built_agg, key=itemgetter('name')) ==
                 sorted(expected, key=itemgetter('name')))
@@ -102,6 +113,12 @@ class TestAggregators:
                                          aggregators.cardinality('dim1')),
             'agg8': aggregators.filtered(filter_,
                                          aggregators.cardinality(['dim1', 'dim2'], by_row=True)),
+            'agg9': aggregators.filtered(filter_,
+                                         aggregators.thetasketch('dim1')),
+            'agg10': aggregators.filtered(filter_,
+                                         aggregators.thetasketch('metric7')),
+            'agg11': aggregators.filtered(filter_,
+                                         aggregators.thetasketch('metric8', isinputthetasketch = True, size=8192)),
         }
         base = {
             'type': 'filtered',
@@ -121,6 +138,10 @@ class TestAggregators:
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
             {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
             {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
+            {'name': 'agg9', 'type': 'thetaSketch', 'fieldName': 'dim1', 'isInputThetaSketch': False, 'size': 16384},
+            {'name': 'agg10', 'type': 'thetaSketch', 'fieldName': 'metric7', 'isInputThetaSketch': False, 'size': 16384},
+            {'name': 'agg11', 'type': 'thetaSketch', 'fieldName': 'metric8', 'isInputThetaSketch': True, 'size': 8192}
+
         ]
         expected = []
         for agg in aggs:

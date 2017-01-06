@@ -18,6 +18,10 @@ from six import iteritems
 from .filters import Filter
 
 
+def thetasketch(raw_column, isinputthetasketch = False, size = 16384):
+    return {"type": "thetaSketch", "fieldName": raw_column, "isInputThetaSketch": isinputthetasketch, "size": size}
+
+
 def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
 

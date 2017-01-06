@@ -151,3 +151,38 @@ def your_asynchronous_method_serving_top10_mentions_for_day(day
     # can be simply ```return top_mentions``` in python 3.x
     raise gen.Return(top_mentions)
 ```
+
+
+#thetaSketches
+Theta sketches post-aggregators are built slightly differently to normal PAs, as they have different operators.
+Note: you must have the ```druid-datasketches``` extension loaded to use these.
+
+```python
+from pydruid.client import *
+from pydruid.utils import aggregators
+from pydruid.utils import filters
+from pydruid.utils import postaggregator
+
+query = PyDruid(url_to_druid_broker, 'druid/v2')
+ts = query.groupby(
+    datasource='test_datasource',
+    granularity='all',
+    intervals='2016-09-01/P1M',
+    filter = ( filters.Dimension('product').in_(['product_A', 'product_B'])),
+    aggregations={
+        'product_A_users': aggregators.filtered(
+            filters.Dimension('product') == 'product_A',
+            aggregators.thetasketch('user_id')
+            ),
+        'product_B_users': aggregators.filtered(
+            filters.Dimension('product') == 'product_B',
+            aggregators.thetasketch('user_id')
+            )
+    },
+    post_aggregations={
+        'both_A_and_B': postaggregator.ThetaSketchEstimate(
+            postaggregator.Theta('product_A_users') & postaggregator.Theta('product_B_users')
+            )
+    }
+    )
+```

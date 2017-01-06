@@ -98,3 +98,56 @@ class HyperUniqueCardinality(Postaggregator):
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
             'type': 'hyperUniqueCardinality', 'fieldName': name}
+
+
+
+
+class ThetaSketchOp:
+    def __init__(self, fn, fields, name):
+        self.post_aggregator = {'type': 'thetaSketchSetOp',
+                                'name': name,
+                                'func': fn,
+                                'fields': fields}
+        self.name = name
+
+    def __or__(self, other):
+        return ThetaSketchOp('UNION', self.fields(other),
+                              self.name + 'or' + other.name)
+
+    def __and__(self, other):
+        return ThetaSketchOp('INTERSECT', self.fields(other),
+                              self.name + 'and' + other.name)
+
+    def __ne__(self, other):
+        return ThetaSketchOp('NOT', self.fields(other),
+                              self.name + 'not' + other.name)
+
+    def fields(self, other):
+        return [self.post_aggregator, other.post_aggregator]
+
+    @staticmethod
+    def build_post_aggregators(thetasketchops):
+        def rename_thetasketchop(new_name, thetasketchop):
+            thetasketchop['name'] = new_name
+            return thetasketchop
+
+        return [rename_thetasketchop(new_name, thetasketchop.post_aggregator)
+                for (new_name, thetasketchop) in six.iteritems(thetasketchops)]
+
+
+class Theta(ThetaSketchOp):
+    def __init__(self, name):
+        ThetaSketchOp.__init__(self, None, None, name)
+        self.post_aggregator = {
+            'type': 'fieldAccess', 'fieldName': name}
+
+
+class ThetaSketchEstimate(Postaggregator):
+    def __init__(self, fields):
+        self.post_aggregator = {
+            'type': 'thetaSketchEstimate',
+            'name': 'thetasketchestimate',
+            'field': fields.post_aggregator if type(fields) in [Theta, ThetaSketchOp] else fields}
+        self.name = 'thetasketchestimate'
+
+
