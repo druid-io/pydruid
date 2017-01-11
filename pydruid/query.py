@@ -202,6 +202,28 @@ class QueryBuilder(object):
         self.last_query = None
 
     @staticmethod
+    def parse_datasource(datasource, query_type):
+        """
+        Parse an input datasource object into valid dictionary
+
+        Input can be a string, in which case it is simply returned, or a list, when it is turned into
+        a UNION datasource.
+
+        :param datasource: datasource parameter
+        :param string query_type: query type
+        :raise ValueError: if input is not string or list of strings
+        """
+        if not (
+                    isinstance(datasource, str) or
+                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource]))
+                ):
+            raise ValueError('Datasource definition not valid. Must be string or list of strings')
+        if isinstance(datasource, str):
+            return datasource
+        else:
+            return {'type': 'union', 'dataSources': datasource}
+
+    @staticmethod
     def validate_query(query_type, valid_parts, args):
         """
         Validate the query parts so only allowed objects are sent.
@@ -241,7 +263,7 @@ class QueryBuilder(object):
             elif key == 'post_aggregations':
                 query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
             elif key == 'datasource':
-                query_dict['dataSource'] = val
+                query_dict['dataSource'] = self.parse_datasource(val, query_type)
             elif key == 'paging_spec':
                 query_dict['pagingSpec'] = val
             elif key == 'limit_spec':

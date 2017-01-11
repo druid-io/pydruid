@@ -159,6 +159,32 @@ class TestQueryBuilder:
         # then
         pytest.raises(ValueError, builder.validate_query, *[None, ['validkey'], {'invalidkey': 'value'}])
 
+    def test_union_datasource(self):
+        # Given
+        expected_query_dict = {'queryType': None, 'dataSource': 'things',}
+        builder = QueryBuilder()
+        # when
+        builder_dict = {'datasource': 'things'}
+        query = builder.build_query(None, builder_dict)
+        # then
+        assert query.query_dict == expected_query_dict
+
+        # Given
+        expected_query_dict = {'queryType': None, 'dataSource': {'type': 'union', 'dataSources': ['things','others','more']}}
+        builder = QueryBuilder()
+        # when
+        builder_dict = {'datasource': ['things', 'others','more']}
+        query = builder.build_query(None, builder_dict)
+        # then
+        assert query.query_dict == expected_query_dict
+
+        # Given check that it rejects non-string items
+        builder = QueryBuilder()
+        builder_dict = {'datasource': ['things',123]}
+        with pytest.raises(ValueError):
+            query = builder.build_query(None, builder_dict)
+
+
 
 class TestQuery:
     def test_export_tsv(self, tmpdir):
