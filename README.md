@@ -154,8 +154,9 @@ def your_asynchronous_method_serving_top10_mentions_for_day(day
 
 
 #thetaSketches
-Theta sketches post-aggregators are built slightly differently to normal PAs, as they have different operators.
-Note: you must have the ```druid-datasketches``` extension loaded to use these.
+Theta sketch Post aggregators are built slightly differently to normal Post Aggregators, as they have different operators.
+Note: you must have the ```druid-datasketches``` extension loaded into your Druid cluster in order to use these. 
+See the [Druid datasketches](http://druid.io/docs/latest/development/extensions-core/datasketches-aggregators.html) documentation for details.
 
 ```python
 from pydruid.client import *
@@ -181,7 +182,7 @@ ts = query.groupby(
     },
     post_aggregations={
         'both_A_and_B': postaggregator.ThetaSketchEstimate(
-            postaggregator.Theta('product_A_users') & postaggregator.Theta('product_B_users')
+            postaggregator.ThetaSketch('product_A_users') & postaggregator.ThetaSketch('product_B_users')
             )
     }
     )

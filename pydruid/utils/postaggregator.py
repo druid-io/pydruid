@@ -112,15 +112,15 @@ class ThetaSketchOp:
 
     def __or__(self, other):
         return ThetaSketchOp('UNION', self.fields(other),
-                              self.name + 'or' + other.name)
+                              self.name + '_OR_' + other.name)
 
     def __and__(self, other):
         return ThetaSketchOp('INTERSECT', self.fields(other),
-                              self.name + 'and' + other.name)
+                              self.name + '_AND_' + other.name)
 
     def __ne__(self, other):
         return ThetaSketchOp('NOT', self.fields(other),
-                              self.name + 'not' + other.name)
+                              self.name + '_NOT_' + other.name)
 
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
@@ -135,7 +135,7 @@ class ThetaSketchOp:
                 for (new_name, thetasketchop) in six.iteritems(thetasketchops)]
 
 
-class Theta(ThetaSketchOp):
+class ThetaSketch(ThetaSketchOp):
     def __init__(self, name):
         ThetaSketchOp.__init__(self, None, None, name)
         self.post_aggregator = {
@@ -147,7 +147,7 @@ class ThetaSketchEstimate(Postaggregator):
         self.post_aggregator = {
             'type': 'thetaSketchEstimate',
             'name': 'thetasketchestimate',
-            'field': fields.post_aggregator if type(fields) in [Theta, ThetaSketchOp] else fields}
+            'field': fields.post_aggregator if type(fields) in [ThetaSketch, ThetaSketchOp] else fields}
         self.name = 'thetasketchestimate'
 
 

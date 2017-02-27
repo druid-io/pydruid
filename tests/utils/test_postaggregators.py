@@ -1,4 +1,18 @@
-# -*- coding: UTF-8 -*-
+#
+# Copyright 2016 Metamarkets Group Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 from operator import itemgetter
 from copy import deepcopy
@@ -13,18 +27,18 @@ class TestPostAggregators:
         assert True
     def test_build_thetapostaggregator(self):
         pagg_input = {
-            'pag1': ThetaSketchEstimate(Theta('theta1')),
-            'pag2': ThetaSketchEstimate(Theta('theta1') & Theta('theta2')),
-            'pag3': ThetaSketchEstimate(Theta('theta1') | Theta('theta2')),
-            'pag4': ThetaSketchEstimate(Theta('theta1') != Theta('theta2')),
+            'pag1': ThetaSketchEstimate(ThetaSketch('theta1')),
+            'pag2': ThetaSketchEstimate(ThetaSketch('theta1') & ThetaSketch('theta2')),
+            'pag3': ThetaSketchEstimate(ThetaSketch('theta1') | ThetaSketch('theta2')),
+            'pag4': ThetaSketchEstimate(ThetaSketch('theta1') != ThetaSketch('theta2')),
             'pag5': ThetaSketchEstimate(
-                (Theta('theta1') != Theta('theta2')) & Theta('theta3')),
+                (ThetaSketch('theta1') != ThetaSketch('theta2')) & ThetaSketch('theta3')),
         }
         built_agg = ThetaSketchEstimate.build_post_aggregators(pagg_input)
         expected = [
             {'name': 'pag1', 'type': 'thetaSketchEstimate', 'field': {'type': 'fieldAccess', 'fieldName': 'theta1'}},
             {'name': 'pag2', 'type': 'thetaSketchEstimate', 'field':
-                {'type': 'thetaSketchSetOp', 'func': 'INTERSECT', 'name': 'theta1andtheta2', 'fields':
+                {'type': 'thetaSketchSetOp', 'func': 'INTERSECT', 'name': 'theta1_AND_theta2', 'fields':
                     [
                         {'type': 'fieldAccess', 'fieldName': 'theta1'},
                         {'type': 'fieldAccess', 'fieldName': 'theta2'}
@@ -32,7 +46,7 @@ class TestPostAggregators:
                 }
              },
             {'name': 'pag3', 'type': 'thetaSketchEstimate', 'field':
-                {'type': 'thetaSketchSetOp', 'func': 'UNION', 'name': 'theta1ortheta2', 'fields':
+                {'type': 'thetaSketchSetOp', 'func': 'UNION', 'name': 'theta1_OR_theta2', 'fields':
                     [
                         {'type': 'fieldAccess', 'fieldName': 'theta1'},
                         {'type': 'fieldAccess', 'fieldName': 'theta2'}
@@ -40,7 +54,7 @@ class TestPostAggregators:
                  }
              },
             {'name': 'pag4', 'type': 'thetaSketchEstimate', 'field':
-                {'type': 'thetaSketchSetOp', 'func': 'NOT', 'name': 'theta1nottheta2', 'fields':
+                {'type': 'thetaSketchSetOp', 'func': 'NOT', 'name': 'theta1_NOT_theta2', 'fields':
                     [
                         {'type': 'fieldAccess', 'fieldName': 'theta1'},
                         {'type': 'fieldAccess', 'fieldName': 'theta2'}
@@ -48,9 +62,9 @@ class TestPostAggregators:
                  }
              },
             {'name': 'pag5', 'type': 'thetaSketchEstimate', 'field':
-                {'type': 'thetaSketchSetOp', 'func': 'INTERSECT', 'name': 'theta1nottheta2andtheta3', 'fields':
+                {'type': 'thetaSketchSetOp', 'func': 'INTERSECT', 'name': 'theta1_NOT_theta2_AND_theta3', 'fields':
                     [
-                        {'type': 'thetaSketchSetOp', 'name': 'theta1nottheta2', 'func': 'NOT', 'fields':
+                        {'type': 'thetaSketchSetOp', 'name': 'theta1_NOT_theta2', 'func': 'NOT', 'fields':
                             [
                                 {'fieldName': 'theta1', 'type': 'fieldAccess'},
                                 {'fieldName': 'theta2', 'type': 'fieldAccess'}
