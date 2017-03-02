@@ -22,13 +22,16 @@ from .dimensions import build_dimension
 
 
 class Filter:
-    def __init__(self, **args):
 
-        if 'type' not in args.keys():
+    # filter types supporting extraction function
+    _FILTERS_WITH_EXTR_FN_ = ('selector', 'regex', 'javascript', 'in', 'bound')
+
+    def __init__(self, extraction_function=None, **args):
+
+        if 'type' not in args:
             self.filter = {"filter": {"type": "selector",
                                       "dimension": args["dimension"],
                                       "value": args["value"]}}
-
         elif args["type"] == "javascript":
             self.filter = {"filter": {"type": "javascript",
                                       "dimension": args["dimension"],
@@ -69,6 +72,14 @@ class Filter:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
 
+        if extraction_function is not None:
+            type_ = self.filter['filter']['type']
+            if type_ not in self._FILTERS_WITH_EXTR_FN_:
+                raise ValueError('Filter of type {0} doesn\'t support '
+                                 'extraction function'.format(type_))
+        self.extraction_function = extraction_function
+
+
     def show(self):
         print(json.dumps(self.filter, indent=4))
 
@@ -103,6 +114,11 @@ class Filter:
         elif filter['type'] in ['columnComparison']:
             filter = filter.copy()
             filter['dimensions'] = [build_dimension(d) for d in filter['dimensions']]
+
+        if filter_obj.extraction_function is not None:
+            if filter is filter_obj.filter['filter']:  # copy if not yet copied
+                filter = filter.copy()
+            filter['extractionFn'] = filter_obj.extraction_function.build()
 
         return filter
 

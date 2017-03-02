@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
+from pydruid.utils import dimensions, filters
 
-from pydruid.utils import filters
-from pydruid.utils.dimensions import DimensionSpec
+import pytest
 
 
 class TestDimension:
@@ -28,6 +27,15 @@ class TestFilter:
         actual = filters.Filter.build_filter(
             filters.Filter(dimension='dim', value='val'))
         expected = {'type': 'selector', 'dimension': 'dim', 'value': 'val'}
+        assert actual == expected
+
+    def test_selector_filter_extraction_fn(self):
+        extraction_fn = dimensions.RegexExtraction('([a-b])')
+        f = filters.Filter(dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'selector', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'regex', 'expr': '([a-b])'}}
         assert actual == expected
 
     def test_javascript_filter(self):
@@ -190,7 +198,7 @@ class TestFilter:
         actual = filters.Filter.build_filter(
             filters.Filter(type='columnComparison', dimensions=[
                 'dim1',
-                DimensionSpec('dim2', 'dim2')
+                dimensions.DimensionSpec('dim2', 'dim2')
             ]))
         expected = {'type': 'columnComparison', 'dimensions': [
                 'dim1',
