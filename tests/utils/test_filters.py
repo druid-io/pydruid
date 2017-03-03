@@ -38,6 +38,15 @@ class TestFilter:
                     'extractionFn': {'type': 'regex', 'expr': '([a-b])'}}
         assert actual == expected
 
+    def test_extraction_filter(self):
+        extraction_fn = dimensions.PartialExtraction('([a-b])')
+        f = filters.Filter(type='extraction', dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'extraction', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'partial', 'expr': '([a-b])'}}
+        assert actual == expected
+
     def test_javascript_filter(self):
         actual = filters.Filter.build_filter(
             filters.Filter(type='javascript', dimension='dim', function='function(x){return true}'))
