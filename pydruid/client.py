@@ -29,6 +29,12 @@ class BaseDruidClient(object):
         self.url = url
         self.endpoint = endpoint
         self.query_builder = QueryBuilder()
+        self.username = None
+        self.password = None
+        
+    def set_basic_auth_credentials(self, username, password):
+        self.username = username
+        self.password = password
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
@@ -37,6 +43,11 @@ class BaseDruidClient(object):
         else:
             url = self.url + '/' + self.endpoint
         headers = {'Content-Type': 'application/json'}
+        if (self.username is not None) and (self.password is not None):
+            username_password = \
+                b64encode(bytes('{}:{}'.format(self.username, self.password)))
+            headers['Authorization'] = 'Basic {}'.format(username_password)
+            
         return headers, querystr, url
 
     def _post(self, query):
