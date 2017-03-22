@@ -22,7 +22,7 @@ import sys
 from six.moves import urllib
 
 from pydruid.query import QueryBuilder
-
+from base64 import b64encode
 
 class BaseDruidClient(object):
     def __init__(self, url, endpoint):
