@@ -3,6 +3,7 @@
 import pytest
 
 from pydruid.utils import filters
+from pydruid.utils.dimensions import DimensionSpec
 
 
 class TestDimension:
@@ -178,3 +179,15 @@ class TestFilter:
     def test_invalid_filter(self):
         with pytest.raises(NotImplementedError):
             filters.Filter(type='invalid', dimension='dim', value='val')
+
+    def test_columnComparison_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Filter(type='columnComparison', dimensions=[
+                'dim1',
+                DimensionSpec('dim2', 'dim2')
+            ]))
+        expected = {'type': 'columnComparison', 'dimensions': [
+                'dim1',
+                {'type': 'default', 'dimension': 'dim2', 'outputName': 'dim2'}
+            ]}
+        assert actual == expected

@@ -18,6 +18,8 @@ try:
 except ImportError:
     import json
 
+from .dimensions import build_dimension
+
 
 class Filter:
     def __init__(self, **args):
@@ -56,6 +58,9 @@ class Filter:
                                       "upper": args["upper"],
                                       "upperStrict": args["upperStrict"],
                                       "alphaNumeric": args["alphaNumeric"]}}
+        elif args["type"] == "columnComparison":
+            self.filter = {"filter": {"type": "columnComparison",
+                                      "dimensions": args["dimensions"]}}
         else:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
@@ -91,6 +96,9 @@ class Filter:
         elif filter['type'] in ['not']:
             filter = filter.copy()
             filter['field'] = Filter.build_filter(filter['field'])
+        elif filter['type'] in ['columnComparison']:
+            filter = filter.copy()
+            filter['dimensions'] = [build_dimension(d) for d in filter['dimensions']]
 
         return filter
 
