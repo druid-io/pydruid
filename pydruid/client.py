@@ -413,8 +413,6 @@ class PyDruid(BaseDruidClient):
                     err = json.loads(e.read().decode("utf-8"))
                 except (ValueError, AttributeError, KeyError):
                     pass
-                else:
-                    err = err.get('error', None)
 
             raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
                     e, err, json.dumps(query.query_dict, indent=4)))
