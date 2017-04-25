@@ -18,6 +18,20 @@ from six import iteritems
 from .filters import Filter
 
 
+def min(raw_metric):
+    """
+    .. note:: Deprecated use `longMin`, `doubleMin' instead
+    """
+    return {"type": "min", "fieldName": raw_metric}
+
+
+def max(raw_metric):
+    """
+    .. note:: Deprecated use `longMax`, `doubleMax' instead
+    """
+    return {"type": "max", "fieldName": raw_metric}
+
+
 def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
 
