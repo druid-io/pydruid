@@ -10,9 +10,9 @@ from pydruid.utils import filters
 class TestAggregators:
 
     def test_aggregators(self):
-        aggs = [('longsum', 'longSum'), ('doublesum', 'doubleSum'),
-                ('min', 'min'), ('max', 'max'), ('count', 'count'),
-                ('hyperunique', 'hyperUnique')]
+        aggs = [('longsum', 'longSum'), ('longmin', 'longMin'), ('longmax', 'longMax'),
+                ('doublesum', 'doubleSum'), ('doublemin', 'doubleMin'), ('doublemax', 'doubleMax'),
+                ('count', 'count'), ('hyperunique', 'hyperUnique')]
         aggs_funcs = [(getattr(aggregators, agg_name), agg_type)
                       for agg_name, agg_type in aggs]
         for f, agg_type in aggs_funcs:
@@ -23,8 +23,8 @@ class TestAggregators:
         aggs = [aggregators.count('metric1'),
                 aggregators.longsum('metric2'),
                 aggregators.doublesum('metric3'),
-                aggregators.min('metric4'),
-                aggregators.max('metric5'),
+                aggregators.doublemin('metric4'),
+                aggregators.doublemax('metric5'),
                 aggregators.hyperunique('metric6'),
                 aggregators.cardinality('dim1'),
                 aggregators.cardinality(['dim1', 'dim2'], by_row=True)]
@@ -63,8 +63,8 @@ class TestAggregators:
             'agg1': aggregators.count('metric1'),
             'agg2': aggregators.longsum('metric2'),
             'agg3': aggregators.doublesum('metric3'),
-            'agg4': aggregators.min('metric4'),
-            'agg5': aggregators.max('metric5'),
+            'agg4': aggregators.doublemin('metric4'),
+            'agg5': aggregators.doublemax('metric5'),
             'agg6': aggregators.hyperunique('metric6'),
             'agg7': aggregators.cardinality('dim1'),
             'agg8': aggregators.cardinality(['dim1', 'dim2'], by_row=True)
@@ -74,8 +74,8 @@ class TestAggregators:
             {'name': 'agg1', 'type': 'count', 'fieldName': 'metric1'},
             {'name': 'agg2', 'type': 'longSum', 'fieldName': 'metric2'},
             {'name': 'agg3', 'type': 'doubleSum', 'fieldName': 'metric3'},
-            {'name': 'agg4', 'type': 'min', 'fieldName': 'metric4'},
-            {'name': 'agg5', 'type': 'max', 'fieldName': 'metric5'},
+            {'name': 'agg4', 'type': 'doubleMin', 'fieldName': 'metric4'},
+            {'name': 'agg5', 'type': 'doubleMax', 'fieldName': 'metric5'},
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
             {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
             {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
@@ -93,9 +93,9 @@ class TestAggregators:
             'agg3': aggregators.filtered(filter_,
                                          aggregators.doublesum('metric3')),
             'agg4': aggregators.filtered(filter_,
-                                         aggregators.min('metric4')),
+                                         aggregators.doublemin('metric4')),
             'agg5': aggregators.filtered(filter_,
-                                         aggregators.max('metric5')),
+                                         aggregators.doublemax('metric5')),
             'agg6': aggregators.filtered(filter_,
                                          aggregators.hyperunique('metric6')),
             'agg7': aggregators.filtered(filter_,
@@ -116,8 +116,8 @@ class TestAggregators:
             {'name': 'agg1', 'type': 'count', 'fieldName': 'metric1'},
             {'name': 'agg2', 'type': 'longSum', 'fieldName': 'metric2'},
             {'name': 'agg3', 'type': 'doubleSum', 'fieldName': 'metric3'},
-            {'name': 'agg4', 'type': 'min', 'fieldName': 'metric4'},
-            {'name': 'agg5', 'type': 'max', 'fieldName': 'metric5'},
+            {'name': 'agg4', 'type': 'doubleMin', 'fieldName': 'metric4'},
+            {'name': 'agg5', 'type': 'doubleMax', 'fieldName': 'metric5'},
             {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
             {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
             {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
