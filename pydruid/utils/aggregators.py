@@ -22,20 +22,42 @@ def thetasketch(raw_column, isinputthetasketch = False, size = 16384):
     return {"type": "thetaSketch", "fieldName": raw_column, "isInputThetaSketch": isinputthetasketch, "size": size}
 
 
+def min(raw_metric):
+    """
+    .. note:: Deprecated use `longMin`, `doubleMin' instead
+    """
+    return {"type": "min", "fieldName": raw_metric}
+
+
+def max(raw_metric):
+    """
+    .. note:: Deprecated use `longMax`, `doubleMax' instead
+    """
+    return {"type": "max", "fieldName": raw_metric}
+
+
 def longsum(raw_metric):
     return {"type": "longSum", "fieldName": raw_metric}
+
+
+def longmin(raw_metric):
+    return {"type": "longMin", "fieldName": raw_metric}
+
+
+def longmax(raw_metric):
+    return {"type": "longMax", "fieldName": raw_metric}
 
 
 def doublesum(raw_metric):
     return {"type": "doubleSum", "fieldName": raw_metric}
 
 
-def min(raw_metric):
-    return {"type": "min", "fieldName": raw_metric}
+def doublemin(raw_metric):
+    return {"type": "doubleMin", "fieldName": raw_metric}
 
 
-def max(raw_metric):
-    return {"type": "max", "fieldName": raw_metric}
+def doublemax(raw_metric):
+    return {"type": "doubleMax", "fieldName": raw_metric}
 
 
 def count(raw_metric):
