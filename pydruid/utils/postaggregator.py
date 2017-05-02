@@ -100,6 +100,56 @@ class HyperUniqueCardinality(Postaggregator):
             'type': 'hyperUniqueCardinality', 'fieldName': name}
 
 
+class DoubleGreatest(Postaggregator):
+    def __init__(self, fields, output_name=None):
+
+        if output_name is None:
+            name = 'doubleGreatest'
+        else:
+            name = output_name
+
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+                'type': 'doubleGreatest', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+
+
+class DoubleLeast(Postaggregator):
+    def __init__(self, fields, output_name=None):
+
+        if output_name is None:
+            name = 'doubleLeast'
+        else:
+            name = output_name
+
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+                'type': 'doubleLeast', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+
+
+class LongGreatest(Postaggregator):
+    def __init__(self, fields, output_name=None):
+
+        if output_name is None:
+            name = 'longGreatest'
+        else:
+            name = output_name
+
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+                'type': 'longGreatest', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+
+
+class LongLeast(Postaggregator):
+    def __init__(self, fields, output_name=None):
+
+        if output_name is None:
+            name = 'longLeast'
+        else:
+            name = output_name
+
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {
+                'type': 'longLeast', 'name': name, 'fields': [f.post_aggregator for f in fields]}
 
 
 class ThetaSketchOp:
