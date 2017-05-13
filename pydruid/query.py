@@ -179,7 +179,7 @@ class Query(collections.MutableSequence):
             return df
 
     def __str__(self):
-        return self.result
+        return str(self.result)
 
     def __len__(self):
         return len(self.result)
