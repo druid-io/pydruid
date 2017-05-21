@@ -42,6 +42,12 @@ class TestFilter:
         expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
         assert actual == expected
 
+    def test_interval_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Interval(dimension='dim', intervals=["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]))
+        expected = {'type': 'interval', 'dimension': 'dim', 'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]}
+        assert actual == expected
+
     def test_and_filter(self):
         f1 = filters.Filter(dimension='dim1', value='val1')
         f2 = filters.Filter(dimension='dim2', value='val2')
