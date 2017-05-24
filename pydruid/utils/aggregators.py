@@ -18,6 +18,10 @@ from six import iteritems
 from .filters import Filter
 
 
+def thetasketch(raw_column, isinputthetasketch = False, size = 16384):
+    return {"type": "thetaSketch", "fieldName": raw_column, "isInputThetaSketch": isinputthetasketch, "size": size}
+
+
 def min(raw_metric):
     """
     .. note:: Deprecated use `longMin`, `doubleMin' instead
