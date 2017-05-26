@@ -61,6 +61,10 @@ class Filter:
         elif args["type"] == "columnComparison":
             self.filter = {"filter": {"type": "columnComparison",
                                       "dimensions": args["dimensions"]}}
+        elif args["type"] == "interval":
+            self.filter = {"filter": {"type": "interval",
+                                      "dimension": args["dimension"],
+                                      "intervals": args["intervals"]}}
         else:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(args['type']))
@@ -140,3 +144,18 @@ class Bound(Filter):
             lower=lower, upper=upper,
             lowerStrict=lowerStrict, upperStrict=upperStrict,
             alphaNumeric=alphaNumeric)
+
+
+class Interval(Filter):
+    """
+    Interval filter can be used to filter by comparing dimension(__time) values to a list of intervals.
+
+    :ivar str dimension: Dimension to filter on.
+    :ivar list intervals: List of ISO-8601 intervals of data to filter out.
+    """
+    def __init__(self, dimension, intervals):
+
+        Filter.__init__(self,
+            type='interval', dimension=dimension,
+            intervals=intervals)
+
