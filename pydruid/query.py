@@ -365,7 +365,7 @@ class QueryBuilder(object):
         :rtype: Query
         """
         query_type = 'timeBoundary'
-        valid_parts = ['datasource']
+        valid_parts = ['datasource', 'filter']
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
 
