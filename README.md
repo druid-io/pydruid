@@ -169,7 +169,7 @@ ts = query.groupby(
     datasource='test_datasource',
     granularity='all',
     intervals='2016-09-01/P1M',
-    filter = ( filters.Dimension('product').in_(['product_A', 'product_B'])),
+    filter = filters.Filter(type='in', dimension='product', values=['product_A', 'product_B']),
     aggregations={
         'product_A_users': aggregators.filtered(
             filters.Dimension('product') == 'product_A',
