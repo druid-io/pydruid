@@ -43,6 +43,33 @@ def create_query_with_results():
     return query
 
 
+def create_query_with_select_results():
+    query = Query({}, 'select')
+    query.result = [
+         {
+            "timestamp": "2017-01-01T00:00:00.000Z",
+            "result": {
+                "pagingIdentifiers": { "test_2017-01-01T08:00:00.000+08:00_2017-01-02T08:00:00.000+08:00_2017-07-04T16:37:03.563+08:00": 4 },
+                "dimensions": ["value1", "value2"],
+                "metrics": [],
+                "events": [
+                    {
+                        "segmentId": "test_2017-01-01T08:00:00.000+08:00_2017-01-02T08:00:00.000+08:00_2017-07-04T16:37:03.563+08:00",
+                        "offset": 0,
+                        "event": {"timestamp": "2017-01-01T08:00:00.000+08:00", "value1": 1, "value2": 2}
+                    },
+                    {
+                        "segmentId": "test_2017-01-01T08:00:00.000+08:00_2017-01-02T08:00:00.000+08:00_2017-07-04T16:37:03.563+08:00",
+                        "offset": 1,
+                        "event": {"timestamp": "2017-01-01T08:00:01.000+08:00", "value1": 11, "value2": 12}
+                    }
+                ]
+            }
+        }
+    ]
+    return query
+
+
 EXPECTED_RESULTS_PANDAS = [{
             'timestamp': '2015-01-01T00:00:00.000-05:00',
             'value1': 1,
@@ -54,12 +81,28 @@ EXPECTED_RESULTS_PANDAS = [{
         }]
 
 
+EXPECTED_SELECT_RESULTS_PANDAS = [
+    {"timestamp": "2017-01-01T08:00:00.000+08:00", "value1": 1, "value2": 2},
+    {"timestamp": "2017-01-01T08:00:01.000+08:00", "value1": 11, "value2": 12}
+]
+
+
 def expected_results_csv_reader():
     # csv.DictReader does not perform promotion to int64
     expected_results = []
     for element in EXPECTED_RESULTS_PANDAS:
         modified_elem = element.copy()
         modified_elem.update({'value1': str(modified_elem['value1'])})
+        expected_results.append(modified_elem)
+    return expected_results
+
+
+def expected_results_select_csv_reader():
+    expected_results = []
+    for element in EXPECTED_SELECT_RESULTS_PANDAS:
+        modified_elem = element.copy()
+        modified_elem.update({'value1': str(modified_elem['value1'])})
+        modified_elem.update({'value2': str(modified_elem['value2'])})
         expected_results.append(modified_elem)
     return expected_results
 
@@ -197,11 +240,28 @@ class TestQuery:
             actual = [line for line in reader]
             assert actual == expected_results_csv_reader()
 
+    def test_export_select_tsv(self, tmpdir):
+        query = create_query_with_select_results()
+        file_path = tmpdir.join('out.tsv')
+        query.export_tsv(str(file_path))
+
+        with open(str(file_path)) as tsv_file:
+            reader = csv.DictReader(tsv_file, delimiter="\t")
+            actual = [line for line in reader]
+            assert actual == expected_results_select_csv_reader()
+
     @pytest.mark.skipif(pandas is None, reason="requires pandas")
     def test_export_pandas(self):
         query = create_query_with_results()
         df = query.export_pandas()
         expected_df = pandas.DataFrame(EXPECTED_RESULTS_PANDAS)
+        assert_frame_equal(df, expected_df)
+
+    @pytest.mark.skipif(pandas is None, reason="requires pandas")
+    def test_export_select_pandas(self):
+        query = create_query_with_select_results()
+        df = query.export_pandas()
+        expected_df = pandas.DataFrame(EXPECTED_SELECT_RESULTS_PANDAS)
         assert_frame_equal(df, expected_df)
 
     def test_query_acts_as_a_wrapper_for_raw_result(self):

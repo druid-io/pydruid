@@ -99,6 +99,8 @@ class Query(collections.MutableSequence):
             header = list(self.result[0]['event'].keys())
             header.append('timestamp')
             header.append('version')
+        elif self.query_type == "select":
+            header = list(self.result[0]['result']['events'][0]['event'].keys())
         else:
             raise NotImplementedError('TSV export not implemented for query type: {0}'.format(self.query_type))
 
@@ -120,6 +122,11 @@ class Query(collections.MutableSequence):
                     version = item['version']
                     w.writerow(
                         list(item['event'].values()) + [timestamp] + [version])
+            elif self.query_type == "select":
+                for item in self.result:
+                    result = item['result']['events']
+                    for line in result:
+                        w.writerow(list(line['event'].values()))
 
         f.close()
 
@@ -172,6 +179,13 @@ class Query(collections.MutableSequence):
                 nres = [list(v['event'].items()) + [('timestamp', v['timestamp'])]
                         for v in self.result]
                 nres = [dict(v) for v in nres]
+            elif self.query_type == "select":
+                nres = []
+                for item in self.result:
+                    results = item['result']
+                    tres = [dict(list(res['event'].items()))
+                            for res in results['events']]
+                    nres += tres
             else:
                 raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
 
