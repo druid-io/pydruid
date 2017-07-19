@@ -18,6 +18,8 @@ from __future__ import absolute_import
 
 import json
 import sys
+import gzip
+from StringIO import StringIO
 
 from six.moves import urllib
 
@@ -329,6 +331,7 @@ class PyDruid(BaseDruidClient):
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
+    :param bool gzip: If True, use gzip in all requests
 
     Example
 
@@ -383,15 +386,24 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, gzip=True):
         super(PyDruid, self).__init__(url, endpoint)
+        self.gzip = gzip
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
+            if self.gzip:
+                headers['Accept-Encoding'] = 'gzip'
             req = urllib.request.Request(url, querystr, headers)
+
             res = urllib.request.urlopen(req)
-            data = res.read().decode("utf-8")
+            if res.info().get('Content-Encoding') == 'gzip':
+                buffer = StringIO(res.read())
+                content = gzip.GzipFile(fileobj=buffer).read()
+            else:
+                content = res.read()
+            data = content.decode("utf-8")
             res.close()
         except urllib.error.HTTPError:
             _, e, _ = sys.exc_info()
