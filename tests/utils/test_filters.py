@@ -59,6 +59,18 @@ class TestFilter:
         expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
         assert actual == expected
 
+    def test_bound_filter_with_extraction_function(self):
+        f = filters.Bound(
+            dimension='d', lower='1', upper='3', upperStrict=True,
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)'))
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'bound', 'dimension': 'd', 'lower': '1',
+                    'lowerStrict': False, 'upper': '3', 'upperStrict': True,
+                    'alphaNumeric': False, 'extractionFn': {
+                        'type': 'regex', 'expr': '.*([0-9]+)'}}
+        assert actual == expected
+
+
     def test_interval_filter(self):
         actual = filters.Filter.build_filter(
             filters.Interval(dimension='dim', intervals=["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]))

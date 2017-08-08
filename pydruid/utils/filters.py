@@ -155,16 +155,18 @@ class Bound(Filter):
     :ivar bool lowerStrict: Strict lower inclusion. Initial value: False
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
+    :ivar ExtractionFunction extraction_function: extraction function to use,
+                                                  if not None
     """
     def __init__(
             self, dimension, lower, upper, lowerStrict=False,
-            upperStrict=False, alphaNumeric=False):
+            upperStrict=False, alphaNumeric=False, extraction_function=None):
         Filter.__init__(
             self,
             type='bound', dimension=dimension,
             lower=lower, upper=upper,
             lowerStrict=lowerStrict, upperStrict=upperStrict,
-            alphaNumeric=alphaNumeric)
+            alphaNumeric=alphaNumeric, extraction_function=extraction_function)
 
 
 class Interval(Filter):
