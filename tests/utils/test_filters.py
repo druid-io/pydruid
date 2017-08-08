@@ -77,6 +77,20 @@ class TestFilter:
         expected = {'type': 'interval', 'dimension': 'dim', 'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]}
         assert actual == expected
 
+    def test_interval_with_extraction_function(self):
+        f = filters.Interval(
+            dimension='dim', intervals=[
+                "2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)')
+        )
+        actual = filters.Filter.build_filter(f)
+        expected = {
+            'type': 'interval', 'dimension': 'dim',
+            'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}
+        }
+        assert actual == expected
+
     def test_and_filter(self):
         f1 = filters.Filter(dimension='dim1', value='val1')
         f2 = filters.Filter(dimension='dim2', value='val2')

@@ -25,7 +25,7 @@ class Filter:
 
     # filter types supporting extraction function
     _FILTERS_WITH_EXTR_FN = ('selector', 'regex', 'javascript', 'in', 'bound',
-                             'extraction')
+                             'interval', 'extraction')
 
     def __init__(self, extraction_function=None, **args):
 
@@ -176,10 +176,12 @@ class Interval(Filter):
 
     :ivar str dimension: Dimension to filter on.
     :ivar list intervals: List of ISO-8601 intervals of data to filter out.
+    :ivar ExtractionFunction extraction_function: extraction function to use,
+                                                  if not None
     """
-    def __init__(self, dimension, intervals):
+    def __init__(self, dimension, intervals, extraction_function=None):
 
         Filter.__init__(
             self,
             type='interval', dimension=dimension,
-            intervals=intervals)
+            intervals=intervals, extraction_function=extraction_function)
