@@ -52,12 +52,10 @@ class Filter:
                                       "pattern": args["pattern"]}}
         elif args["type"] == "bound":
             self.filter = {"filter": {"type": "bound",
-                                      "dimension": args["dimension"],
-                                      "lower": args["lower"],
-                                      "lowerStrict": args["lowerStrict"],
-                                      "upper": args["upper"],
-                                      "upperStrict": args["upperStrict"],
-                                      "alphaNumeric": args["alphaNumeric"]}}
+                                      "dimension": args["dimension"]}}
+            for key in ["lower", "lowerStrict", "upper", "upperStrict", "ordering"]:
+                if key in args:
+                    self.filter["filter"][key] = args[key]
         elif args["type"] == "columnComparison":
             self.filter = {"filter": {"type": "columnComparison",
                                       "dimensions": args["dimensions"]}}
