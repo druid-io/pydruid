@@ -329,6 +329,7 @@ class PyDruid(BaseDruidClient):
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
+    :param dict proxies: A dict of proxies (expected keys are http and/or https, can be empty to prevent using env proxy) [optional]
 
     Example
 
@@ -383,8 +384,12 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, proxies = None):
         super(PyDruid, self).__init__(url, endpoint)
+        if proxies != None:
+            proxy_support = urllib.request.ProxyHandler(proxies)
+            opener = urllib.request.build_opener(proxy_support)
+            urllib.request.install_opener(opener)
 
     def _post(self, query):
         try:
