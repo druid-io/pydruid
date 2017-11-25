@@ -262,6 +262,8 @@ class QueryBuilder(object):
                 query_dict[key] = build_aggregators(val)
             elif key == 'post_aggregations':
                 query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
+            elif key == 'context':
+                query_dict['context'] = val
             elif key == 'datasource':
                 query_dict['dataSource'] = self.parse_datasource(val, query_type)
             elif key == 'paging_spec':
