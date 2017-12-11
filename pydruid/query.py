@@ -214,11 +214,11 @@ class QueryBuilder(object):
         :raise ValueError: if input is not string or list of strings
         """
         if not (
-                    isinstance(datasource, str) or
-                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource]))
+                    isinstance(datasource, six.string_types) or
+                    (isinstance(datasource, list) and all([isinstance(x, six.string_types) for x in datasource]))
                 ):
             raise ValueError('Datasource definition not valid. Must be string or list of strings')
-        if isinstance(datasource, str):
+        if isinstance(datasource, six.string_types):
             return datasource
         else:
             return {'type': 'union', 'dataSources': datasource}
