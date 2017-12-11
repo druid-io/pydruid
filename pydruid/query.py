@@ -172,6 +172,10 @@ class Query(collections.MutableSequence):
                 nres = [list(v['event'].items()) + [('timestamp', v['timestamp'])]
                         for v in self.result]
                 nres = [dict(v) for v in nres]
+            elif self.query_type == "select":
+                nres = []
+                for item in self.result:
+                    nres += [e.get('event') for e in item['result'].get('events')]
             else:
                 raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
 
