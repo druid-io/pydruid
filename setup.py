@@ -3,11 +3,17 @@ from setuptools import setup
 
 install_requires = [
     "six >= 1.9.0",
+    "requests",
+    "future-fstrings",
 ]
+if sys.version_info < (3, 4):
+    install_requires.append("enum")
 
 extras_require = {
     "pandas": ["pandas"],
-    "async": ["tornado"]
+    "async": ["tornado"],
+    "sqlalchemy": ["sqlalchemy"],
+    "cli": ["pygments", "prompt_toolkit", "tabulate"],
 }
 
 # only require simplejson on python < 2.6
@@ -28,4 +34,14 @@ setup(
     extras_require=extras_require,
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'six', 'mock'],
+    entry_points={
+        'console_scripts': [
+            'druiddb = druiddb.console:main',
+        ],
+        'sqlalchemy.dialects': [
+            'druid = druiddb.druid_sqlalchemy:DruidHTTPDialect',
+            'druid.http = druiddb.druid_sqlalchemy:DruidHTTPDialect',
+            'druid.https = druiddb.druid_sqlalchemy:DruidHTTPSDialect',
+        ],
+    },
 )
