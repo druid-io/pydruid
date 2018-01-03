@@ -2,7 +2,7 @@
 
 import unittest
 
-from pydruid.db import rows_from_chunks
+from pydruid.db.api import rows_from_chunks
 
 
 class RowsFromChunksTestSuite(unittest.TestCase):
