@@ -13,7 +13,7 @@ from pygments.styles.default import DefaultStyle
 from six.moves.urllib import parse
 from tabulate import tabulate
 
-from pydruid.db import connect
+from pydruid.db.api import connect
 
 
 keywords = [
@@ -141,7 +141,7 @@ def get_autocomplete(connection):
 
 
 def main():
-    history = FileHistory(os.path.expanduser('~/.druiddb.txt'))
+    history = FileHistory(os.path.expanduser('~/.pydruid.txt'))
 
     try:
         url = sys.argv[1]

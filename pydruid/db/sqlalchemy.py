@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -135,11 +133,11 @@ class DruidDialect(default.DefaultDialect):
         ]
 
     def has_table(self, connection, table_name, schema=None):
-        query = f"""
+        query = """
             SELECT COUNT(*) > 0 AS exists
               FROM INFORMATION_SCHEMA.TABLES
              WHERE TABLE_NAME = '{table_name}'
-        """
+        """.format(table_name=table_name)
 
         result = connection.execute(query)
         return result.fetchone().exists
@@ -147,7 +145,8 @@ class DruidDialect(default.DefaultDialect):
     def get_table_names(self, connection, schema=None, **kwargs):
         query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES"
         if schema:
-            query = f"{query} WHERE TABLE_SCHEMA = '{schema}'"
+            query = "{query} WHERE TABLE_SCHEMA = '{schema}'".format(
+                query=query, schema=schema)
 
         result = connection.execute(query)
         return [row.TABLE_NAME for row in result]
@@ -159,16 +158,17 @@ class DruidDialect(default.DefaultDialect):
         return {}
 
     def get_columns(self, connection, table_name, schema=None, **kwargs):
-        query = f"""
+        query = """
             SELECT COLUMN_NAME,
                    DATA_TYPE,
                    IS_NULLABLE,
                    COLUMN_DEFAULT
               FROM INFORMATION_SCHEMA.COLUMNS
              WHERE TABLE_NAME = '{table_name}'
-        """
+        """.format(table_name=table_name)
         if schema:
-            query = f"{query} AND TABLE_SCHEMA = '{schema}'"
+            query = "{query} AND TABLE_SCHEMA = '{schema}'".format(
+                query=query, schema=schema)
 
         result = connection.execute(query)
 

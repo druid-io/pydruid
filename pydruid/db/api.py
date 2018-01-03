@@ -1,4 +1,3 @@
-# -*- coding: future_fstrings -*-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -38,7 +37,8 @@ def check_closed(f):
 
     def g(self, *args, **kwargs):
         if self.closed:
-            raise exceptions.Error(f'{self.__class__.__name__} already closed')
+            raise exceptions.Error(
+                '{klass} already closed'.format(klass=self.__class__name__))
         return f(self, *args, **kwargs)
     return g
 
@@ -84,7 +84,8 @@ def get_type(value):
     elif isinstance(value, bool):
         return Type.BOOLEAN
 
-    raise exceptions.Error(f'Value of unknown type: {value}')
+    raise exceptions.Error(
+        'Value of unknown type: {value}'.format(value=value))
 
 
 class Connection(object):
@@ -98,7 +99,7 @@ class Connection(object):
         path='/druid/v2/sql/',
         scheme='http',
     ):
-        netloc = f'{host}:{port}'
+        netloc = '{host}:{port}'.format(host=host, port=port)
         self.url = parse.urlunparse(
             (scheme, netloc, path, None, None, None))
         self.closed = False
@@ -267,8 +268,7 @@ class Cursor(object):
         if r.status_code != 200:
             payload = r.json()
             msg = (
-                f'{payload["error"]} ({payload["errorClass"]}): ' +
-                f'{payload["errorMessage"]}'
+                '{error} ({errorClass}): {errorMessage}'.format(**payload)
             )
             raise exceptions.ProgrammingError(msg)
 
@@ -299,7 +299,7 @@ def rows_from_chunks(chunks):
     body = ''
     for chunk in chunks:
         if chunk:
-            body = f'{body}{chunk}'
+            body = ''.join((body, chunk))
 
         # find last complete row
         boundary = 0
@@ -325,7 +325,7 @@ def rows_from_chunks(chunks):
         rows = body[:boundary].lstrip('[,')
         body = body[boundary:]
 
-        for row in json.loads(f'[{rows}]'):
+        for row in json.loads('[{rows}]'.format(rows=rows)):
             yield row
 
 
