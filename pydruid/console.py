@@ -141,7 +141,7 @@ def get_autocomplete(connection):
 
 
 def main():
-    history = FileHistory(os.path.expanduser('~/.pydruid.txt'))
+    history = FileHistory(os.path.expanduser('~/.pydruid_history'))
 
     try:
         url = sys.argv[1]
