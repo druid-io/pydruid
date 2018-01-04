@@ -198,7 +198,7 @@ ts = query.groupby(
 # DB API
 
 ```python
-from druiddb import connect
+from pydruid.db import connect
 
 conn = connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http')
 curs = conn.cursor()
@@ -231,7 +231,7 @@ print(select([func.count('*')], from_obj=places).scalar())
 # Command line
 
 ```bash
-$ druiddb http://localhost:8082/druid/v2/sql/
+$ pydruid http://localhost:8082/druid/v2/sql/
 > SELECT COUNT(*) AS cnt FROM places
   cnt
 -----
