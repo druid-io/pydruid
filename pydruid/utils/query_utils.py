@@ -20,7 +20,7 @@ import six
 # this is necessary because the values in druid are not all ASCII.
 
 
-class UnicodeWriter:
+class UnicodeWriter(object):
 
     # delimiter="\t"
     def __init__(self, f, dialect="excel-tab", encoding="utf-8", **kwds):
@@ -31,7 +31,8 @@ class UnicodeWriter:
     def __encode(self, data):
         data = str(data) if isinstance(data, six.integer_types) else data
         if not six.PY3:
-            data = data.encode('utf-8') if isinstance(data, unicode) else data
+            data = data.encode('utf-8') \
+                if isinstance(data, unicode) else data  # noqa
             data = data.decode('utf-8')
             return self.encoder.encode(data)
         return data

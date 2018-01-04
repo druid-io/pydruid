@@ -27,8 +27,10 @@ from pydruid.utils.query_utils import UnicodeWriter
 
 class Query(collections.MutableSequence):
     """
-    Query objects are produced by PyDruid clients and can be used for exporting query results into TSV files or
-    pandas.DataFrame objects for subsequent analysis. They also hold information about the issued query.
+    Query objects are produced by PyDruid clients and can be used for
+    exporting query results into TSV files or
+    pandas.DataFrame objects for subsequent analysis. They also hold
+    information about the issued query.
 
     Query acts as a wrapper over raw result list of dictionaries.
 
@@ -100,7 +102,8 @@ class Query(collections.MutableSequence):
             header.append('timestamp')
             header.append('version')
         else:
-            raise NotImplementedError('TSV export not implemented for query type: {0}'.format(self.query_type))
+            raise NotImplementedError(
+                'TSV export not implemented for query type: {0}'.format(self.query_type))
 
         w.writerow(header)
 
@@ -177,7 +180,9 @@ class Query(collections.MutableSequence):
                 for item in self.result:
                     nres += [e.get('event') for e in item['result'].get('events')]
             else:
-                raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
+                raise NotImplementedError(
+                    'Pandas export not implemented for query '
+                    'type: {0}'.format(self.query_type))
 
             df = pandas.DataFrame(nres)
             return df
@@ -210,8 +215,8 @@ class QueryBuilder(object):
         """
         Parse an input datasource object into valid dictionary
 
-        Input can be a string, in which case it is simply returned, or a list, when it is turned into
-        a UNION datasource.
+        Input can be a string, in which case it is simply returned, or a
+        list, when it is turned into a UNION datasource.
 
         :param datasource: datasource parameter
         :param string query_type: query type
@@ -219,9 +224,13 @@ class QueryBuilder(object):
         """
         if not (
                     isinstance(datasource, six.string_types) or
-                    (isinstance(datasource, list) and all([isinstance(x, six.string_types) for x in datasource]))
+                    (
+                        isinstance(datasource, list) and
+                        all([isinstance(x, six.string_types) for x in datasource])
+                    )
                 ):
-            raise ValueError('Datasource definition not valid. Must be string or list of strings')
+            raise ValueError(
+                'Datasource definition not valid. Must be string or list of strings')
         if isinstance(datasource, six.string_types):
             return datasource
         else:
@@ -232,8 +241,9 @@ class QueryBuilder(object):
         """
         Validate the query parts so only allowed objects are sent.
 
-        Each query type can have an optional 'context' object attached which is used to set certain
-        query context settings, etc. timeout or priority. As each query can have this object, there's
+        Each query type can have an optional 'context' object attached which
+        is used to set certain query context settings, etc. timeout or
+        priority. As each query can have this object, there's
         no need for it to be sent - it might as well be added here.
 
         :param string query_type: a type of query
@@ -265,7 +275,8 @@ class QueryBuilder(object):
             if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
             elif key == 'post_aggregations':
-                query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
+                query_dict['postAggregations'] = \
+                    Postaggregator.build_post_aggregators(val)
             elif key == 'context':
                 query_dict['context'] = val
             elif key == 'datasource':
@@ -290,8 +301,10 @@ class QueryBuilder(object):
 
     def topn(self, args):
         """
-        A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
-        topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
+        A TopN query returns a set of the values in a given dimension,
+        sorted by a specified metric. Conceptually, a
+        topN can be thought of as an approximate GroupByQuery over a
+        single dimension with an Ordering spec. TopNs are
         faster and more resource efficient than GroupBy for this use case.
 
         :param dict args: dict of arguments
@@ -310,7 +323,8 @@ class QueryBuilder(object):
 
     def timeseries(self, args):
         """
-        A timeseries query returns the values of the requested metrics (in aggregate) for each timestamp.
+        A timeseries query returns the values of the requested metrics
+        (in aggregate) for each timestamp.
 
         :param dict args: dict of args
 
@@ -327,7 +341,8 @@ class QueryBuilder(object):
 
     def groupby(self, args):
         """
-        A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).
+        A group-by query groups a results set (the requested aggregate
+        metrics) by the specified dimension(s).
 
         :param dict args: dict of args
 

@@ -22,7 +22,7 @@ except ImportError:
 class Having:
     def __init__(self, **args):
 
-        if args['type'] in ('equalTo', 'lessThan','greaterThan'):
+        if args['type'] in ('equalTo', 'lessThan', 'greaterThan'):
             self.having = {'having': {'type': args['type'],
                                       'aggregation': args['aggregation'],
                                       'value': args['value']}}
@@ -50,12 +50,12 @@ class Having:
         if self.having['having']['type'] == typ:
             havingSpecs = self.having['having']['havingSpecs'] + [x.having['having']]
             return Having(type=typ, havingSpecs=havingSpecs)
-        elif x.having['having']['type']==typ:
+        elif x.having['having']['type'] == typ:
             havingSpecs = [self.having['having']] + x.having['having']['havingSpecs']
             return Having(type=typ, havingSpecs=havingSpecs)
         else:
             return Having(type=typ,
-                      havingSpecs=[self.having['having'], x.having['having']])
+                          havingSpecs=[self.having['having'], x.having['having']])
 
     def __and__(self, x):
         return self._combine('and', x)
