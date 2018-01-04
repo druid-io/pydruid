@@ -1,6 +1,8 @@
-#pydruid
-pydruid exposes a simple API to create, execute, and analyze [Druid](http://druid.io/) queries. pydruid can parse query results into [Pandas](http://pandas.pydata.org/) DataFrame objects for subsequent data analysis -- this offers a tight integration between [Druid](http://druid.io/), the [SciPy](http://www.scipy.org/stackspec.html) stack (for scientific computing) and [scikit-learn](http://scikit-learn.org/stable/) (for machine learning). Additionally, pydruid can export query results into TSV or JSON for further processing with your favorite tool, e.g., R, Julia, Matlab, Excel.
-It provides both synchronous and asynchronous clients.
+# pydruid
+
+pydruid exposes a simple API to create, execute, and analyze [Druid](http://druid.io/) queries. pydruid can parse query results into [Pandas](http://pandas.pydata.org/) DataFrame objects for subsequent data analysis -- this offers a tight integration between [Druid](http://druid.io/), the [SciPy](http://www.scipy.org/stackspec.html) stack (for scientific computing) and [scikit-learn](http://scikit-learn.org/stable/) (for machine learning). pydruid can export query results into TSV or JSON for further processing with your favorite tool, e.g., R, Julia, Matlab, Excel. It provides both synchronous and asynchronous clients.
+
+Additionally, pydruid implements the [Python DB API 2.0](https://www.python.org/dev/peps/pep-0249/), a [SQLAlchemy dialect](http://docs.sqlalchemy.org/en/latest/dialects/), and a provides a command line interface to interact with Druid.
 
 To install:
 ```python
@@ -11,10 +13,15 @@ pip install pydruid[async]
 pip install pydruid[pandas]
 # or, if you intend to do both
 pip install pydruid[async, pandas]
+# or, if you want to use the SQLAlchemy engine
+pip install pydruid[sqlalchemy]
+# or, if you want to use the CLI
+pip install pydruid[cli]
 ```
 Documentation: https://pythonhosted.org/pydruid/. 
 
-#examples
+# examples
+
 The following exampes show how to execute and analyze the results of three types of queries: timeseries, topN, and groupby. We will use these queries to ask simple questions about twitter's public data set.
 
 ## timeseries 
@@ -118,13 +125,13 @@ plot(g, "tweets.png", layout=layout, vertex_size=2, bbox=(400, 400), margin=25, 
 
 ![alt text](https://github.com/metamx/pydruid/raw/master/docs/figures/twitter_graph.png "Social Network")
 
-#asynchronous client
+# asynchronous client
 ```pydruid.async_client.AsyncPyDruid``` implements an asynchronous client. To achieve that, it utilizes an asynchronous
 HTTP client from ```Tornado``` framework. The asynchronous client is suitable for use with async frameworks such as Tornado
 and provides much better performance at scale. It lets you serve multiple requests at the same time, without blocking on
 Druid executing your queries.
 
-##example
+## example
 ```python
 from tornado import gen
 from pydruid.async_client import AsyncPyDruid
@@ -153,7 +160,7 @@ def your_asynchronous_method_serving_top10_mentions_for_day(day
 ```
 
 
-#thetaSketches
+# thetaSketches
 Theta sketch Post aggregators are built slightly differently to normal Post Aggregators, as they have different operators.
 Note: you must have the ```druid-datasketches``` extension loaded into your Druid cluster in order to use these. 
 See the [Druid datasketches](http://druid.io/docs/latest/development/extensions-core/datasketches-aggregators.html) documentation for details.
@@ -185,5 +192,48 @@ ts = query.groupby(
             postaggregator.ThetaSketch('product_A_users') & postaggregator.ThetaSketch('product_B_users')
             )
     }
-    )
+)
+```
+
+# DB API
+
+```python
+from pydruid.db import connect
+
+conn = connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http')
+curs = conn.cursor()
+curs.execute("""
+    SELECT place,
+           CAST(REGEXP_EXTRACT(place, '(.*),', 1) AS FLOAT) AS lat,
+           CAST(REGEXP_EXTRACT(place, ',(.*)', 1) AS FLOAT) AS lon
+      FROM places
+     LIMIT 10
+""")
+for row in curs:
+    print(row)
+```
+        
+# SQLAlchemy
+
+```python
+from sqlalchemy import *
+from sqlalchemy.engine import create_engine
+from sqlalchemy.schema import *
+
+engine = create_engine('druid://localhost:8082/druid/v2/sql/')  # uses HTTP by default :(
+# engine = create_engine('druid+http://localhost:8082/druid/v2/sql/')
+# engine = create_engine('druid+https://localhost:8082/druid/v2/sql/')
+
+places = Table('places', MetaData(bind=engine), autoload=True)
+print(select([func.count('*')], from_obj=places).scalar())
+```
+
+# Command line
+
+```bash
+$ pydruid http://localhost:8082/druid/v2/sql/
+> SELECT COUNT(*) AS cnt FROM places
+  cnt
+-----
+12345
 ```
