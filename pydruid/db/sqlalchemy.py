@@ -134,13 +134,13 @@ class DruidDialect(default.DefaultDialect):
 
     def has_table(self, connection, table_name, schema=None):
         query = """
-            SELECT COUNT(*) > 0 AS exists
+            SELECT COUNT(*) > 0 AS exists_
               FROM INFORMATION_SCHEMA.TABLES
              WHERE TABLE_NAME = '{table_name}'
         """.format(table_name=table_name)
 
         result = connection.execute(query)
-        return result.fetchone().exists
+        return result.fetchone().exists_
 
     def get_table_names(self, connection, schema=None, **kwargs):
         query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES"
