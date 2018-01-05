@@ -110,7 +110,9 @@ class DoubleGreatest(Postaggregator):
 
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
-                'type': 'doubleGreatest', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+                'type': 'doubleGreatest',
+                'name': name,
+                'fields': [f.post_aggregator for f in fields]}
 
 
 class DoubleLeast(Postaggregator):
@@ -123,7 +125,9 @@ class DoubleLeast(Postaggregator):
 
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
-                'type': 'doubleLeast', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+                'type': 'doubleLeast',
+                'name': name,
+                'fields': [f.post_aggregator for f in fields]}
 
 
 class LongGreatest(Postaggregator):
@@ -136,7 +140,9 @@ class LongGreatest(Postaggregator):
 
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
-                'type': 'longGreatest', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+                'type': 'longGreatest',
+                'name': name,
+                'fields': [f.post_aggregator for f in fields]}
 
 
 class LongLeast(Postaggregator):
@@ -149,7 +155,9 @@ class LongLeast(Postaggregator):
 
         Postaggregator.__init__(self, None, None, name)
         self.post_aggregator = {
-                'type': 'longLeast', 'name': name, 'fields': [f.post_aggregator for f in fields]}
+                'type': 'longLeast',
+                'name': name,
+                'fields': [f.post_aggregator for f in fields]}
 
 
 class ThetaSketchOp:
@@ -162,15 +170,15 @@ class ThetaSketchOp:
 
     def __or__(self, other):
         return ThetaSketchOp('UNION', self.fields(other),
-                              self.name + '_OR_' + other.name)
+                             self.name + '_OR_' + other.name)
 
     def __and__(self, other):
         return ThetaSketchOp('INTERSECT', self.fields(other),
-                              self.name + '_AND_' + other.name)
+                             self.name + '_AND_' + other.name)
 
     def __ne__(self, other):
         return ThetaSketchOp('NOT', self.fields(other),
-                              self.name + '_NOT_' + other.name)
+                             self.name + '_NOT_' + other.name)
 
     def fields(self, other):
         return [self.post_aggregator, other.post_aggregator]
@@ -194,10 +202,11 @@ class ThetaSketch(ThetaSketchOp):
 
 class ThetaSketchEstimate(Postaggregator):
     def __init__(self, fields):
+        field = fields.post_aggregator \
+            if type(fields) in [ThetaSketch, ThetaSketchOp] else fields
         self.post_aggregator = {
             'type': 'thetaSketchEstimate',
             'name': 'thetasketchestimate',
-            'field': fields.post_aggregator if type(fields) in [ThetaSketch, ThetaSketchOp] else fields}
+            'field': field,
+        }
         self.name = 'thetasketchestimate'
-
-

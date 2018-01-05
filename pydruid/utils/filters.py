@@ -128,7 +128,8 @@ class JavaScript:
 
 class Bound(Filter):
     """
-    Bound filter can be used to filter by comparing dimension values to an upper value or/and a lower value. 
+    Bound filter can be used to filter by comparing dimension values to an
+    upper value or/and a lower value.
 
     :ivar str dimension: Dimension to filter on.
     :ivar str lower: Lower bound.
@@ -137,9 +138,11 @@ class Bound(Filter):
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
     """
-    def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False, alphaNumeric=False):
-
-        Filter.__init__(self,
+    def __init__(
+            self, dimension, lower, upper, lowerStrict=False,
+            upperStrict=False, alphaNumeric=False):
+        Filter.__init__(
+            self,
             type='bound', dimension=dimension,
             lower=lower, upper=upper,
             lowerStrict=lowerStrict, upperStrict=upperStrict,
@@ -148,14 +151,15 @@ class Bound(Filter):
 
 class Interval(Filter):
     """
-    Interval filter can be used to filter by comparing dimension(__time) values to a list of intervals.
+    Interval filter can be used to filter by comparing dimension(__time)
+    values to a list of intervals.
 
     :ivar str dimension: Dimension to filter on.
     :ivar list intervals: List of ISO-8601 intervals of data to filter out.
     """
     def __init__(self, dimension, intervals):
 
-        Filter.__init__(self,
+        Filter.__init__(
+            self,
             type='interval', dimension=dimension,
             intervals=intervals)
-

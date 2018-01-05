@@ -29,10 +29,12 @@ except ImportError:
 
 class AsyncPyDruid(BaseDruidClient):
     """
-    Asynchronous PyDruid client which mirrors functionality of the synchronous PyDruid, but it executes queries
+    Asynchronous PyDruid client which mirrors functionality of the synchronous
+    PyDruid, but it executes queries
     asynchronously (using an asynchronous http client from Tornado framework).
 
-    Returns Query objects that can be used for exporting query results into TSV files or pandas.DataFrame objects
+    Returns Query objects that can be used for exporting query results into
+    TSV files or pandas.DataFrame objects
     for subsequent analysis.
 
     :param str url: URL of Broker node in the Druid cluster
@@ -83,7 +85,8 @@ class AsyncPyDruid(BaseDruidClient):
 
             >>> print top.result
             >>> [{'timestamp': '2013-10-04T00:00:00.000Z',
-                'result': [{'count': 7.0, 'user_name': 'user_1'}, {'count': 6.0, 'user_name': 'user_2'}]}]
+                'result': [{'count': 7.0, 'user_name': 'user_1'},
+                {'count': 6.0, 'user_name': 'user_2'}]}]
 
             >>> df = top.export_pandas()
             >>> print df
@@ -100,7 +103,8 @@ class AsyncPyDruid(BaseDruidClient):
         http_client = AsyncHTTPClient()
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
-            response = yield http_client.fetch(url, method='POST', headers=headers, body=querystr)
+            response = yield http_client.fetch(
+                url, method='POST', headers=headers, body=querystr)
         except HTTPError as e:
             self.__handle_http_error(e, query)
         else:

@@ -1,9 +1,10 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
-  - "3.2"
-  - "3.3"
   - "3.4"
-install: "python setup.py install"
+  - "3.6"
+install:
+  - pip install flake8
+  - python setup.py install
+before_script: flake8
 script: py.test
