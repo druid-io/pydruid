@@ -132,6 +132,7 @@ class Connection(object):
 
         return cursor
 
+    @check_closed
     def execute(self, operation, parameters=None):
         cursor = self.cursor()
         return cursor.execute(operation, parameters)
