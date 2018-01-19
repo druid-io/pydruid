@@ -53,7 +53,7 @@ class BaseDruidClient(object):
             username_password = \
                 b64encode(bytes('{}:{}'.format(self.username, self.password)))
             headers['Authorization'] = 'Basic {}'.format(username_password)
-            
+
         return headers, querystr, url
 
     def _post(self, query):
