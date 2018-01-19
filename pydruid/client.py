@@ -18,11 +18,13 @@ from __future__ import absolute_import
 
 import json
 import sys
+import ssl
 
 from six.moves import urllib
 
 from pydruid.query import QueryBuilder
 from base64 import b64encode
+
 
 class BaseDruidClient(object):
     def __init__(self, url, endpoint):
@@ -31,10 +33,14 @@ class BaseDruidClient(object):
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
-        
+        self.ignore_certificate_errors = False
+
     def set_basic_auth_credentials(self, username, password):
         self.username = username
         self.password = password
+
+    def set_ignore_certificate_errors(self, value=True):
+        self.ignore_certificate_errors = value
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
@@ -476,11 +482,19 @@ class PyDruid(BaseDruidClient):
     def __init__(self, url, endpoint):
         super(PyDruid, self).__init__(url, endpoint)
 
+    def ssl_context(self):
+        ctx = ssl.create_default_context()
+        if not self.ignore_certificate_errors:
+            return ctx
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(req)
+            res = urllib.request.urlopen(req, context=self.ssl_context())
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError:
