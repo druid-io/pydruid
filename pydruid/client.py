@@ -484,10 +484,9 @@ class PyDruid(BaseDruidClient):
 
     def ssl_context(self):
         ctx = ssl.create_default_context()
-        if not self.ignore_certificate_errors:
-            return ctx
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        if self.ignore_certificate_errors:
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
         return ctx
 
     def _post(self, query):
