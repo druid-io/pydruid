@@ -18,10 +18,12 @@ from __future__ import absolute_import
 
 import json
 import sys
+import ssl
 
 from six.moves import urllib
 
 from pydruid.query import QueryBuilder
+from base64 import b64encode
 
 
 class BaseDruidClient(object):
@@ -29,6 +31,16 @@ class BaseDruidClient(object):
         self.url = url
         self.endpoint = endpoint
         self.query_builder = QueryBuilder()
+        self.username = None
+        self.password = None
+        self.ignore_certificate_errors = False
+
+    def set_basic_auth_credentials(self, username, password):
+        self.username = username
+        self.password = password
+
+    def set_ignore_certificate_errors(self, value=True):
+        self.ignore_certificate_errors = value
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
@@ -37,6 +49,11 @@ class BaseDruidClient(object):
         else:
             url = self.url + '/' + self.endpoint
         headers = {'Content-Type': 'application/json'}
+        if (self.username is not None) and (self.password is not None):
+            username_password = \
+                b64encode(bytes('{}:{}'.format(self.username, self.password)))
+            headers['Authorization'] = 'Basic {}'.format(username_password)
+
         return headers, querystr, url
 
     def _post(self, query):
@@ -465,11 +482,20 @@ class PyDruid(BaseDruidClient):
     def __init__(self, url, endpoint):
         super(PyDruid, self).__init__(url, endpoint)
 
+    def ssl_context(self):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(req)
+            if self.ignore_certificate_errors:
+                res = urllib.request.urlopen(req, context=self.ssl_context())
+            else:
+                res = urllib.request.urlopen(req)
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError:
@@ -481,8 +507,6 @@ class PyDruid(BaseDruidClient):
                     err = json.loads(e.read().decode("utf-8"))
                 except (ValueError, AttributeError, KeyError):
                     pass
-                else:
-                    err = err.get('error', None)
 
             raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
                     e, err, json.dumps(query.query_dict, indent=4)))
