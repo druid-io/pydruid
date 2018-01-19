@@ -33,7 +33,7 @@ class BaseDruidClient(object):
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
-        self.ignore_certificate_errors=False
+        self.ignore_certificate_errors = False
 
     def set_basic_auth_credentials(self, username, password):
         self.username = username
