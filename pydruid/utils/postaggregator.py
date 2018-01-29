@@ -160,7 +160,7 @@ class LongLeast(Postaggregator):
                 'fields': [f.post_aggregator for f in fields]}
 
 
-class ThetaSketchOp:
+class ThetaSketchOp(object):
     def __init__(self, fn, fields, name):
         self.post_aggregator = {'type': 'thetaSketchSetOp',
                                 'name': name,
