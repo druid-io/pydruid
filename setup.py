@@ -21,7 +21,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.3.1',
+    version='0.4.0',
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.db', 'pydruid.utils'],
