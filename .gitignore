@@ -5,6 +5,7 @@ build/
 dist/
 pydruid.egg-info/
 __pycache__
+.pytest_cache/
 .cache
 .eggs
 *.egg/
