@@ -108,4 +108,4 @@ class TestPyDruid:
         query = create_blank_query()
         client.set_basic_auth_credentials('myUsername', 'myPassword')
         headers, _, _ = client._prepare_url_headers_and_body(query)
-        assert headers['Authorization'] == "Basic b'bXlVc2VybmFtZTpteVBhc3N3b3Jk'"
+        assert headers['Authorization'] == "Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk"
