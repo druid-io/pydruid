@@ -171,7 +171,7 @@ def main():
                 print(e)
                 continue
 
-            headers = [t[0] for t in cursor.description]
+            headers = [t[0] for t in cursor.description or []]
             print(tabulate(result, headers=headers))
 
     print('GoodBye!')
