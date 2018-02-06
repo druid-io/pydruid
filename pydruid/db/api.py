@@ -38,7 +38,7 @@ def check_closed(f):
     def g(self, *args, **kwargs):
         if self.closed:
             raise exceptions.Error(
-                '{klass} already closed'.format(klass=self.__class__name__))
+                '{klass} already closed'.format(klass=self.__class__.__name__))
         return f(self, *args, **kwargs)
     return g
 
