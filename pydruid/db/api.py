@@ -4,7 +4,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import namedtuple
-from enum import Enum
 import itertools
 import json
 from six import string_types
@@ -15,7 +14,7 @@ import requests
 from pydruid.db import exceptions
 
 
-class Type(Enum):
+class Type(object):
     STRING = 1
     NUMBER = 2
     BOOLEAN = 3
