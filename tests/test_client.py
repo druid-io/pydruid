@@ -4,12 +4,17 @@ from mock import patch, Mock
 from six.moves import urllib
 
 from pydruid.client import PyDruid
+from pydruid.query import Query
 from pydruid.utils.aggregators import doublesum
 from pydruid.utils.filters import Dimension
 
 
 def create_client():
     return PyDruid("http://localhost:8083", "druid/v2/")
+
+
+def create_blank_query():
+    return Query({}, 'none')
 
 
 class TestPyDruid:
@@ -96,3 +101,11 @@ class TestPyDruid:
         # assert that last_query.export_tsv method was called (it should throw an exception, given empty path)
         with pytest.raises(TypeError):
             client.export_tsv(None)
+
+    @patch('pydruid.client.urllib.request.urlopen')
+    def test_client_auth_creds(self, mock_urlopen):
+        client = create_client()
+        query = create_blank_query()
+        client.set_basic_auth_credentials('myUsername', 'myPassword')
+        headers, _, _ = client._prepare_url_headers_and_body(query)
+        assert headers['Authorization'] == "Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk"

@@ -5,8 +5,6 @@ install_requires = [
     "six >= 1.9.0",
     "requests",
 ]
-if sys.version_info < (3, 4):
-    install_requires.append("enum")
 
 extras_require = {
     "pandas": ["pandas"],

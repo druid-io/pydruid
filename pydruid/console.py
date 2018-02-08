@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import re
 import sys
 
 from prompt_toolkit import prompt, AbortAction
@@ -93,6 +94,21 @@ other_functions = [
 ]
 
 
+replacements = {
+    '^SHOW SCHEMAS': 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA',
+    '^SHOW TABLES': 'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES',
+    '^DESC (?P<table>[^;\s]*)': r"""
+        SELECT COLUMN_NAME,
+               ORDINAL_POSITION,
+               COLUMN_DEFAULT,
+               IS_NULLABLE,
+               DATA_TYPE
+          FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_NAME='\1'
+    """.strip(),
+}
+
+
 class DocumentStyle(Style):
     styles = {
         Token.Menu.Completions.Completion.Current: 'bg:#00aaaa #000000',
@@ -164,14 +180,19 @@ def main():
             break  # Control-D pressed.
 
         # run query
-        if query.strip():
+        query = query.strip('; ')
+        if query:
+            # shortcuts
+            for pattern, repl in replacements.items():
+                query = re.sub(pattern, repl, query)
+
             try:
-                result = cursor.execute(query.rstrip(';'))
+                result = cursor.execute(query)
             except Exception as e:
                 print(e)
                 continue
 
-            headers = [t[0] for t in cursor.description]
+            headers = [t[0] for t in cursor.description or []]
             print(tabulate(result, headers=headers))
 
     print('GoodBye!')

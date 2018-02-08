@@ -24,6 +24,7 @@ from six.moves import urllib
 from pydruid.query import QueryBuilder
 from base64 import b64encode
 
+
 class BaseDruidClient(object):
     def __init__(self, url, endpoint):
         self.url = url
@@ -31,7 +32,7 @@ class BaseDruidClient(object):
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
-        
+
     def set_basic_auth_credentials(self, username, password):
         self.username = username
         self.password = password
@@ -44,10 +45,10 @@ class BaseDruidClient(object):
             url = self.url + '/' + self.endpoint
         headers = {'Content-Type': 'application/json'}
         if (self.username is not None) and (self.password is not None):
-            username_password = \
-                b64encode(bytes('{}:{}'.format(self.username, self.password)))
-            headers['Authorization'] = 'Basic {}'.format(username_password)
-            
+            authstring = '{}:{}'.format(self.username, self.password)
+            b64string = b64encode(authstring.encode()).decode()
+            headers['Authorization'] = 'Basic {}'.format(b64string)
+
         return headers, querystr, url
 
     def _post(self, query):
