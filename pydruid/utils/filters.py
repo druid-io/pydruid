@@ -22,52 +22,65 @@ from .dimensions import build_dimension
 
 
 class Filter:
-    def __init__(self, **args):
 
-        if 'type' not in args.keys():
-            self.filter = {"filter": {"type": "selector",
-                                      "dimension": args["dimension"],
-                                      "value": args["value"]}}
+    # filter types supporting extraction function
+    _FILTERS_WITH_EXTR_FN = ('selector', 'regex', 'javascript', 'in', 'bound',
+                             'interval', 'extraction')
 
-        elif args["type"] == "javascript":
-            self.filter = {"filter": {"type": "javascript",
-                                      "dimension": args["dimension"],
-                                      "function": args["function"]}}
-        elif args["type"] == "and":
-            self.filter = {"filter": {"type": "and",
-                                      "fields": args["fields"]}}
-        elif args["type"] == "or":
-            self.filter = {"filter": {"type": "or",
-                                      "fields": args["fields"]}}
-        elif args["type"] == "not":
-            self.filter = {"filter": {"type": "not",
-                                      "field": args["field"]}}
-        elif args["type"] == "in":
-            self.filter = {"filter": {"type": "in",
-                                      "dimension": args["dimension"],
-                                      "values": args["values"]}}
-        elif args["type"] == "regex":
-            self.filter = {"filter": {"type": "regex",
-                                      "dimension": args["dimension"],
-                                      "pattern": args["pattern"]}}
-        elif args["type"] == "bound":
-            self.filter = {"filter": {"type": "bound",
-                                      "dimension": args["dimension"],
-                                      "lower": args["lower"],
-                                      "lowerStrict": args["lowerStrict"],
-                                      "upper": args["upper"],
-                                      "upperStrict": args["upperStrict"],
-                                      "alphaNumeric": args["alphaNumeric"]}}
-        elif args["type"] == "columnComparison":
-            self.filter = {"filter": {"type": "columnComparison",
-                                      "dimensions": args["dimensions"]}}
-        elif args["type"] == "interval":
-            self.filter = {"filter": {"type": "interval",
-                                      "dimension": args["dimension"],
-                                      "intervals": args["intervals"]}}
+    def __init__(self, extraction_function=None, **args):
+
+        type_ = args.get('type', 'selector')
+
+        if extraction_function is not None:
+            if type_ not in self._FILTERS_WITH_EXTR_FN:
+                raise ValueError('Filter of type {0} doesn\'t support '
+                                 'extraction function'.format(type_))
+        elif type_ == 'extraction':
+            raise ValueError('Filter of type extraction requires extraction '
+                             'function')
+
+        self.extraction_function = extraction_function
+
+        self.filter = {"filter": {"type": type_}}
+
+        if type_ == "selector":
+            self.filter["filter"].update({"dimension": args["dimension"],
+                                          "value": args["value"]})
+        elif type_ == "javascript":
+            self.filter["filter"].update({"dimension": args["dimension"],
+                                          "function": args["function"]})
+        elif type_ == "and":
+            self.filter["filter"].update({"fields": args['fields']})
+        elif type_ == "or":
+            self.filter["filter"].update({"fields": args["fields"]})
+        elif type_ == "not":
+            self.filter["filter"].update({"field": args["field"]})
+        elif type_ == "in":
+            self.filter["filter"].update({"dimension": args["dimension"],
+                                          "values": args["values"]})
+        elif type_ == "regex":
+            self.filter['filter'].update({"dimension": args["dimension"],
+                                          "pattern": args["pattern"]})
+        elif type_ == "bound":
+            self.filter["filter"].update({
+                "dimension": args["dimension"],
+                "lower": args["lower"],
+                "lowerStrict": args["lowerStrict"],
+                "upper": args["upper"],
+                "upperStrict": args["upperStrict"],
+                "alphaNumeric": args["alphaNumeric"]
+            })
+        elif type_ == "columnComparison":
+            self.filter['filter'].update({'dimensions': args['dimensions']})
+        elif type_ == "interval":
+            self.filter['filter'].update({'dimension': args['dimension'],
+                                          'intervals': args['intervals']})
+        elif type_ == "extraction":
+            self.filter["filter"].update({"dimension": args["dimension"],
+                                          "value": args["value"]})
         else:
             raise NotImplementedError(
-                'Filter type: {0} does not exist'.format(args['type']))
+                'Filter type: {0} does not exist'.format(type_))
 
     def show(self):
         print(json.dumps(self.filter, indent=4))
@@ -104,6 +117,11 @@ class Filter:
             filter = filter.copy()
             filter['dimensions'] = [build_dimension(d) for d in filter['dimensions']]
 
+        if filter_obj.extraction_function is not None:
+            if filter is filter_obj.filter['filter']:  # copy if not yet copied
+                filter = filter.copy()
+            filter['extractionFn'] = filter_obj.extraction_function.build()
+
         return filter
 
 
@@ -137,16 +155,18 @@ class Bound(Filter):
     :ivar bool lowerStrict: Strict lower inclusion. Initial value: False
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
+    :ivar ExtractionFunction extraction_function: extraction function to use,
+                                                  if not None
     """
     def __init__(
             self, dimension, lower, upper, lowerStrict=False,
-            upperStrict=False, alphaNumeric=False):
+            upperStrict=False, alphaNumeric=False, extraction_function=None):
         Filter.__init__(
             self,
             type='bound', dimension=dimension,
             lower=lower, upper=upper,
             lowerStrict=lowerStrict, upperStrict=upperStrict,
-            alphaNumeric=alphaNumeric)
+            alphaNumeric=alphaNumeric, extraction_function=extraction_function)
 
 
 class Interval(Filter):
@@ -156,10 +176,12 @@ class Interval(Filter):
 
     :ivar str dimension: Dimension to filter on.
     :ivar list intervals: List of ISO-8601 intervals of data to filter out.
+    :ivar ExtractionFunction extraction_function: extraction function to use,
+                                                  if not None
     """
-    def __init__(self, dimension, intervals):
+    def __init__(self, dimension, intervals, extraction_function=None):
 
         Filter.__init__(
             self,
             type='interval', dimension=dimension,
-            intervals=intervals)
+            intervals=intervals, extraction_function=extraction_function)
