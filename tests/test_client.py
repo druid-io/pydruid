@@ -53,7 +53,6 @@ class TestPyDruid:
 <hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
 </body>
 </html>"""
-        message = "Druid error"
         ex = urllib.error.HTTPError(None, 500, message, None, None)
         mock_urlopen.side_effect = ex
         client = create_client()
@@ -71,10 +70,43 @@ class TestPyDruid:
                     threshold=1,
                     context={"timeout": 1000})
 
-        assert str(e.value) == (
-            'javax.servlet.ServletException: java.lang.OutOfMemoryError: '
-            'GC overhead limit exceeded'
-        )
+        assert str(e.value) == """HTTP Error 500: <html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+<title>Error 500 </title>
+</head>
+<body>
+<h2>HTTP ERROR: 500</h2>
+<p>Problem accessing /druid/v2/. Reason:
+<pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
+<hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
+</body>
+</html> 
+ Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
+ Query is: {
+    "queryType": "topN",
+    "dataSource": "testdatasource",
+    "granularity": "all",
+    "intervals": "2015-12-29/pt1h",
+    "aggregations": [
+        {
+            "type": "doubleSum",
+            "fieldName": "count",
+            "name": "count"
+        }
+    ],
+    "dimension": "user_name",
+    "metric": "count",
+    "filter": {
+        "type": "selector",
+        "dimension": "user_lang",
+        "value": "en"
+    },
+    "threshold": 1,
+    "context": {
+        "timeout": 1000
+    }
+}"""
 
     @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_results(self, mock_urlopen):

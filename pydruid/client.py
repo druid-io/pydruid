@@ -488,10 +488,9 @@ class PyDruid(BaseDruidClient):
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
-            err = None
+            err = e.reason
             if e.code == 500:
                 # has Druid returned an error?
-                err = e.read().decode("utf-8")
                 try:
                     err = json.loads(err)
                 except json.decoder.JSONDecodeError:
