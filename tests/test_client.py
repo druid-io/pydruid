@@ -84,28 +84,28 @@ class TestPyDruid:
 </html> 
  Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
  Query is: {
-    "queryType": "topN",
-    "dataSource": "testdatasource",
-    "granularity": "all",
-    "intervals": "2015-12-29/pt1h",
     "aggregations": [
         {
-            "type": "doubleSum",
             "fieldName": "count",
-            "name": "count"
+            "name": "count",
+            "type": "doubleSum"
         }
     ],
-    "dimension": "user_name",
-    "metric": "count",
-    "filter": {
-        "type": "selector",
-        "dimension": "user_lang",
-        "value": "en"
-    },
-    "threshold": 1,
     "context": {
         "timeout": 1000
-    }
+    },
+    "dataSource": "testdatasource",
+    "dimension": "user_name",
+    "filter": {
+        "dimension": "user_lang",
+        "type": "selector",
+        "value": "en"
+    },
+    "granularity": "all",
+    "intervals": "2015-12-29/pt1h",
+    "metric": "count",
+    "queryType": "topN",
+    "threshold": 1
 }"""
 
     @patch('pydruid.client.urllib.request.urlopen')

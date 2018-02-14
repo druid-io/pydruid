@@ -507,7 +507,9 @@ class PyDruid(BaseDruidClient):
                     pass
 
             raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
-                    e, err, json.dumps(query.query_dict, indent=4)))
+                    e,
+                    err,
+                    json.dumps(query.query_dict, indent=4, sort_keys=True)))
         else:
             query.parse(data)
             return query
