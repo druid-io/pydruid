@@ -39,6 +39,44 @@ class TestPyDruid:
                     context={"timeout": 1000})
 
     @patch('pydruid.client.urllib.request.urlopen')
+    def test_druid_returns_html_error(self, mock_urlopen):
+        # given
+        message = """<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+<title>Error 500 </title>
+</head>
+<body>
+<h2>HTTP ERROR: 500</h2>
+<p>Problem accessing /druid/v2/. Reason:
+<pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
+<hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
+</body>
+</html>"""
+        message = "Druid error"
+        ex = urllib.error.HTTPError(None, 500, message, None, None)
+        mock_urlopen.side_effect = ex
+        client = create_client()
+
+        # when / then
+        with pytest.raises(IOError) as e:
+            client.topn(
+                    datasource="testdatasource",
+                    granularity="all",
+                    intervals="2015-12-29/pt1h",
+                    aggregations={"count": doublesum("count")},
+                    dimension="user_name",
+                    metric="count",
+                    filter=Dimension("user_lang") == "en",
+                    threshold=1,
+                    context={"timeout": 1000})
+
+        assert str(e.value) == (
+            'javax.servlet.ServletException: java.lang.OutOfMemoryError: '
+            'GC overhead limit exceeded'
+        )
+
+    @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_results(self, mock_urlopen):
         # given
         response = Mock()

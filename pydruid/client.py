@@ -17,12 +17,15 @@ from __future__ import division
 from __future__ import absolute_import
 
 import json
-import sys
+import re
 
 from six.moves import urllib
 
 from pydruid.query import QueryBuilder
 from base64 import b64encode
+
+# extract error from the <PRE> tag inside the HTML response
+HTML_ERROR = re.compile('<pre>\s*(.*?)\s*</pre>', re.IGNORECASE)
 
 
 class BaseDruidClient(object):
@@ -484,13 +487,16 @@ class PyDruid(BaseDruidClient):
             res = urllib.request.urlopen(req)
             data = res.read().decode("utf-8")
             res.close()
-        except urllib.error.HTTPError:
-            _, e, _ = sys.exc_info()
+        except urllib.error.HTTPError as e:
             err = None
             if e.code == 500:
                 # has Druid returned an error?
+                err = e.read().decode("utf-8")
                 try:
-                    err = json.loads(e.read().decode("utf-8"))
+                    err = json.loads(err)
+                except json.decoder.JSONDecodeError:
+                    if HTML_ERROR.search(err):
+                        err = HTML_ERROR.search(err).group(1)
                 except (ValueError, AttributeError, KeyError):
                     pass
 
