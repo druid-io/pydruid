@@ -50,9 +50,9 @@ class BaseDruidClient(object):
             url = self.url + '/' + self.endpoint
         headers = {'Content-Type': 'application/json'}
         if (self.username is not None) and (self.password is not None):
-            username_password = \
-                b64encode(bytes('{}:{}'.format(self.username, self.password)))
-            headers['Authorization'] = 'Basic {}'.format(username_password)
+            authstring = '{}:{}'.format(self.username, self.password)
+            b64string = b64encode(authstring.encode()).decode()
+            headers['Authorization'] = 'Basic {}'.format(b64string)
 
         return headers, querystr, url
 

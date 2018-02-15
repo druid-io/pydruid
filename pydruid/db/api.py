@@ -4,7 +4,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import namedtuple
-from enum import Enum
 import itertools
 import json
 from six import string_types
@@ -15,7 +14,7 @@ import requests
 from pydruid.db import exceptions
 
 
-class Type(Enum):
+class Type(object):
     STRING = 1
     NUMBER = 2
     BOOLEAN = 3
@@ -38,7 +37,7 @@ def check_closed(f):
     def g(self, *args, **kwargs):
         if self.closed:
             raise exceptions.Error(
-                '{klass} already closed'.format(klass=self.__class__name__))
+                '{klass} already closed'.format(klass=self.__class__.__name__))
         return f(self, *args, **kwargs)
     return g
 
@@ -77,7 +76,7 @@ def get_description_from_row(row):
 
 def get_type(value):
     """Infer type from value."""
-    if isinstance(value, string_types):
+    if isinstance(value, string_types) or value is None:
         return Type.STRING
     elif isinstance(value, (int, float)):
         return Type.NUMBER
