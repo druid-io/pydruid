@@ -24,12 +24,6 @@ from six.moves import urllib
 from pydruid.query import QueryBuilder
 from base64 import b64encode
 
-try:
-    # available only in Python >= 3.5
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 
 # extract error from the <PRE> tag inside the HTML response
 HTML_ERROR = re.compile('<pre>\s*(.*?)\s*</pre>', re.IGNORECASE)
@@ -500,7 +494,7 @@ class PyDruid(BaseDruidClient):
                 # has Druid returned an error?
                 try:
                     err = json.loads(err)
-                except JSONDecodeError:
+                except ValueError:
                     if HTML_ERROR.search(err):
                         err = HTML_ERROR.search(err).group(1)
                 except (ValueError, AttributeError, KeyError):

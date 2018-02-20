@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+import textwrap
+
 import pytest
 from mock import patch, Mock
 from six.moves import urllib
@@ -41,18 +43,20 @@ class TestPyDruid:
     @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_html_error(self, mock_urlopen):
         # given
-        message = """<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
-<title>Error 500 </title>
-</head>
-<body>
-<h2>HTTP ERROR: 500</h2>
-<p>Problem accessing /druid/v2/. Reason:
-<pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
-<hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
-</body>
-</html>"""
+        message = textwrap.dedent("""
+            <html>
+            <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+            <title>Error 500 </title>
+            </head>
+            <body>
+            <h2>HTTP ERROR: 500</h2>
+            <p>Problem accessing /druid/v2/. Reason:
+            <pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
+            <hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
+            </body>
+            </html>
+        """).strip()
         ex = urllib.error.HTTPError(None, 500, message, None, None)
         mock_urlopen.side_effect = ex
         client = create_client()
@@ -70,43 +74,45 @@ class TestPyDruid:
                     threshold=1,
                     context={"timeout": 1000})
 
-        assert str(e.value) == """HTTP Error 500: <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
-<title>Error 500 </title>
-</head>
-<body>
-<h2>HTTP ERROR: 500</h2>
-<p>Problem accessing /druid/v2/. Reason:
-<pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
-<hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
-</body>
-</html> 
- Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
- Query is: {
-    "aggregations": [
-        {
-            "fieldName": "count",
-            "name": "count",
-            "type": "doubleSum"
-        }
-    ],
-    "context": {
-        "timeout": 1000
-    },
-    "dataSource": "testdatasource",
-    "dimension": "user_name",
-    "filter": {
-        "dimension": "user_lang",
-        "type": "selector",
-        "value": "en"
-    },
-    "granularity": "all",
-    "intervals": "2015-12-29/pt1h",
-    "metric": "count",
-    "queryType": "topN",
-    "threshold": 1
-}"""
+        assert str(e.value) == textwrap.dedent("""
+            HTTP Error 500: <html>
+            <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+            <title>Error 500 </title>
+            </head>
+            <body>
+            <h2>HTTP ERROR: 500</h2>
+            <p>Problem accessing /druid/v2/. Reason:
+            <pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
+            <hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
+            </body>
+            </html> 
+             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
+             Query is: {
+                "aggregations": [
+                    {
+                        "fieldName": "count",
+                        "name": "count",
+                        "type": "doubleSum"
+                    }
+                ],
+                "context": {
+                    "timeout": 1000
+                },
+                "dataSource": "testdatasource",
+                "dimension": "user_name",
+                "filter": {
+                    "dimension": "user_lang",
+                    "type": "selector",
+                    "value": "en"
+                },
+                "granularity": "all",
+                "intervals": "2015-12-29/pt1h",
+                "metric": "count",
+                "queryType": "topN",
+                "threshold": 1
+            }
+        """).strip()
 
     @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_results(self, mock_urlopen):
