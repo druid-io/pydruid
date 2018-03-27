@@ -34,4 +34,3 @@ try:
             druid_config.__file__))
 except ImportError:
     pass
-

@@ -261,7 +261,8 @@ class Cursor(object):
 
         headers = {'Content-Type': 'application/json'}
         payload = {'query': query}
-        r = requests.post(self.url, stream=True, headers=headers, json=payload, auth=REQUESTS_AUTH)
+        r = requests.post(self.url, stream=True, headers=headers, json=payload,
+                          auth=REQUESTS_AUTH)
         if r.encoding is None:
             r.encoding = 'utf-8'
 
