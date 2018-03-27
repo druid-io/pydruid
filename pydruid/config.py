@@ -12,6 +12,8 @@ import sys
 
 REQUESTS_AUTH = None
 
+CONFIG_PATH_ENV_VAR = 'DRUID_CONFIG_PATH'
+
 try:
     if CONFIG_PATH_ENV_VAR in os.environ:
         # Explicitly import config module that is not in pythonpath; useful
