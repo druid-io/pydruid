@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
+from pydruid.utils import dimensions, filters
 
-from pydruid.utils import filters
-from pydruid.utils.dimensions import DimensionSpec
+import pytest
 
 
 class TestDimension:
@@ -30,6 +29,24 @@ class TestFilter:
         expected = {'type': 'selector', 'dimension': 'dim', 'value': 'val'}
         assert actual == expected
 
+    def test_selector_filter_extraction_fn(self):
+        extraction_fn = dimensions.RegexExtraction('([a-b])')
+        f = filters.Filter(dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'selector', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'regex', 'expr': '([a-b])'}}
+        assert actual == expected
+
+    def test_extraction_filter(self):
+        extraction_fn = dimensions.PartialExtraction('([a-b])')
+        f = filters.Filter(type='extraction', dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'extraction', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'partial', 'expr': '([a-b])'}}
+        assert actual == expected
+
     def test_javascript_filter(self):
         actual = filters.Filter.build_filter(
             filters.Filter(type='javascript', dimension='dim', function='function(x){return true}'))
@@ -42,10 +59,36 @@ class TestFilter:
         expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
         assert actual == expected
 
+    def test_bound_filter_with_extraction_function(self):
+        f = filters.Bound(
+            dimension='d', lower='1', upper='3', upperStrict=True,
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)'))
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'bound', 'dimension': 'd', 'lower': '1',
+                    'lowerStrict': False, 'upper': '3', 'upperStrict': True,
+                    'alphaNumeric': False, 'extractionFn': {
+                        'type': 'regex', 'expr': '.*([0-9]+)'}}
+        assert actual == expected
+
+
     def test_interval_filter(self):
         actual = filters.Filter.build_filter(
             filters.Interval(dimension='dim', intervals=["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]))
         expected = {'type': 'interval', 'dimension': 'dim', 'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]}
+        assert actual == expected
+
+    def test_interval_with_extraction_function(self):
+        f = filters.Interval(
+            dimension='dim', intervals=[
+                "2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)')
+        )
+        actual = filters.Filter.build_filter(f)
+        expected = {
+            'type': 'interval', 'dimension': 'dim',
+            'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}
+        }
         assert actual == expected
 
     def test_and_filter(self):
@@ -190,7 +233,7 @@ class TestFilter:
         actual = filters.Filter.build_filter(
             filters.Filter(type='columnComparison', dimensions=[
                 'dim1',
-                DimensionSpec('dim2', 'dim2')
+                dimensions.DimensionSpec('dim2', 'dim2')
             ]))
         expected = {'type': 'columnComparison', 'dimensions': [
                 'dim1',
