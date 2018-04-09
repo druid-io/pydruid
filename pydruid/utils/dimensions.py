@@ -7,10 +7,12 @@ def build_dimension(dim):
 
 class DimensionSpec(object):
 
-    def __init__(self, dimension, output_name, extraction_function=None):
+    def __init__(self, dimension, output_name,
+                 extraction_function=None, filter_spec=None):
         self._dimension = dimension
         self._output_name = output_name
         self._extraction_function = extraction_function
+        self._filter_spec = filter_spec
 
     def build(self):
         dimension_spec = {
@@ -23,6 +25,9 @@ class DimensionSpec(object):
             dimension_spec['type'] = 'extraction'
             dimension_spec['extractionFn'] = self._extraction_function.build()
 
+        if self._filter_spec is not None:
+            dimension_spec = self._filter_spec.build(dimension_spec)
+
         return dimension_spec
 
 
@@ -30,13 +35,10 @@ class FilteredSpec(object):
 
     filter_type = None
 
-    def __init__(self, dimension_spec):
-        self._delegate = dimension_spec
-
-    def build(self):
+    def build(self, delegate):
         dimension_spec = {
             'type': self.filter_type,
-            'delegate': self._delegate.build()
+            'delegate': delegate
         }
         return dimension_spec
 
@@ -45,34 +47,32 @@ class ListFilteredSpec(FilteredSpec):
 
     filter_type = 'listFiltered'
 
-    def __init__(self, dimension_spec, values, is_whitelist=True):
-        super(ListFilteredSpec, self).__init__(dimension_spec)
+    def __init__(self, values, is_whitelist=True):
         self._values = values
         self._is_whitelist = is_whitelist
 
-    def build(self):
-        dimension_spec = super(ListFilteredSpec, self).build()
-        dimension_spec['values'] = self._values
+    def build(self, dimension_spec):
+        filtered_dimension_spec = super(ListFilteredSpec, self).build(dimension_spec)
+        filtered_dimension_spec['values'] = self._values
 
         if not self._is_whitelist:
-            dimension_spec['isWhitelist'] = False
+            filtered_dimension_spec['isWhitelist'] = False
 
-        return dimension_spec
+        return filtered_dimension_spec
 
 
 class RegexFilteredSpec(FilteredSpec):
 
     filter_type = 'regexFiltered'
 
-    def __init__(self, dimension_spec, pattern):
-        super(RegexFilteredSpec, self).__init__(dimension_spec)
+    def __init__(self, pattern):
         self._pattern = pattern
 
-    def build(self):
-        dimension_spec = super(RegexFilteredSpec, self).build()
-        dimension_spec['pattern'] = self._pattern
+    def build(self, dimension_spec):
+        filtered_dimension_spec = super(RegexFilteredSpec, self).build(dimension_spec)
+        filtered_dimension_spec['pattern'] = self._pattern
 
-        return dimension_spec
+        return filtered_dimension_spec
 
 
 class ExtractionFunction(object):
