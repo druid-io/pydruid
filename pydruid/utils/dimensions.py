@@ -26,6 +26,55 @@ class DimensionSpec(object):
         return dimension_spec
 
 
+class FilteredSpec(object):
+
+    filter_type = None
+
+    def __init__(self, dimension_spec):
+        self._delegate = dimension_spec
+
+    def build(self):
+        dimension_spec = {
+            'type': self.filter_type,
+            'delegate': self._delegate.build()
+        }
+        return dimension_spec
+
+
+class ListFilteredSpec(FilteredSpec):
+
+    filter_type = 'listFiltered'
+
+    def __init__(self, dimension_spec, values, is_whitelist=True):
+        super(ListFilteredSpec, self).__init__(dimension_spec)
+        self._values = values
+        self._is_whitelist = is_whitelist
+
+    def build(self):
+        dimension_spec = super(ListFilteredSpec, self).build()
+        dimension_spec['values'] = self._values
+
+        if not self._is_whitelist:
+            dimension_spec['isWhitelist'] = False
+
+        return dimension_spec
+
+
+class RegexFilteredSpec(FilteredSpec):
+
+    filter_type = 'regexFiltered'
+
+    def __init__(self, dimension_spec, pattern):
+        super(RegexFilteredSpec, self).__init__(dimension_spec)
+        self._pattern = pattern
+
+    def build(self):
+        dimension_spec = super(RegexFilteredSpec, self).build()
+        dimension_spec['pattern'] = self._pattern
+
+        return dimension_spec
+
+
 class ExtractionFunction(object):
 
     extraction_type = None

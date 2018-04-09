@@ -1,3 +1,5 @@
+from pydruid.utils.dimensions import ListFilteredSpec
+from pydruid.utils.dimensions import RegexFilteredSpec
 from pydruid.utils.dimensions import RegexExtraction
 from pydruid.utils.dimensions import PartialExtraction
 from pydruid.utils.dimensions import JavascriptExtraction
@@ -56,6 +58,53 @@ class TestDimensionSpec(object):
 
         dim_spec = DimensionSpec('dim', 'out')
         assert build_dimension(dim_spec) == dim_spec.build()
+
+
+class TestListFilteredSpec(object):
+
+    def test_list_filtered_spec(self):
+        dim_spec = DimensionSpec('dim', 'out')
+        list_filtered_spec = ListFilteredSpec(dim_spec, ['val1', 'val2'])
+        actual = list_filtered_spec.build()
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'listFiltered',
+            'delegate': expected_dim_spec,
+            'values': ['val1', 'val2']
+        }
+
+        assert actual == expected
+
+    def test_list_filtered_spec_whitelist(self):
+        dim_spec = DimensionSpec('dim', 'out')
+        list_filtered_spec = ListFilteredSpec(dim_spec, ['val1', 'val2'],
+            is_whitelist=False)
+        actual = list_filtered_spec.build()
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'listFiltered',
+            'delegate': expected_dim_spec,
+            'values': ['val1', 'val2'],
+            'isWhitelist': False
+        }
+
+        assert actual == expected
+
+
+class TestRegexFilteredSpec(object):
+
+    def test_regex_filtered_spec(self):
+        dim_spec = DimensionSpec('dim', 'out')
+        regex_filtered_spec = RegexFilteredSpec(dim_spec, r'\w+')
+        actual = regex_filtered_spec.build()
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'regexFiltered',
+            'delegate': expected_dim_spec,
+            'pattern': '\\w+'
+        }
+
+        assert actual == expected
 
 
 class TestRegexExtraction(object):
