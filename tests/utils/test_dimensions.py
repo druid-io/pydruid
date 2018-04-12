@@ -59,18 +59,18 @@ class TestDimensionSpec(object):
             (ListFilteredSpec(['val1', 'val2']), {
                 'type': 'listFiltered',
                 'delegate': delegate_spec,
-                'values': ['val1', 'val2']
+                'values': ['val1', 'val2'],
             }),
             (ListFilteredSpec(['val1', 'val2'], is_whitelist=False), {
                 'type': 'listFiltered',
                 'delegate': delegate_spec,
                 'values': ['val1', 'val2'],
-                'isWhitelist': False
+                'isWhitelist': False,
             }),
             (RegexFilteredSpec(r'\w+'), {
                 'type': 'regexFiltered',
                 'delegate': delegate_spec,
-                'pattern': '\\w+'
+                'pattern': '\\w+',
             })
         ]
 
@@ -97,7 +97,7 @@ class TestListFilteredSpec(object):
         expected = {
             'type': 'listFiltered',
             'delegate': expected_dim_spec,
-            'values': ['val1', 'val2']
+            'values': ['val1', 'val2'],
         }
 
         assert actual == expected
@@ -111,7 +111,7 @@ class TestListFilteredSpec(object):
             'type': 'listFiltered',
             'delegate': expected_dim_spec,
             'values': ['val1', 'val2'],
-            'isWhitelist': False
+            'isWhitelist': False,
         }
 
         assert actual == expected
@@ -127,7 +127,7 @@ class TestRegexFilteredSpec(object):
         expected = {
             'type': 'regexFiltered',
             'delegate': expected_dim_spec,
-            'pattern': '\\w+'
+            'pattern': '\\w+',
         }
 
         assert actual == expected

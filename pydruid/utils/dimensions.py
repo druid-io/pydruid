@@ -38,7 +38,7 @@ class FilteredSpec(object):
     def build(self, delegate):
         dimension_spec = {
             'type': self.filter_type,
-            'delegate': delegate
+            'delegate': delegate,
         }
         return dimension_spec
 
