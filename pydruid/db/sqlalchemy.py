@@ -28,6 +28,7 @@ type_map = {
     'bigint': types.BigInteger,
     'timestamp': types.TIMESTAMP,
     'date': types.DATE,
+    'other': types.BLOB,
 }
 
 
