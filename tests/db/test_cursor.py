@@ -36,7 +36,6 @@ class CursorTestSuite(unittest.TestCase):
         response.status_code = 200
         response.raw = BytesIO(b'[]')
         requests_post_mock.return_value = response
-        Row = namedtuple('Row', ['name'])
 
         cursor = Cursor('http://example.com/')
         cursor.execute('SELECT * FROM table')
