@@ -186,8 +186,11 @@ class Cursor(object):
         # to consume the first row so that `description` is properly set, so
         # let's consume it and insert it back.
         results = self._stream_query(query)
-        first_row = next(results)
-        self._results = itertools.chain([first_row], results)
+        try:
+            first_row = next(results)
+            self._results = itertools.chain([first_row], results)
+        except StopIteration:
+            self._results = iter([])
 
         return self
 
