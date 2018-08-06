@@ -135,17 +135,13 @@ class Bound(Filter):
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
     """
-    def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False, alphaNumeric=False,
-                 ordering='lexicographic'):
+    def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False, alphaNumeric=False):
 
         Filter.__init__(self,
-                        type='bound',
-                        dimension=dimension,
-                        lower=lower,
-                        upper=upper,
-                        lowerStrict=lowerStrict,
-                        upperStrict=upperStrict,
-                        ordering=ordering)
+            type='bound', dimension=dimension,
+            lower=lower, upper=upper,
+            lowerStrict=lowerStrict, upperStrict=upperStrict,
+            alphaNumeric=alphaNumeric)
 
 
 class Interval(Filter):
