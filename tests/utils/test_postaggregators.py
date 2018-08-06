@@ -79,5 +79,4 @@ class TestPostAggregators:
              }
 
         ]
-        assert(sorted(built_agg, key=itemgetter('name')) ==
-                sorted(expected, key=itemgetter('name')))
+        assert(sorted(built_agg, key=itemgetter('name')) == sorted(expected, key=itemgetter('name')))

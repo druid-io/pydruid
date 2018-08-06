@@ -38,8 +38,14 @@ class TestFilter:
 
     def test_bound_filter(self):
         actual = filters.Filter.build_filter(
-            filters.Bound(dimension='dim', lower='1', lowerStrict=True, upper='10', upperStrict=True, alphaNumeric=True))
-        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
+            filters.Bound(dimension='dim',
+                          lower='1',
+                          lowerStrict=True,
+                          upper='10',
+                          upperStrict=True,
+                          ordering='numeric'))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10',
+                    'upperStrict': True, 'ordering': 'numeric'}
         assert actual == expected
 
     def test_interval_filter(self):
