@@ -43,9 +43,10 @@ class TestFilter:
                           lowerStrict=True,
                           upper='10',
                           upperStrict=True,
-                          ordering='numeric'))
+                          ordering='numeric',
+                          alphaNumeric=True))
         expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10',
-                    'upperStrict': True, 'ordering': 'numeric'}
+                    'upperStrict': True, 'ordering': 'numeric', 'alphaNumeric': True}
         assert actual == expected
 
     def test_interval_filter(self):
