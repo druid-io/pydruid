@@ -53,7 +53,7 @@ class Filter:
         elif args["type"] == "bound":
             self.filter = {"filter": {"type": "bound",
                                       "dimension": args["dimension"]}}
-            for key in ["lower", "lowerStrict", "upper", "upperStrict", "ordering", 'alphaNumeric']:
+            for key in ["lower", "lowerStrict", "upper", "upperStrict", "ordering"]:
                 if key in args:
                     self.filter["filter"][key] = args[key]
         elif args["type"] == "columnComparison":
@@ -136,7 +136,7 @@ class Bound(Filter):
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
     """
     def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False,
-                 ordering='lexicographic', alphaNumeric=False):
+                 ordering='lexicographic'):
 
         Filter.__init__(self,
                         type='bound',
@@ -145,8 +145,7 @@ class Bound(Filter):
                         upper=upper,
                         lowerStrict=lowerStrict,
                         upperStrict=upperStrict,
-                        ordering=ordering,
-                        alphaNumeric=alphaNumeric)
+                        ordering=ordering)
 
 
 class Interval(Filter):
