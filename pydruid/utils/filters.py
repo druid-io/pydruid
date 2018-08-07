@@ -133,7 +133,7 @@ class Bound(Filter):
     :ivar str upper: Upper bound.
     :ivar bool lowerStrict: Strict lower inclusion. Initial value: False
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
-    :ivar bool alphaNumeric: Numeric comparison. Initial value: False
+    :ivar bool ordering: sorting options. Initial value: 'lexicographic'
     """
     def __init__(self, dimension, lower, upper, lowerStrict=False, upperStrict=False,
                  ordering='lexicographic'):
