@@ -403,6 +403,8 @@ class PyDruid(BaseDruidClient):
                 content = gzip.GzipFile(fileobj=buffer).read()
             else:
                 content = res.read()
+
+            query.query_id = res.info().get('x-druid-query-id')
             data = content.decode("utf-8")
             res.close()
         except urllib.error.HTTPError:

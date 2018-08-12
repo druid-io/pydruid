@@ -44,6 +44,7 @@ class Query(collections.MutableSequence):
         self.query_type = query_type
         self.result = None
         self.result_json = None
+        self.query_id = None
 
     def parse(self, data):
         if data:
