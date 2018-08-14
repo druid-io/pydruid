@@ -183,6 +183,8 @@ def main():
         query = query.strip('; ')
         if query:
             # shortcuts
+            if query.lower() in ('bye', 'exit', 'quit'):
+                break
             for pattern, repl in replacements.items():
                 query = re.sub(pattern, repl, query)
 
