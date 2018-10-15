@@ -328,7 +328,8 @@ def rows_from_chunks(chunks):
         rows = body[:boundary].lstrip('[,')
         body = body[boundary:]
 
-        for row in json.loads('[{rows}]'.format(rows=rows), object_pairs_hook=OrderedDict):
+        for row in json.loads('[{rows}]'.format(rows=rows), 
+                              object_pairs_hook=OrderedDict):
             yield row
 
 
