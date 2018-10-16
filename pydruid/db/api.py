@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 import itertools
 import json
 from six import string_types
@@ -328,7 +328,8 @@ def rows_from_chunks(chunks):
         rows = body[:boundary].lstrip('[,')
         body = body[boundary:]
 
-        for row in json.loads('[{rows}]'.format(rows=rows)):
+        for row in json.loads('[{rows}]'.format(rows=rows),
+                              object_pairs_hook=OrderedDict):
             yield row
 
 
