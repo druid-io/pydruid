@@ -378,7 +378,7 @@ class QueryBuilder(object):
         ]
         self.validate_query(query_type, valid_parts, args)
         interim_query = self.build_query(query_type, args)
-        final_query = {"type": "query","query": interim_query.__dict__['query_dict']}
+        final_query = {"type": "query", "query": interim_query.__dict__['query_dict']}
         return final_query
 
     def segment_metadata(self, args):

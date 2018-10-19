@@ -170,7 +170,7 @@ class BaseDruidClient(object):
         query = self.query_builder.timeseries(kwargs)
         return self._post(query)
 
-    def sub_query(self,**kwargs):
+    def sub_query(self, **kwargs):
         """
         donot do a post here just return the dict..
 
@@ -198,7 +198,8 @@ class BaseDruidClient(object):
                 >>> {'query': {'aggregations': [{'fieldName': 'stream_value',
                     'name': 'first_value',
                     'type': 'doubleFirst'},
-                   {'fieldName': 'stream_value', 'name': 'last_value', 'type': 'doubleLast'}],
+                   {'fieldName': 'stream_value', 'name': 'last_value', 'type':
+                   'doubleLast'}], 
                   'dataSource': 'twitterstream',
                   'dimensions': ['dim_key'],
                   'filter': {'fields': [{'dimension': 'user_lang',
