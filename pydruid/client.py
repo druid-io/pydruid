@@ -199,7 +199,7 @@ class BaseDruidClient(object):
                     'name': 'first_value',
                     'type': 'doubleFirst'},
                    {'fieldName': 'stream_value', 'name': 'last_value', 'type':
-                   'doubleLast'}], 
+                   'doubleLast'}],
                   'dataSource': 'twitterstream',
                   'dimensions': ['dim_key'],
                   'filter': {'fields': [{'dimension': 'user_lang',
