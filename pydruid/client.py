@@ -170,6 +170,59 @@ class BaseDruidClient(object):
         query = self.query_builder.timeseries(kwargs)
         return self._post(query)
 
+    def sub_query(self,**kwargs):
+        """
+        donot do a post here just return the dict..
+
+                Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> subquery_json = client.subquery(
+                        datasource=twitterstream,
+                        granularity='hour',
+                        intervals='2018-01-01/2018-05-31',
+                        dimensions=["dim_key"],
+                        filter=\
+                        (Dimension('user_lang') == 'en') &
+                        (Dimension('user_name') == 'ram'),
+                        aggregations=\
+                            aggregations={"first_value": doublefirst("data_stream"),
+                            "last_value": doublelast("data_stream")},
+                        post_aggregations=\
+                            {'final_value': (HyperUniqueCardinality('last_value') -
+                             HyperUniqueCardinality('first_value'))})
+                    )
+                >>> print subquery_json
+                >>> {'query': {'aggregations': [{'fieldName': 'stream_value',
+                    'name': 'first_value',
+                    'type': 'doubleFirst'},
+                   {'fieldName': 'stream_value', 'name': 'last_value', 'type': 'doubleLast'}],
+                  'dataSource': 'twitterstream',
+                  'dimensions': ['dim_key'],
+                  'filter': {'fields': [{'dimension': 'user_lang',
+                     'type': 'selector',
+                     'value': 'en'},
+                    {'dimension': 'user_name', 'type': 'selector', 'value': 'ram'}],
+                   'type': 'and'},
+                  'granularity': 'hour',
+                  'intervals': '2018-01-01/2018-05-31',
+                  'postAggregations': [{'fields': [{'fieldName': 'last_value',
+                      'type': 'hyperUniqueCardinality'},
+                     {'fieldName': 'first_value', 'type': 'hyperUniqueCardinality'}],
+                    'fn': '-',
+                    'name': 'final_value',
+                    'type': 'arithmetic'}],
+                  'queryType': 'groupBy'},
+                 'type': 'query'}
+
+        :param kwargs:
+        :return:
+        """
+        query = self.query_builder.subquery(kwargs)
+        return query
+
     def groupby(self, **kwargs):
         """
         A group-by query groups a results set (the requested aggregate
