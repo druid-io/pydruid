@@ -216,10 +216,11 @@ class QueryBuilder(object):
         """
         if not (
                     isinstance(datasource, str) or
-                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource]))
+                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource])) or
+                    isinstance(datasource, dict)
                 ):
             raise ValueError('Datasource definition not valid. Must be string or list of strings')
-        if isinstance(datasource, str):
+        if isinstance(datasource, (str, dict)):
             return datasource
         else:
             return {'type': 'union', 'dataSources': datasource}
@@ -266,19 +267,51 @@ class QueryBuilder(object):
             elif key == 'datasource':
                 query_dict['dataSource'] = self.parse_datasource(val, query_type)
             elif key == 'paging_spec':
+                # TODO: should paging only exist in outer query?
                 query_dict['pagingSpec'] = val
             elif key == 'limit_spec':
+                # TODO: should limiting only exist in outer query?
                 query_dict['limitSpec'] = val
             elif key == "filter" and val is not None:
                 query_dict[key] = Filter.build_filter(val)
             elif key == "having" and val is not None:
                 query_dict[key] = Having.build_having(val)
             elif key == 'dimension' and val is not None:
-                query_dict[key] = build_dimension(val)
+                if 'inner_dimensions' in args:
+                    query_dict['dimensions'] = [build_dimension(v) for v in args['inner_dimensions']]
+                else:
+                    query_dict[key] = build_dimension(val)
             elif key == 'dimensions':
-                query_dict[key] = [build_dimension(v) for v in val]
+                if 'inner_dimensions' in args:
+                    query_dict[key] = [build_dimension(v) for v in args['inner_dimensions']]
+                else:
+                    query_dict[key] = [build_dimension(v) for v in val]
+            elif key == 'inner_dimensions':
+                continue
             else:
                 query_dict[key] = val
+
+        if 'inner_dimensions' in args:
+            outer_query_dict = {'queryType': query_type}
+            for key, val in six.iteritems(args):
+                if key == 'aggregations':
+                    outer_query_dict[key] = build_aggregators(val)
+                elif key == 'post_aggregations':
+                    outer_query_dict['postAggregations'] = Postaggregator.build_post_aggregators(val)
+                elif key == 'paging_spec':
+                    outer_query_dict['pagingSpec'] = val
+                elif key == 'limit_spec':
+                    outer_query_dict['limitSpec'] = val
+                elif key == 'dimension' and val is not None:
+                    outer_query_dict[key] = build_dimension(val)
+                elif key == 'dimensions':
+                    outer_query_dict[key] = [build_dimension(v) for v in val]
+                elif key in ['inner_dimensions', 'having', 'filter', 'datasource']:
+                    continue
+                else:
+                    outer_query_dict[key] = val
+            outer_query_dict['dataSource'] = {'type': 'query', 'query': query_dict}
+            query_dict = outer_query_dict
 
         self.last_query = Query(query_dict, query_type)
         return self.last_query
@@ -333,7 +366,7 @@ class QueryBuilder(object):
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
             'having', 'post_aggregations', 'intervals', 'dimensions',
-            'limit_spec',
+            'limit_spec', 'inner_dimensions'
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
