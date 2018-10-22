@@ -284,7 +284,7 @@ class QueryBuilder(object):
                 query_dict[key] = [build_dimension(v) for v in val]
             elif key == 'sub_query' and val is not None:
                 query_dict['dataSource'] = {'type': 'query', 'query': self.build_query_dict(query_type, val)}
-            else:
+            elif val is not None:
                 query_dict[key] = val
         return query_dict
 
