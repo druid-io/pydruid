@@ -16,7 +16,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.3.1s.4',   # forked ad pydruid version 0.3.1
+    version='0.3.2',   # forked ad pydruid version 0.3.1
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.utils'],
