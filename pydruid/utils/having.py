@@ -27,6 +27,11 @@ class Having:
                                       'aggregation': args['aggregation'],
                                       'value': args['value']}}
 
+        elif args['type'] == 'dimSelector':
+            self.having = {'having': {'type': 'dimSelector',
+                                      'dimension': args['dimension'],
+                                      'value': args['value']}}
+
         elif args['type'] == 'and':
             self.having = {'having': {'type': 'and',
                                       'havingSpecs': args['havingSpecs']}}

@@ -216,10 +216,11 @@ class QueryBuilder(object):
         """
         if not (
                     isinstance(datasource, str) or
-                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource]))
+                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource])) or
+                    isinstance(datasource, dict)
                 ):
             raise ValueError('Datasource definition not valid. Must be string or list of strings')
-        if isinstance(datasource, str):
+        if isinstance(datasource, (str, dict)):
             return datasource
         else:
             return {'type': 'union', 'dataSources': datasource}
@@ -256,8 +257,12 @@ class QueryBuilder(object):
         :return: the resulting query
         :rtype: Query
         """
-        query_dict = {'queryType': query_type}
+        query_dict = self.build_query_dict(query_type, args)
+        self.last_query = Query(query_dict, query_type)
+        return self.last_query
 
+    def build_query_dict(self, query_type, args):
+        query_dict = {'queryType': query_type}
         for key, val in six.iteritems(args):
             if key == 'aggregations':
                 query_dict[key] = build_aggregators(val)
@@ -277,11 +282,11 @@ class QueryBuilder(object):
                 query_dict[key] = build_dimension(val)
             elif key == 'dimensions':
                 query_dict[key] = [build_dimension(v) for v in val]
-            else:
+            elif key == 'sub_query' and val is not None:
+                query_dict['dataSource'] = {'type': 'query', 'query': self.build_query_dict(query_type, val)}
+            elif val is not None:
                 query_dict[key] = val
-
-        self.last_query = Query(query_dict, query_type)
-        return self.last_query
+        return query_dict
 
     def topn(self, args):
         """
@@ -333,7 +338,7 @@ class QueryBuilder(object):
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
             'having', 'post_aggregations', 'intervals', 'dimensions',
-            'limit_spec',
+            'limit_spec', 'sub_query'
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
