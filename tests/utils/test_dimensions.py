@@ -1,3 +1,5 @@
+from pydruid.utils.dimensions import ListFilteredSpec
+from pydruid.utils.dimensions import RegexFilteredSpec
 from pydruid.utils.dimensions import RegexExtraction
 from pydruid.utils.dimensions import PartialExtraction
 from pydruid.utils.dimensions import JavascriptExtraction
@@ -51,11 +53,84 @@ class TestDimensionSpec(object):
 
             assert actual == expected
 
+    def test_filter_specs(self):
+        delegate_spec = DimensionSpec('dim', 'out').build()
+        filter_specs = [
+            (ListFilteredSpec(['val1', 'val2']), {
+                'type': 'listFiltered',
+                'delegate': delegate_spec,
+                'values': ['val1', 'val2'],
+            }),
+            (ListFilteredSpec(['val1', 'val2'], is_whitelist=False), {
+                'type': 'listFiltered',
+                'delegate': delegate_spec,
+                'values': ['val1', 'val2'],
+                'isWhitelist': False,
+            }),
+            (RegexFilteredSpec(r'\w+'), {
+                'type': 'regexFiltered',
+                'delegate': delegate_spec,
+                'pattern': '\\w+',
+            })
+        ]
+
+        for filter_spec, expected_dim_spec in filter_specs:
+            dim_spec = DimensionSpec('dim', 'out', filter_spec=filter_spec)
+            actual = dim_spec.build()
+
+            assert actual == expected_dim_spec
+
     def test_build_dimension(self):
         assert build_dimension('raw_dim') == 'raw_dim'
 
         dim_spec = DimensionSpec('dim', 'out')
         assert build_dimension(dim_spec) == dim_spec.build()
+
+
+class TestListFilteredSpec(object):
+
+    def test_list_filtered_spec(self):
+        dim_spec = DimensionSpec('dim', 'out').build()
+        list_filtered_spec = ListFilteredSpec(['val1', 'val2'])
+        actual = list_filtered_spec.build(dim_spec)
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'listFiltered',
+            'delegate': expected_dim_spec,
+            'values': ['val1', 'val2'],
+        }
+
+        assert actual == expected
+
+    def test_list_filtered_spec_whitelist(self):
+        dim_spec = DimensionSpec('dim', 'out').build()
+        list_filtered_spec = ListFilteredSpec(['val1', 'val2'], is_whitelist=False)
+        actual = list_filtered_spec.build(dim_spec)
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'listFiltered',
+            'delegate': expected_dim_spec,
+            'values': ['val1', 'val2'],
+            'isWhitelist': False,
+        }
+
+        assert actual == expected
+
+
+class TestRegexFilteredSpec(object):
+
+    def test_regex_filtered_spec(self):
+        dim_spec = DimensionSpec('dim', 'out').build()
+        regex_filtered_spec = RegexFilteredSpec(r'\w+')
+        actual = regex_filtered_spec.build(dim_spec)
+        expected_dim_spec = {'type': 'default', 'dimension': 'dim', 'outputName': 'out'}
+        expected = {
+            'type': 'regexFiltered',
+            'delegate': expected_dim_spec,
+            'pattern': '\\w+',
+        }
+
+        assert actual == expected
 
 
 class TestRegexExtraction(object):

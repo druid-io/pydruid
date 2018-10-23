@@ -236,4 +236,13 @@ $ pydruid http://localhost:8082/druid/v2/sql/
   cnt
 -----
 12345
+> SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;
+TABLE_NAME
+----------
+test_table
+COLUMNS
+SCHEMATA
+TABLES
+> BYE;
+GoodBye!
 ```
