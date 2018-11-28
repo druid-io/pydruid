@@ -386,7 +386,7 @@ class PyDruid(BaseDruidClient):
     """
     def __init__(self, url, endpoint, proxies = None):
         super(PyDruid, self).__init__(url, endpoint)
-        if proxies != None:
+        if proxies is not None:
             proxy_support = urllib.request.ProxyHandler(proxies)
             opener = urllib.request.build_opener(proxy_support)
             urllib.request.install_opener(opener)
