@@ -220,7 +220,7 @@ class Cursor(object):
         no more rows are available.
         """
         size = size or self.arraysize
-        return list(itertools.islice(self, size))
+        return list(itertools.islice(self._results, size))
 
     @check_result
     @check_closed
@@ -230,7 +230,7 @@ class Cursor(object):
         sequence of sequences (e.g. a list of tuples). Note that the cursor's
         arraysize attribute can affect the performance of this operation.
         """
-        return list(self)
+        return list(self._results)
 
     @check_closed
     def setinputsizes(self, sizes):
