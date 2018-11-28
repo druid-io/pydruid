@@ -31,6 +31,7 @@ keywords = [
     'ASC',
     'DESC',
     'LIMIT',
+    'FILTER',
 ]
 
 aggregate_functions = [
@@ -50,17 +51,25 @@ numeric_functions = [
     'FLOOR',
     'LN',
     'LOG10',
-    'POW',
+    'POWER',
     'SQRT',
+    'TRUNCATE',
+    'TRUNC',
+    'MOD',
 ]
 
 string_functions = [
+    'LENGTH',
+    'CHAR_LENGTH',
     'CHARACTER_LENGTH',
+    'STRLEN',
     'LOOKUP',
     'LOWER',
     'REGEXP_EXTRACT',
     'REPLACE',
+    'STRPOS',
     'SUBSTRING',
+    'SUBSTR',
     'TRIM',
     'BTRIM',
     'RTRIM',
@@ -71,6 +80,7 @@ string_functions = [
 time_functions = [
     'CURRENT_TIMESTAMP',
     'CURRENT_DATE',
+    'DATE_TRUNC',
     'TIME_FLOOR',
     'TIME_SHIFT',
     'TIME_EXTRACT',
@@ -81,6 +91,7 @@ time_functions = [
     'EXTRACT',
     'FLOOR',
     'CEIL',
+    'TIMESTAMPADD',
 ]
 
 other_functions = [
