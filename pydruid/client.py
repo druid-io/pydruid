@@ -384,7 +384,7 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
-    def __init__(self, url, endpoint, proxies = None):
+    def __init__(self, url, endpoint, proxies=None):
         super(PyDruid, self).__init__(url, endpoint)
         if proxies is not None:
             proxy_support = urllib.request.ProxyHandler(proxies)
