@@ -36,10 +36,17 @@ class BaseDruidClient(object):
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
+        self.proxies = None
 
     def set_basic_auth_credentials(self, username, password):
         self.username = username
         self.password = password
+
+    def set_proxies(self, proxies):
+        self.proxies = proxies
+        proxy_support = urllib.request.ProxyHandler(proxies)
+        opener = urllib.request.build_opener(proxy_support)
+        urllib.request.install_opener(opener)
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
