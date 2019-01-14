@@ -31,6 +31,7 @@ keywords = [
     'ASC',
     'DESC',
     'LIMIT',
+    'UNION ALL',
 ]
 
 aggregate_functions = [
