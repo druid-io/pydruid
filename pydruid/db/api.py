@@ -107,13 +107,10 @@ class Connection(object):
         port=8082,
         path='/druid/v2/sql/',
         scheme='http',
-<<<<<<< HEAD
+        user=None,
+        password=None,
         context=None,
         header=False,
-=======
-        user='',
-        password='',
->>>>>>> Add support for Druid Basic Auth to SQLAlchemy
     ):
         netloc = '{host}:{port}'.format(host=host, port=port)
         self.url = parse.urlunparse(
@@ -121,12 +118,9 @@ class Connection(object):
         self.context = context or {}
         self.closed = False
         self.cursors = []
-<<<<<<< HEAD
         self.header = header
-=======
         self.user = user
         self.password = password
->>>>>>> Add support for Druid Basic Auth to SQLAlchemy
 
     @check_closed
     def close(self):
@@ -150,11 +144,8 @@ class Connection(object):
     @check_closed
     def cursor(self):
         """Return a new Cursor Object using the connection."""
-<<<<<<< HEAD
-        cursor = Cursor(self.url, self.context, self.header)
-=======
-        cursor = Cursor(self.url, self.user, self.password)
->>>>>>> Add support for Druid Basic Auth to SQLAlchemy
+        cursor = Cursor(self.url, self.user, self.password, self.context,
+                        self.header)
         self.cursors.append(cursor)
 
         return cursor
@@ -175,17 +166,14 @@ class Cursor(object):
 
     """Connection cursor."""
 
-<<<<<<< HEAD
-    def __init__(self, url, context=None, header=False):
+    def __init__(self, url, user=None, password=None, context=None,
+                 header=False):
         self.url = url
         self.context = context or {}
         self.header = header
-=======
-    def __init__(self, url, user='', password=''):
         self.url = url
         self.user = user
         self.password = password
->>>>>>> Add support for Druid Basic Auth to SQLAlchemy
 
         # This read/write attribute specifies the number of rows to fetch at a
         # time with .fetchmany(). It defaults to 1 meaning to fetch a single
@@ -304,7 +292,6 @@ class Cursor(object):
         self.description = None
 
         headers = {'Content-Type': 'application/json'}
-<<<<<<< HEAD
 
         payload = {
             'query': query,
@@ -312,13 +299,10 @@ class Cursor(object):
             'header': self.header,
         }
 
-        r = requests.post(self.url, stream=True, headers=headers, json=payload)
-=======
-        payload = {'query': query}
-        auth = requests.auth.HTTPBasicAuth(self.user, self.password)
+        auth = requests.auth.HTTPBasicAuth(self.user,
+                                           self.password) if self.user else None
         r = requests.post(self.url, stream=True, headers=headers, json=payload,
                           auth=auth)
->>>>>>> Add support for Druid Basic Auth to SQLAlchemy
         if r.encoding is None:
             r.encoding = 'utf-8'
         # raise any error messages

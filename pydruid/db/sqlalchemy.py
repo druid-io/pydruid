@@ -95,8 +95,8 @@ class DruidDialect(default.DefaultDialect):
     name = 'druid'
     scheme = 'http'
     driver = 'rest'
-    user = ''
-    password = ''
+    user = None
+    password = None
     preparer = DruidIdentifierPreparer
     statement_compiler = DruidCompiler
     type_compiler = DruidTypeCompiler
@@ -122,8 +122,8 @@ class DruidDialect(default.DefaultDialect):
         kwargs = {
             'host': url.host,
             'port': url.port or 8082,
-            'user': url.username or '',
-            'password': url.password or '',
+            'user': url.username or None,
+            'password': url.password or None,
             'path': url.database,
             'scheme': self.scheme,
             'context': self.context,
