@@ -21,6 +21,8 @@ import pytest
 from pydruid.query import QueryBuilder, Query
 import csv
 
+from pydruid.utils.virtual_columns import VirtualColumn
+
 try:
     import pandas
     from pandas.util.testing import assert_frame_equal
@@ -85,6 +87,9 @@ class TestQueryBuilder:
             'filter': {'dimension': 'one', 'type': 'selector', 'value': 1},
             'having': {'aggregation': 'sum', 'type': 'greaterThan', 'value': 1},
             'new_key': 'value',
+            'virtualColumns': [{
+                    'type': 'expression', 'name': 'foo', 'expression': "concat('foo' + page)", 'outputType': 'STRING'
+                }],
         }
 
         builder = QueryBuilder()
@@ -106,6 +111,8 @@ class TestQueryBuilder:
             'filter': filters.Dimension('one') == 1,
             'having': having.Aggregation('sum') > 1,
             'new_key': 'value',
+            'virtualColumns':
+                [VirtualColumn(type='expression', name='foo', expression="concat('foo' + page)", outputType='STRING')]
         })
 
         # then

@@ -23,6 +23,7 @@ from pydruid.utils.having import Having
 from pydruid.utils.dimensions import build_dimension
 from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
+from pydruid.utils.virtual_columns import VirtualColumn
 
 
 class Query(collections.MutableSequence):
@@ -282,6 +283,8 @@ class QueryBuilder(object):
                 query_dict[key] = build_dimension(val)
             elif key == 'dimensions':
                 query_dict[key] = [build_dimension(v) for v in val]
+            elif key == 'virtualColumns':
+                query_dict[key] = [VirtualColumn.build_virtual_column(v) for v in val]
             elif key == 'sub_query' and val is not None:
                 query_dict['dataSource'] = {'type': 'query', 'query': self.build_query_dict(query_type, val)}
             elif val is not None:
@@ -303,7 +306,7 @@ class QueryBuilder(object):
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
             'post_aggregations', 'intervals', 'dimension', 'threshold',
-            'metric'
+            'metric', 'virtualColumns'
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -320,7 +323,7 @@ class QueryBuilder(object):
         query_type = 'timeseries'
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations', 'descending',
-            'post_aggregations', 'intervals'
+            'post_aggregations', 'intervals', 'virtualColumns'
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -338,7 +341,7 @@ class QueryBuilder(object):
         valid_parts = [
             'datasource', 'granularity', 'filter', 'aggregations',
             'having', 'post_aggregations', 'intervals', 'dimensions',
-            'limit_spec', 'sub_query'
+            'limit_spec', 'sub_query', 'virtualColumns'
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
