@@ -273,8 +273,8 @@ class Cursor(object):
                 payload = r.json()
             except Exception as e:
                 payload = {
-                    'error': str(e),
-                    'errorClass': e.__class__.__name__,
+                    'error': 'Unknown error',
+                    'errorClass': 'Unknown',
                     'errorMessage': r.text,
                 }
             msg = (
