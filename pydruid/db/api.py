@@ -271,7 +271,7 @@ class Cursor(object):
         if r.status_code != 200:
             try:
                 payload = r.json()
-            except Exception as e:
+            except Exception:
                 payload = {
                     'error': 'Unknown error',
                     'errorClass': 'Unknown',
