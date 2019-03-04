@@ -12,6 +12,7 @@ from six.moves.urllib import parse
 import requests
 
 from pydruid.db import exceptions
+from pydruid.config import REQUESTS_AUTH
 
 
 class Type(object):
@@ -263,7 +264,8 @@ class Cursor(object):
 
         headers = {'Content-Type': 'application/json'}
         payload = {'query': query}
-        r = requests.post(self.url, stream=True, headers=headers, json=payload)
+        r = requests.post(self.url, stream=True, headers=headers, json=payload,
+                          auth=REQUESTS_AUTH)
         if r.encoding is None:
             r.encoding = 'utf-8'
 
