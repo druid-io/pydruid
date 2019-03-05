@@ -21,12 +21,12 @@ class Type(object):
 
 
 def connect(
-        host='localhost',
-        port=8082,
-        path='/druid/v2/sql/',
-        scheme='http',
-        context=None,
-    ):
+    host='localhost',
+    port=8082,
+    path='/druid/v2/sql/',
+    scheme='http',
+    context=None,
+        ):
     """
     Constructor for creating a connection to the database.
 
