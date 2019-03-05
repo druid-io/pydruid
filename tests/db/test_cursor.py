@@ -43,6 +43,27 @@ class CursorTestSuite(unittest.TestCase):
         expected = []
         self.assertEquals(result, expected)
 
+    @patch('requests.post')
+    def test_context(self, requests_post_mock):
+        response = Response()
+        response.status_code = 200
+        response.raw = BytesIO(b'[]')
+        requests_post_mock.return_value = response
+
+        url = 'http://example.com/'
+        query = 'SELECT * FROM table'
+        context = {'source': 'unittest'}
+
+        cursor = Cursor(url, context)
+        cursor.execute(query)
+
+        requests_post_mock.assert_called_with(
+            'http://example.com/',
+            stream=True,
+            headers={'Content-Type': 'application/json'},
+            json={'query': query, 'context': context},
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

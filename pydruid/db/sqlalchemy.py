@@ -108,6 +108,10 @@ class DruidDialect(default.DefaultDialect):
     description_encoding = None
     supports_native_boolean = True
 
+    def __init__(self, context=None, *args, **kwargs):
+        super(DruidDialect, self).__init__(*args, **kwargs)
+        self.context = context or {}
+
     @classmethod
     def dbapi(cls):
         return pydruid.db
@@ -118,6 +122,7 @@ class DruidDialect(default.DefaultDialect):
             'port': url.port or 8082,
             'path': url.database,
             'scheme': self.scheme,
+            'context': self.context,
         }
         return ([], kwargs)
 
