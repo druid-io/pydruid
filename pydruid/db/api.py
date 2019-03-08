@@ -20,7 +20,13 @@ class Type(object):
     BOOLEAN = 3
 
 
-def connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http'):
+def connect(
+    host='localhost',
+    port=8082,
+    path='/druid/v2/sql/',
+    scheme='http',
+    context=None,
+        ):
     """
     Constructor for creating a connection to the database.
 
@@ -28,7 +34,8 @@ def connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http'):
         >>> curs = conn.cursor()
 
     """
-    return Connection(host, port, path, scheme)
+    context = context or {}
+    return Connection(host, port, path, scheme, context)
 
 
 def check_closed(f):
@@ -97,10 +104,12 @@ class Connection(object):
         port=8082,
         path='/druid/v2/sql/',
         scheme='http',
+        context=None,
     ):
         netloc = '{host}:{port}'.format(host=host, port=port)
         self.url = parse.urlunparse(
             (scheme, netloc, path, None, None, None))
+        self.context = context or {}
         self.closed = False
         self.cursors = []
 
@@ -126,7 +135,7 @@ class Connection(object):
     @check_closed
     def cursor(self):
         """Return a new Cursor Object using the connection."""
-        cursor = Cursor(self.url)
+        cursor = Cursor(self.url, self.context)
         self.cursors.append(cursor)
 
         return cursor
@@ -147,8 +156,9 @@ class Cursor(object):
 
     """Connection cursor."""
 
-    def __init__(self, url):
+    def __init__(self, url, context=None):
         self.url = url
+        self.context = context or {}
 
         # This read/write attribute specifies the number of rows to fetch at a
         # time with .fetchmany(). It defaults to 1 meaning to fetch a single
@@ -262,14 +272,21 @@ class Cursor(object):
         self.description = None
 
         headers = {'Content-Type': 'application/json'}
-        payload = {'query': query}
+        payload = {'query': query, 'context': self.context}
         r = requests.post(self.url, stream=True, headers=headers, json=payload)
         if r.encoding is None:
             r.encoding = 'utf-8'
 
         # raise any error messages
         if r.status_code != 200:
-            payload = r.json()
+            try:
+                payload = r.json()
+            except Exception:
+                payload = {
+                    'error': 'Unknown error',
+                    'errorClass': 'Unknown',
+                    'errorMessage': r.text,
+                }
             msg = (
                 '{error} ({errorClass}): {errorMessage}'.format(**payload)
             )
