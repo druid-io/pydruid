@@ -207,7 +207,4 @@ class RegisteredLookupExtraction(LookupExtraction):
         self._lookup = reglookup
 
     def build_lookup(self):
-        lookup = super(RegisteredLookupExtraction, self).build_lookup()
-        # lookup['registeredLookup'] = self._lookup
-
         return self._lookup
