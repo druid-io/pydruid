@@ -198,6 +198,7 @@ class NamespaceLookupExtraction(LookupExtraction):
 
         return lookup
 
+
 class RegisteredLookupExtraction(LookupExtraction):
 
     extraction_type = 'registeredLookup'
