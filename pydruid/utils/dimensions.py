@@ -197,3 +197,17 @@ class NamespaceLookupExtraction(LookupExtraction):
         lookup['namespace'] = self._namespace
 
         return lookup
+
+class RegisteredLookupExtraction(LookupExtraction):
+
+    extraction_type = 'registeredLookup'
+
+    def __init__(self, reglookup, **kwargs):
+        super(RegisteredLookupExtraction, self).__init__(**kwargs)
+        self._lookup = reglookup
+
+    def build_lookup(self):
+        lookup = super(RegisteredLookupExtraction, self).build_lookup()
+        # lookup['registeredLookup'] = self._lookup
+
+        return self._lookup
