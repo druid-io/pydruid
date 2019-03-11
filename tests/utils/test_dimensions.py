@@ -326,7 +326,7 @@ class TestNamespaceLookupExtraction(object):
 
     def test_map_replace_missing(self):
         ext_fn = NamespaceLookupExtraction('foo_namespace',
-                                     replace_missing_values='replacer')
+                                           replace_missing_values='replacer')
         actual = ext_fn.build()
         expected = {
             'type': 'lookup',
@@ -388,7 +388,7 @@ class TestRegisteredLookupExtraction(object):
 
     def test_map_replace_missing(self):
         ext_fn = RegisteredLookupExtraction('foo_namespace',
-                                     replace_missing_values='replacer')
+                                            replace_missing_values='replacer')
         actual = ext_fn.build()
         expected = {
             'type': 'registeredLookup',
