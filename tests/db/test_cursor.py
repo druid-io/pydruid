@@ -54,11 +54,12 @@ class CursorTestSuite(unittest.TestCase):
         query = 'SELECT * FROM table'
         context = {'source': 'unittest'}
 
-        cursor = Cursor(url, context)
+        cursor = Cursor(url, user=None, password=None, context=context)
         cursor.execute(query)
 
         requests_post_mock.assert_called_with(
             'http://example.com/',
+            auth=None,
             stream=True,
             headers={'Content-Type': 'application/json'},
             json={'query': query, 'context': context, 'header': False},
