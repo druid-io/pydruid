@@ -120,3 +120,25 @@ class TestAsyncPyDruid(AsyncHTTPTestCase):
         # assert that last_query.export_tsv method was called (it should throw an exception, given empty path)
         with pytest.raises(TypeError):
             client.export_tsv(None)
+
+    @tornado.testing.gen_test
+    def test_client_allows_passing_default_parameters(self):
+        # given
+        client = AsyncPyDruid("http://localhost:%s" % (self.get_http_port(), ),
+                              "druid/v2/return_results",
+                              defaults=dict(request_timeout=120))
+        top = yield client.topn(
+                datasource="testdatasource",
+                granularity="all",
+                intervals="2015-12-29/pt1h",
+                aggregations={"count": doublesum("count")},
+                dimension="user_name",
+                metric="count",
+                filter=Dimension("user_lang") == "en",
+                threshold=1,
+                context={"timeout": 1000})
+
+        # then
+        self.assertIsNotNone(top)
+        self.assertEqual(len(top.result), 1)
+        self.assertEqual(len(top.result[0]['result']), 1)
