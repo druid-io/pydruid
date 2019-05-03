@@ -95,6 +95,8 @@ class DruidDialect(default.DefaultDialect):
     name = 'druid'
     scheme = 'http'
     driver = 'rest'
+    user = None
+    password = None
     preparer = DruidIdentifierPreparer
     statement_compiler = DruidCompiler
     type_compiler = DruidTypeCompiler
@@ -108,6 +110,10 @@ class DruidDialect(default.DefaultDialect):
     description_encoding = None
     supports_native_boolean = True
 
+    def __init__(self, context=None, *args, **kwargs):
+        super(DruidDialect, self).__init__(*args, **kwargs)
+        self.context = context or {}
+
     @classmethod
     def dbapi(cls):
         return pydruid.db
@@ -116,8 +122,12 @@ class DruidDialect(default.DefaultDialect):
         kwargs = {
             'host': url.host,
             'port': url.port or 8082,
+            'user': url.username or None,
+            'password': url.password or None,
             'path': url.database,
             'scheme': self.scheme,
+            'context': self.context,
+            'header': url.query.get('header') == 'true',
         }
         return ([], kwargs)
 

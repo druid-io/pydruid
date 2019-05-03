@@ -78,6 +78,16 @@ class Filter:
         elif type_ == "extraction":
             self.filter["filter"].update({"dimension": args["dimension"],
                                           "value": args["value"]})
+        elif type_ == "search":
+            self.filter["filter"].update({
+                "dimension": args["dimension"],
+                "query": {"type": "contains",
+                          "value": args["value"],
+                          "caseSensitive": args.get("caseSensitive", "false")}
+            })
+        elif type_ == "like":
+            self.filter["filter"].update({"dimension": args["dimension"],
+                                          "pattern": args["pattern"]})
         else:
             raise NotImplementedError(
                 'Filter type: {0} does not exist'.format(type_))

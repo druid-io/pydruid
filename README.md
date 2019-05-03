@@ -18,13 +18,13 @@ pip install pydruid[sqlalchemy]
 # or, if you want to use the CLI
 pip install pydruid[cli]
 ```
-Documentation: https://pythonhosted.org/pydruid/. 
+Documentation: https://pythonhosted.org/pydruid/.
 
 # examples
 
 The following exampes show how to execute and analyze the results of three types of queries: timeseries, topN, and groupby. We will use these queries to ask simple questions about twitter's public data set.
 
-## timeseries 
+## timeseries
 
 What was the average tweet length, per day, surrounding the 2014 Sochi olympics?
 
@@ -52,7 +52,7 @@ plt.show()
 
 ![alt text](https://github.com/metamx/pydruid/raw/master/docs/figures/avg_tweet_length.png "Avg. tweet length")
 
-## topN 
+## topN
 
 Who were the top ten mentions (@user_name) during the 2014 Oscars?
 
@@ -162,7 +162,7 @@ def your_asynchronous_method_serving_top10_mentions_for_day(day
 
 # thetaSketches
 Theta sketch Post aggregators are built slightly differently to normal Post Aggregators, as they have different operators.
-Note: you must have the ```druid-datasketches``` extension loaded into your Druid cluster in order to use these. 
+Note: you must have the ```druid-datasketches``` extension loaded into your Druid cluster in order to use these.
 See the [Druid datasketches](http://druid.io/docs/latest/development/extensions-core/datasketches-aggregators.html) documentation for details.
 
 ```python
@@ -212,7 +212,7 @@ curs.execute("""
 for row in curs:
     print(row)
 ```
-        
+
 # SQLAlchemy
 
 ```python
@@ -227,6 +227,27 @@ engine = create_engine('druid://localhost:8082/druid/v2/sql/')  # uses HTTP by d
 places = Table('places', MetaData(bind=engine), autoload=True)
 print(select([func.count('*')], from_obj=places).scalar())
 ```
+
+
+## Column headers
+
+In version 0.13.0 Druid SQL added support for including the column names in the
+response which can be requested via the "header" field in the request. This
+helps to ensure that the cursor description is defined (which is a requirement
+for SQLAlchemy query statements) regardless on whether the result set contains
+any rows. Historically this was problematic for result sets which contained no
+rows at one could not infer the expected column names.
+
+Enabling the header can be configured via the SQLAlchemy URI by using the query
+parameter, i.e.,
+
+```python
+engine = create_engine('druid://localhost:8082/druid/v2/sql?header=true')
+```
+
+Note the current default is `false` to ensure backwards compatibility but should
+be set to `true` for Druid versions >= 0.13.0.
+
 
 # Command line
 

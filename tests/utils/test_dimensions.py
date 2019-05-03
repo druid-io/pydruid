@@ -6,6 +6,7 @@ from pydruid.utils.dimensions import JavascriptExtraction
 from pydruid.utils.dimensions import TimeFormatExtraction
 from pydruid.utils.dimensions import MapLookupExtraction
 from pydruid.utils.dimensions import NamespaceLookupExtraction
+from pydruid.utils.dimensions import RegisteredLookupExtraction
 from pydruid.utils.dimensions import DimensionSpec
 from pydruid.utils.dimensions import build_dimension
 
@@ -325,7 +326,7 @@ class TestNamespaceLookupExtraction(object):
 
     def test_map_replace_missing(self):
         ext_fn = NamespaceLookupExtraction('foo_namespace',
-                                     replace_missing_values='replacer')
+                                           replace_missing_values='replacer')
         actual = ext_fn.build()
         expected = {
             'type': 'lookup',
@@ -349,6 +350,62 @@ class TestNamespaceLookupExtraction(object):
                 'type': 'namespace',
                 'namespace': 'foo_namespace'
             },
+            'retainMissingValue': False,
+            'replaceMissingValueWith': None,
+            'injective': True
+        }
+
+        assert actual == expected
+
+
+class TestRegisteredLookupExtraction(object):
+
+    def test_map_default(self):
+        ext_fn = RegisteredLookupExtraction('foo_namespace')
+        actual = ext_fn.build()
+        expected = {
+            'type': 'registeredLookup',
+            'lookup': 'foo_namespace',
+            'retainMissingValue': False,
+            'replaceMissingValueWith': None,
+            'injective': False
+        }
+
+        assert actual == expected
+
+    def test_map_retain_missing(self):
+        ext_fn = RegisteredLookupExtraction('foo_namespace', retain_missing_values=True)
+        actual = ext_fn.build()
+        expected = {
+            'type': 'registeredLookup',
+            'lookup': 'foo_namespace',
+            'retainMissingValue': True,
+            'replaceMissingValueWith': None,
+            'injective': False
+        }
+
+        assert actual == expected
+
+    def test_map_replace_missing(self):
+        ext_fn = RegisteredLookupExtraction('foo_namespace',
+                                            replace_missing_values='replacer')
+        actual = ext_fn.build()
+        expected = {
+            'type': 'registeredLookup',
+            'lookup': 'foo_namespace',
+            'retainMissingValue': False,
+            'replaceMissingValueWith': 'replacer',
+            'injective': False
+        }
+
+        assert actual == expected
+
+    def test_map_injective(self):
+        ext_fn = RegisteredLookupExtraction('foo_namespace', injective=True)
+        actual = ext_fn.build()
+        expected = {
+            'type': 'registeredLookup',
+            'lookup': 'foo_namespace',
             'retainMissingValue': False,
             'replaceMissingValueWith': None,
             'injective': True

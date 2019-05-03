@@ -10,7 +10,7 @@ extras_require = {
     "pandas": ["pandas"],
     "async": ["tornado"],
     "sqlalchemy": ["sqlalchemy"],
-    "cli": ["pygments", "prompt_toolkit", "tabulate"],
+    "cli": ["pygments", "prompt_toolkit<2.0.0", "tabulate"],
 }
 
 # only require simplejson on python < 2.6
@@ -19,7 +19,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.3.1',
+    version='0.999.0dev',
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.db', 'pydruid.utils'],
