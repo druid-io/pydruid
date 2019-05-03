@@ -4,6 +4,7 @@ import textwrap
 import pytest
 from mock import patch, Mock
 from six.moves import urllib
+from six import StringIO
 
 from pydruid.client import PyDruid
 from pydruid.query import Query
@@ -19,12 +20,23 @@ def create_blank_query():
     return Query({}, 'none')
 
 
+def _http_error(code, msg, data = ''):
+    # Need a file-like object for the response data
+    fp = StringIO(data)
+    return urllib.error.HTTPError(
+        url='http://fakeurl:8080/druid/v2/',
+        hdrs={},
+        code=code,
+        msg=msg,
+        fp=fp,
+    )
+
+
 class TestPyDruid:
     @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_error(self, mock_urlopen):
         # given
-        ex = urllib.error.HTTPError(None, 500, "Druid error", None, None)
-        mock_urlopen.side_effect = ex
+        mock_urlopen.side_effect = _http_error(500, "Druid error")
         client = create_client()
 
         # when / then
@@ -57,8 +69,7 @@ class TestPyDruid:
             </body>
             </html>
         """).strip()
-        ex = urllib.error.HTTPError(None, 500, message, None, None)
-        mock_urlopen.side_effect = ex
+        mock_urlopen.side_effect = _http_error(500, 'Internal Server Error', message)
         client = create_client()
 
         # when / then
@@ -75,18 +86,7 @@ class TestPyDruid:
                     context={"timeout": 1000})
 
         assert str(e.value) == textwrap.dedent("""
-            HTTP Error 500: <html>
-            <head>
-            <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
-            <title>Error 500 </title>
-            </head>
-            <body>
-            <h2>HTTP ERROR: 500</h2>
-            <p>Problem accessing /druid/v2/. Reason:
-            <pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
-            <hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
-            </body>
-            </html> 
+            HTTP Error 500: Internal Server Error 
              Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
              Query is: {
                 "aggregations": [
