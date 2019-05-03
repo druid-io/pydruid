@@ -184,6 +184,53 @@ class TestQueryBuilder:
         with pytest.raises(ValueError):
             query = builder.build_query(None, builder_dict)
 
+    def test_build_subquery(self):
+        # given
+        expected_query_dict = {
+            'query': {
+                'queryType': 'groupBy',
+                'dataSource': 'things',
+                'aggregations': [{'fieldName': 'thing', 'name': 'count', 'type': 'count'}],
+                'postAggregations': [{
+                    'fields': [{
+                        'fieldName': 'sum', 'type': 'fieldAccess',
+                    }, {
+                        'fieldName': 'count', 'type': 'fieldAccess',
+                    }],
+                    'fn': '/',
+                    'name': 'avg',
+                    'type': 'arithmetic',
+                }],
+                'filter': {'dimension': 'one', 'type': 'selector', 'value': 1},
+                'having': {'aggregation': 'sum', 'type': 'greaterThan', 'value': 1},
+                'new_key': 'value',
+            },
+            'type': 'query'
+        }
+
+        builder = QueryBuilder()
+
+        # when
+        subquery_dict = builder.subquery({
+            'datasource': 'things',
+            'aggregations': {
+                'count': aggregators.count('thing'),
+            },
+            'post_aggregations': {
+                'avg': (postaggregator.Field('sum') /
+                        postaggregator.Field('count')),
+            },
+            'paging_spec': {
+                'pagingIdentifies': {},
+                'threshold': 1,
+            },
+            'filter': filters.Dimension('one') == 1,
+            'having': having.Aggregation('sum') > 1,
+            'new_key': 'value',
+        })
+
+        # then
+        assert subquery_dict == expected_query_dict
 
 
 class TestQuery:
@@ -212,3 +259,6 @@ class TestQuery:
         assert len(query) == 2
         assert isinstance(query[0], dict)
         assert isinstance(query[1], dict)
+
+    def test_subquery(self):
+
