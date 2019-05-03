@@ -115,6 +115,63 @@ class TestPyDruid:
         """).strip()
 
     @patch('pydruid.client.urllib.request.urlopen')
+    def test_druid_returns_json_error(self, mock_urlopen):
+        class ResponseBody:
+            def __init__(self, rsp):
+                self.read = lambda: rsp
+                self.readline = lambda: rsp
+        # given
+        message = textwrap.dedent("""
+            {"error":"Instantiation of [simple type, class org.apache.druid.java.util.common.granularity.Granularity] value failed"}
+        """).strip()
+        ex = urllib.error.HTTPError(None, 500, "Server Error", None, ResponseBody(message))
+
+        mock_urlopen.side_effect = ex
+        client = create_client()
+
+        # when / then
+        with pytest.raises(IOError) as e:
+            client.topn(
+                    datasource="testdatasource",
+                    granularity="all",
+                    intervals="2015-12-29/pt1h",
+                    aggregations={"count": doublesum("count")},
+                    dimension="user_name",
+                    metric="count",
+                    filter=Dimension("user_lang") == "en",
+                    threshold=1,
+                    context={"timeout": 1000})
+
+        assert str(e.value) == textwrap.dedent("""
+            HTTP Error 500: Server Error 
+             Druid Error: {'error': 'Instantiation of [simple type, class org.apache.druid.java.util.common.granularity.Granularity] value failed'} 
+             Query is: {
+                "aggregations": [
+                    {
+                        "fieldName": "count",
+                        "name": "count",
+                        "type": "doubleSum"
+                    }
+                ],
+                "context": {
+                    "timeout": 1000
+                },
+                "dataSource": "testdatasource",
+                "dimension": "user_name",
+                "filter": {
+                    "dimension": "user_lang",
+                    "type": "selector",
+                    "value": "en"
+                },
+                "granularity": "all",
+                "intervals": "2015-12-29/pt1h",
+                "metric": "count",
+                "queryType": "topN",
+                "threshold": 1
+            }
+        """).strip()
+
+    @patch('pydruid.client.urllib.request.urlopen')
     def test_druid_returns_results(self, mock_urlopen):
         # given
         response = Mock()

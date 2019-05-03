@@ -490,11 +490,12 @@ class PyDruid(BaseDruidClient):
             res.close()
         except urllib.error.HTTPError as e:
             err = e.reason
-            if e.code == 500:
+            if e.code in [400, 500]:
                 # has Druid returned an error?
                 try:
-                    err = json.loads(err)
-                except ValueError:
+                    body = e.read()
+                    err = json.loads(body)
+                except (ValueError, KeyError):
                     if HTML_ERROR.search(err):
                         err = HTML_ERROR.search(err).group(1)
                 except (ValueError, AttributeError, KeyError):
