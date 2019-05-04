@@ -203,7 +203,6 @@ class TestQueryBuilder:
                 }],
                 'filter': {'dimension': 'one', 'type': 'selector', 'value': 1},
                 'having': {'aggregation': 'sum', 'type': 'greaterThan', 'value': 1},
-                'new_key': 'value',
             },
             'type': 'query'
         }
@@ -226,7 +225,6 @@ class TestQueryBuilder:
             },
             'filter': filters.Dimension('one') == 1,
             'having': having.Aggregation('sum') > 1,
-            'new_key': 'value',
         })
 
         # then
