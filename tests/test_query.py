@@ -219,10 +219,6 @@ class TestQueryBuilder:
                 'avg': (postaggregator.Field('sum') /
                         postaggregator.Field('count')),
             },
-            'paging_spec': {
-                'pagingIdentifies': {},
-                'threshold': 1,
-            },
             'filter': filters.Dimension('one') == 1,
             'having': having.Aggregation('sum') > 1,
         })
