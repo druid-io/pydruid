@@ -260,5 +260,3 @@ class TestQuery:
         assert isinstance(query[0], dict)
         assert isinstance(query[1], dict)
 
-    def test_subquery(self):
-
