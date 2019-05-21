@@ -26,6 +26,17 @@ from six.moves import urllib
 from pydruid.query import QueryBuilder
 
 
+class PyDruidError(Exception):
+    def __init__(self, err):
+        if isinstance(err, dict):
+            self.error_message = err.get("errorMessage")
+        else:
+            self.error_message = err
+
+        message = "Druid query failed! Error message: %s" % self.error_message
+        super(PyDruidError, self).__init__(message)
+
+
 class BaseDruidClient(object):
     def __init__(self, url, endpoint):
         self.url = url
@@ -419,8 +430,7 @@ class PyDruid(BaseDruidClient):
                 else:
                     err = err.get('error', None)
 
-            raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
-                    e, err, json.dumps(query.query_dict, indent=4)))
+            raise PyDruidError(err)
         else:
             query.parse(data)
             return query
