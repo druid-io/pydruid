@@ -28,10 +28,10 @@ from pydruid.query import QueryBuilder
 
 class PyDruidError(Exception):
     def __init__(self, err):
-        if isinstance(err, dict):
+        if err is not None:
             self.error_message = err.get("errorMessage")
         else:
-            self.error_message = err
+            self.error_message = "Unknown error"
 
         message = "Druid query failed! Error message: %s" % self.error_message
         super(PyDruidError, self).__init__(message)
@@ -427,8 +427,6 @@ class PyDruid(BaseDruidClient):
                     err = json.loads(e.read().decode("utf-8"))
                 except (ValueError, AttributeError, KeyError):
                     pass
-                else:
-                    err = err.get('error', None)
 
             raise PyDruidError(err)
         else:
