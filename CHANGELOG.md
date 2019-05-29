@@ -1,5 +1,20 @@
 ## Change Log
 
+### 0.5.3 (2019/05/29 21:23 +00:00)
+- [#153](https://github.com/druid-io/pydruid/pull/153) Registered lookups (#153) (@srggrs)
+- [#156](https://github.com/druid-io/pydruid/pull/156) Support for search and like filters (#156) (@Makesh-Gmak)
+- [#149](https://github.com/druid-io/pydruid/pull/149) Add support for Druid Basic Auth to SQLAlchemy (#149) (@donbowman)
+- [#155](https://github.com/druid-io/pydruid/pull/155) [api] Adding support for headers (#155) (@john-bodley)
+
+### pydruid-0.5.2 (2019/03/08 01:16 +00:00)
+- [#150](https://github.com/druid-io/pydruid/pull/150) Improve error message (#150) (@betodealmeida)
+
+### pydruid-0.5.1 (2019/03/05 17:11 +00:00)
+- [#152](https://github.com/druid-io/pydruid/pull/152) Pass context to Druid (#152) (@betodealmeida)
+- [#148](https://github.com/druid-io/pydruid/pull/148) scan query: use columns instead of dimensions (#148) (@adelcast)
+- [#147](https://github.com/druid-io/pydruid/pull/147) Update console.py (#147) (@john-bodley)
+- [#145](https://github.com/druid-io/pydruid/pull/145) Dummy version number for master branch + RELEASE.md docs (#145) (@mistercrunch)
+
 ### 0.5.0 (2018/11/28 06:16 +00:00)
 - [#144](https://github.com/druid-io/pydruid/pull/144) [db-api] Performance improvements (#144) (@john-bodley)
 - [#142](https://github.com/druid-io/pydruid/pull/142) [prompt_toolkit] Enforcing pre-2.0 (#142) (@john-bodley)
