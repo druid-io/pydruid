@@ -240,3 +240,25 @@ class TestFilter:
                 {'type': 'default', 'dimension': 'dim2', 'outputName': 'dim2'}
             ]}
         assert actual == expected
+
+    def test_search_filter(self):
+        # Without caseSensitive param - default:false
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="search", dimension="dim", value='val'))
+        expected = {'type': 'search', 'dimension': 'dim',
+                    'query': {'type': 'contains', 'caseSensitive': 'false', 'value': 'val'}}
+        assert actual == expected
+
+        # With caseSensitive param
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="search", dimension="dim", value='val', caseSensitive='true'))
+        expected = {'type': 'search', 'dimension': 'dim',
+                    'query': {'type': 'contains', 'caseSensitive': 'true', 'value': 'val'}}
+        assert actual == expected
+
+    def test_like_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="like", dimension="dim", pattern="%val%"))
+        expected = {'type': 'like', 'dimension': 'dim', 'pattern': '%val%'}
+        assert actual == expected
+        

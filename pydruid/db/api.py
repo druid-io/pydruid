@@ -21,12 +21,15 @@ class Type(object):
 
 
 def connect(
-    host='localhost',
-    port=8082,
-    path='/druid/v2/sql/',
-    scheme='http',
-    context=None,
-        ):
+        host='localhost',
+        port=8082,
+        path='/druid/v2/sql/',
+        scheme='http',
+        user=None,
+        password=None,
+        context=None,
+        header=False,
+    ):  # noqa: E125
     """
     Constructor for creating a connection to the database.
 
@@ -35,7 +38,7 @@ def connect(
 
     """
     context = context or {}
-    return Connection(host, port, path, scheme, context)
+    return Connection(host, port, path, scheme, user, password, context, header)
 
 
 def check_closed(f):
@@ -104,7 +107,10 @@ class Connection(object):
         port=8082,
         path='/druid/v2/sql/',
         scheme='http',
+        user=None,
+        password=None,
         context=None,
+        header=False,
     ):
         netloc = '{host}:{port}'.format(host=host, port=port)
         self.url = parse.urlunparse(
@@ -112,6 +118,9 @@ class Connection(object):
         self.context = context or {}
         self.closed = False
         self.cursors = []
+        self.header = header
+        self.user = user
+        self.password = password
 
     @check_closed
     def close(self):
@@ -135,7 +144,8 @@ class Connection(object):
     @check_closed
     def cursor(self):
         """Return a new Cursor Object using the connection."""
-        cursor = Cursor(self.url, self.context)
+        cursor = Cursor(self.url, self.user, self.password, self.context,
+                        self.header)
         self.cursors.append(cursor)
 
         return cursor
@@ -156,9 +166,14 @@ class Cursor(object):
 
     """Connection cursor."""
 
-    def __init__(self, url, context=None):
+    def __init__(self, url, user=None, password=None, context=None,
+                 header=False):
         self.url = url
         self.context = context or {}
+        self.header = header
+        self.url = url
+        self.user = user
+        self.password = password
 
         # This read/write attribute specifies the number of rows to fetch at a
         # time with .fetchmany(). It defaults to 1 meaning to fetch a single
@@ -192,15 +207,20 @@ class Cursor(object):
     def execute(self, operation, parameters=None):
         query = apply_parameters(operation, parameters or {})
 
-        # `_stream_query` returns a generator that produces the rows; we need
-        # to consume the first row so that `description` is properly set, so
-        # let's consume it and insert it back.
         results = self._stream_query(query)
-        try:
-            first_row = next(results)
-            self._results = itertools.chain([first_row], results)
-        except StopIteration:
-            self._results = iter([])
+        if self.header:
+            # The values are all null and thus it is impossible to imply types.
+            self.description = list(next(results)._asdict().items())
+            self._results = results
+        else:
+            # `_stream_query` returns a generator that produces the rows; we
+            # need to consume the first row so that `description` is properly
+            # set, so let's consume it and insert it back.
+            try:
+                first_row = next(results)
+                self._results = itertools.chain([first_row], results)
+            except StopIteration:
+                self._results = iter([])
 
         return self
 
@@ -272,11 +292,19 @@ class Cursor(object):
         self.description = None
 
         headers = {'Content-Type': 'application/json'}
-        payload = {'query': query, 'context': self.context}
-        r = requests.post(self.url, stream=True, headers=headers, json=payload)
+
+        payload = {
+            'query': query,
+            'context': self.context,
+            'header': self.header,
+        }
+
+        auth = requests.auth.HTTPBasicAuth(self.user,
+                                           self.password) if self.user else None
+        r = requests.post(self.url, stream=True, headers=headers, json=payload,
+                          auth=auth)
         if r.encoding is None:
             r.encoding = 'utf-8'
-
         # raise any error messages
         if r.status_code != 200:
             try:
@@ -299,7 +327,7 @@ class Cursor(object):
         Row = None
         for row in rows_from_chunks(chunks):
             # update description
-            if self.description is None:
+            if not self.header and self.description is None:
                 self.description = get_description_from_row(row)
 
             # return row in namedtuple
