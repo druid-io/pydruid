@@ -1,0 +1,41 @@
+name: pydruid
+description: Python Druid client library
+repository: git@github.com:lyft/pydruid.git
+image_type: library
+builder:
+  name: multi
+  params:
+    builders:
+      - name: s2i
+        params:
+          builder: lyft/s2ipythonlibrary:33c3858ae5c7dee41a02ede081071a230c234049
+languages:
+  - python
+groups:
+  - name: tester
+    members:
+      - pydruid.test
+containers:
+  - name: test
+    privileged: true
+    network: host
+    command: /bin/bash -c 'while true; do sleep 3600; done'
+tests:
+  - name: unit
+    type: execution
+    command: py.test
+    group: pydruid.tester
+    container: pydruid.test
+deploy:
+  - name: staging
+    legacy: true
+    role: lyftpypi-staging-iad-deploy
+    orca:
+      - region: iad
+  - name: production
+    legacy: true
+    role: lyftpypi-production-iad-deploy
+    automatic: true
+    orca:
+      - region: iad
+slack: '#experimentation'
