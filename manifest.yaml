@@ -2,6 +2,8 @@ name: pydruid
 description: Python Druid client library
 repository: git@github.com:lyft/pydruid.git
 image_type: library
+slack: '#experimentation'
+team_email: devnull@lyft.com
 builder:
   name: multi
   params:
@@ -38,4 +40,3 @@ deploy:
     automatic: true
     orca:
       - region: iad
-slack: '#experimentation'
