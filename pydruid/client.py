@@ -36,10 +36,17 @@ class BaseDruidClient(object):
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
+        self.proxies = None
 
     def set_basic_auth_credentials(self, username, password):
         self.username = username
         self.password = password
+
+    def set_proxies(self, proxies):
+        self.proxies = proxies
+        proxy_support = urllib.request.ProxyHandler(proxies)
+        opener = urllib.request.build_opener(proxy_support)
+        urllib.request.install_opener(opener)
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
@@ -169,6 +176,60 @@ class BaseDruidClient(object):
         """
         query = self.query_builder.timeseries(kwargs)
         return self._post(query)
+
+    def sub_query(self, **kwargs):
+        """
+        donot do a post here just return the dict..
+
+                Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> subquery_json = client.subquery(
+                        datasource=twitterstream,
+                        granularity='hour',
+                        intervals='2018-01-01/2018-05-31',
+                        dimensions=["dim_key"],
+                        filter=\
+                        (Dimension('user_lang') == 'en') &
+                        (Dimension('user_name') == 'ram'),
+                        aggregations=\
+                            aggregations={"first_value": doublefirst("data_stream"),
+                            "last_value": doublelast("data_stream")},
+                        post_aggregations=\
+                            {'final_value': (HyperUniqueCardinality('last_value') -
+                             HyperUniqueCardinality('first_value'))})
+                    )
+                >>> print subquery_json
+                >>> {'query': {'aggregations': [{'fieldName': 'stream_value',
+                    'name': 'first_value',
+                    'type': 'doubleFirst'},
+                   {'fieldName': 'stream_value', 'name': 'last_value', 'type':
+                   'doubleLast'}],
+                  'dataSource': 'twitterstream',
+                  'dimensions': ['dim_key'],
+                  'filter': {'fields': [{'dimension': 'user_lang',
+                     'type': 'selector',
+                     'value': 'en'},
+                    {'dimension': 'user_name', 'type': 'selector', 'value': 'ram'}],
+                   'type': 'and'},
+                  'granularity': 'hour',
+                  'intervals': '2018-01-01/2018-05-31',
+                  'postAggregations': [{'fields': [{'fieldName': 'last_value',
+                      'type': 'hyperUniqueCardinality'},
+                     {'fieldName': 'first_value', 'type': 'hyperUniqueCardinality'}],
+                    'fn': '-',
+                    'name': 'final_value',
+                    'type': 'arithmetic'}],
+                  'queryType': 'groupBy'},
+                 'type': 'query'}
+
+        :param kwargs:
+        :return:
+        """
+        query = self.query_builder.subquery(kwargs)
+        return query
 
     def groupby(self, **kwargs):
         """
@@ -489,7 +550,7 @@ class PyDruid(BaseDruidClient):
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
-            err = e.reason
+            err = e.read()
             if e.code == 500:
                 # has Druid returned an error?
                 try:

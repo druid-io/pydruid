@@ -362,6 +362,25 @@ class QueryBuilder(object):
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
 
+    def subquery(self, args):
+        """
+        donot do a post here just return the dict..
+
+        :param dict args: dict of args
+
+        :rtype: json
+        """
+        query_type = 'groupBy'
+        valid_parts = [
+            'datasource', 'granularity', 'filter', 'aggregations',
+            'having', 'post_aggregations', 'intervals', 'dimensions',
+            'limit_spec',
+        ]
+        self.validate_query(query_type, valid_parts, args)
+        interim_query = self.build_query(query_type, args)
+        final_query = {"type": "query", "query": interim_query.__dict__['query_dict']}
+        return final_query
+
     def segment_metadata(self, args):
         """
         * Column type
