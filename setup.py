@@ -1,3 +1,4 @@
+import io
 import sys
 from setuptools import setup
 
@@ -17,6 +18,9 @@ extras_require = {
 if sys.version_info < (2, 6):
     install_requires.append("simplejson >= 3.3.0")
 
+with io.open('README.md', encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='pydruid',
     version='0.5.4',
@@ -26,7 +30,8 @@ setup(
     url='https://pypi.python.org/pypi/pydruid/',
     license='Apache License, Version 2.0',
     description='A Python connector for Druid.',
-    long_description='See https://github.com/druid-io/pydruid for more information.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     install_requires=install_requires,
     extras_require=extras_require,
     setup_requires=['pytest-runner'],
