@@ -55,8 +55,10 @@ class TestFilter:
 
     def test_bound_filter(self):
         actual = filters.Filter.build_filter(
-            filters.Bound(dimension='dim', lower='1', lowerStrict=True, upper='10', upperStrict=True, alphaNumeric=True))
-        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True,
+                          upper='10', upperStrict=True, ordering="numeric"))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1',
+                    'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'ordering': 'numeric'}
         assert actual == expected
 
     def test_bound_filter_with_extraction_function(self):
@@ -66,8 +68,8 @@ class TestFilter:
         actual = filters.Filter.build_filter(f)
         expected = {'type': 'bound', 'dimension': 'd', 'lower': '1',
                     'lowerStrict': False, 'upper': '3', 'upperStrict': True,
-                    'alphaNumeric': False, 'extractionFn': {
-                        'type': 'regex', 'expr': '.*([0-9]+)'}}
+                    'ordering': 'lexicographic',
+                    'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}}
         assert actual == expected
 
 
