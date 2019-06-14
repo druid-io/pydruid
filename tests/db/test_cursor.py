@@ -103,6 +103,23 @@ class CursorTestSuite(unittest.TestCase):
         self.assertEquals(result, [Row(name='alice')])
         self.assertEquals(cursor.description, [('name', None)])
 
+    @patch('requests.post')
+    def test_names_with_underscores(self, requests_post_mock):
+        response = Response()
+        response.status_code = 200
+        response.raw = BytesIO(b'[{"_name": null}, {"_name": "alice"}]')
+        requests_post_mock.return_value = response
+        Row = namedtuple('Row', ['_name'], rename=True)
+
+        url = 'http://example.com/'
+        query = 'SELECT * FROM table'
+
+        cursor = Cursor(url, header=True)
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.assertEquals(result, [Row(_0='alice')])
+        self.assertEquals(cursor.description, [('_name', None)])
+
 
 if __name__ == '__main__':
     unittest.main()
