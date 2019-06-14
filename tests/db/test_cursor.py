@@ -7,7 +7,7 @@ import unittest
 from requests.models import Response
 from six import BytesIO
 
-from pydruid.db.api import Cursor
+from pydruid.db.api import apply_parameters, Cursor
 
 
 class CursorTestSuite(unittest.TestCase):
@@ -119,6 +119,37 @@ class CursorTestSuite(unittest.TestCase):
         result = cursor.fetchall()
         self.assertEquals(result, [Row(_0='alice')])
         self.assertEquals(cursor.description, [('_name', None)])
+
+    def test_apply_parameters(self):
+        self.assertEquals(
+            apply_parameters('SELECT 100 AS "100%"', None),
+            'SELECT 100 AS "100%"',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s AS "100%%"', {'key': 100}),
+            'SELECT 100 AS "100%"',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': '*'}),
+            'SELECT *',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': 'bar'}),
+            "SELECT 'bar'",
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': True}),
+            'SELECT TRUE',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': False}),
+            'SELECT FALSE',
+        )
 
 
 if __name__ == '__main__':
