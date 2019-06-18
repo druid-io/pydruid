@@ -68,6 +68,7 @@ class Filter:
                 "lowerStrict": args["lowerStrict"],
                 "upper": args["upper"],
                 "upperStrict": args["upperStrict"],
+                "alphaNumeric": args["alphaNumeric"],
                 "ordering": args["ordering"]
             })
         elif type_ == "columnComparison":
@@ -164,13 +165,16 @@ class Bound(Filter):
     :ivar str upper: Upper bound.
     :ivar bool lowerStrict: Strict lower inclusion. Initial value: False
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
+    :ivar bool alphaNumeric: Numeric comparison. Initial value: False
+        NOTE: For backwards compatibility - Use "ordering" instead.
     :ivar bool ordering: Sorting Order. Initial value: lexicographic
     :ivar ExtractionFunction extraction_function: extraction function to use,
                                                   if not None
     """
     def __init__(
             self, dimension, lower=None, upper=None, lowerStrict=False,
-            upperStrict=False, ordering="lexicographic", extraction_function=None):
+            upperStrict=False, alphaNumeric=False, ordering="lexicographic",
+            extraction_function=None):
         if not lower and not upper:
             raise ValueError("Must include either lower or upper or both")
         Filter.__init__(
@@ -178,7 +182,8 @@ class Bound(Filter):
             type='bound', dimension=dimension,
             lower=lower, upper=upper,
             lowerStrict=lowerStrict, upperStrict=upperStrict,
-            ordering=ordering, extraction_function=extraction_function)
+            alphaNumeric=alphaNumeric, ordering=ordering,
+            extraction_function=extraction_function)
 
 
 class Interval(Filter):
