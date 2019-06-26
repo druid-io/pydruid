@@ -205,7 +205,7 @@ class Cursor(object):
 
     @check_closed
     def execute(self, operation, parameters=None):
-        query = apply_parameters(operation, parameters or {})
+        query = apply_parameters(operation, parameters)
         results = self._stream_query(query)
 
         # `_stream_query` returns a generator that produces the rows; we need to
@@ -380,6 +380,9 @@ def rows_from_chunks(chunks):
 
 
 def apply_parameters(operation, parameters):
+    if parameters is None:
+        return operation
+
     escaped_parameters = {
         key: escape(value) for key, value in parameters.items()
     }
@@ -391,9 +394,9 @@ def escape(value):
         return value
     elif isinstance(value, string_types):
         return "'{}'".format(value.replace("'", "''"))
-    elif isinstance(value, (int, float)):
-        return value
     elif isinstance(value, bool):
         return 'TRUE' if value else 'FALSE'
+    elif isinstance(value, (int, float)):
+        return value
     elif isinstance(value, (list, tuple)):
         return ', '.join(escape(element) for element in value)
