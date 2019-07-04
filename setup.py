@@ -23,7 +23,7 @@ with io.open('README.md', encoding='utf-8') as f:
 
 setup(
     name='pydruid',
-    version='0.5.5',
+    version='0.5.6',
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.db', 'pydruid.utils'],
