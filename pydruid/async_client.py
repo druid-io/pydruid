@@ -40,6 +40,8 @@ class AsyncPyDruid(BaseDruidClient):
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
     :param dict defaults: (optional) Dict of parameters for the Async HTTP Client subclass
+    :param str http_client: Tornado HTTP client implementation to use.
+        Default: None (use simple_httpclient)
 
     Example
 
@@ -96,13 +98,14 @@ class AsyncPyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint, defaults=None):
+    def __init__(self, url, endpoint, defaults=None, http_client=None):
         super(AsyncPyDruid, self).__init__(url, endpoint)
         self.async_http_defaults = defaults
+        self.http_client = http_client
 
     @gen.coroutine
     def _post(self, query):
-        AsyncHTTPClient.configure(None, defaults=self.async_http_defaults)
+        AsyncHTTPClient.configure(self.http_client, defaults=self.async_http_defaults)
         http_client = AsyncHTTPClient()
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)

@@ -205,22 +205,20 @@ class Cursor(object):
 
     @check_closed
     def execute(self, operation, parameters=None):
-        query = apply_parameters(operation, parameters or {})
-
+        query = apply_parameters(operation, parameters)
         results = self._stream_query(query)
-        if self.header:
-            # The values are all null and thus it is impossible to imply types.
-            self.description = list(next(results)._asdict().items())
-            self._results = results
-        else:
-            # `_stream_query` returns a generator that produces the rows; we
-            # need to consume the first row so that `description` is properly
-            # set, so let's consume it and insert it back.
-            try:
-                first_row = next(results)
-                self._results = itertools.chain([first_row], results)
-            except StopIteration:
-                self._results = iter([])
+
+        # `_stream_query` returns a generator that produces the rows; we need to
+        # consume the first row so that `description` is properly set, so let's
+        # consume it and insert it back if it is not the header.
+        try:
+            first_row = next(results)
+            self._results = (
+                results if self.header else
+                itertools.chain([first_row], results)
+            )
+        except StopIteration:
+            self._results = iter([])
 
         return self
 
@@ -327,8 +325,11 @@ class Cursor(object):
         Row = None
         for row in rows_from_chunks(chunks):
             # update description
-            if not self.header and self.description is None:
-                self.description = get_description_from_row(row)
+            if self.description is None:
+                self.description = (
+                    list(row.items()) if self.header else
+                    get_description_from_row(row)
+                )
 
             # return row in namedtuple
             if Row is None:
@@ -379,6 +380,9 @@ def rows_from_chunks(chunks):
 
 
 def apply_parameters(operation, parameters):
+    if parameters is None:
+        return operation
+
     escaped_parameters = {
         key: escape(value) for key, value in parameters.items()
     }
@@ -390,9 +394,9 @@ def escape(value):
         return value
     elif isinstance(value, string_types):
         return "'{}'".format(value.replace("'", "''"))
-    elif isinstance(value, (int, float)):
-        return value
     elif isinstance(value, bool):
         return 'TRUE' if value else 'FALSE'
+    elif isinstance(value, (int, float)):
+        return value
     elif isinstance(value, (list, tuple)):
         return ', '.join(escape(element) for element in value)

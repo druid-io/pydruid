@@ -142,3 +142,25 @@ class TestAsyncPyDruid(AsyncHTTPTestCase):
         self.assertIsNotNone(top)
         self.assertEqual(len(top.result), 1)
         self.assertEqual(len(top.result[0]['result']), 1)
+
+    @tornado.testing.gen_test
+    def test_client_allows_passing_http_client(self):
+        # given
+        client = AsyncPyDruid("http://localhost:%s" % (self.get_http_port(), ),
+                              "druid/v2/return_results",
+                              http_client="tornado.curl_httpclient.CurlAsyncHTTPClient")
+        top = yield client.topn(
+                datasource="testdatasource",
+                granularity="all",
+                intervals="2015-12-29/pt1h",
+                aggregations={"count": doublesum("count")},
+                dimension="user_name",
+                metric="count",
+                filter=Dimension("user_lang") == "en",
+                threshold=1,
+                context={"timeout": 1000})
+
+        # then
+        self.assertIsNotNone(top)
+        self.assertEqual(len(top.result), 1)
+        self.assertEqual(len(top.result[0]['result']), 1)

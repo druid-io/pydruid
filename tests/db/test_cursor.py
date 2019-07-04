@@ -7,7 +7,7 @@ import unittest
 from requests.models import Response
 from six import BytesIO
 
-from pydruid.db.api import Cursor
+from pydruid.db.api import apply_parameters, Cursor
 
 
 class CursorTestSuite(unittest.TestCase):
@@ -102,6 +102,54 @@ class CursorTestSuite(unittest.TestCase):
         result = cursor.fetchall()
         self.assertEquals(result, [Row(name='alice')])
         self.assertEquals(cursor.description, [('name', None)])
+
+    @patch('requests.post')
+    def test_names_with_underscores(self, requests_post_mock):
+        response = Response()
+        response.status_code = 200
+        response.raw = BytesIO(b'[{"_name": null}, {"_name": "alice"}]')
+        requests_post_mock.return_value = response
+        Row = namedtuple('Row', ['_name'], rename=True)
+
+        url = 'http://example.com/'
+        query = 'SELECT * FROM table'
+
+        cursor = Cursor(url, header=True)
+        cursor.execute(query)
+        result = cursor.fetchall()
+        self.assertEquals(result, [Row(_0='alice')])
+        self.assertEquals(cursor.description, [('_name', None)])
+
+    def test_apply_parameters(self):
+        self.assertEquals(
+            apply_parameters('SELECT 100 AS "100%"', None),
+            'SELECT 100 AS "100%"',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s AS "100%%"', {'key': 100}),
+            'SELECT 100 AS "100%"',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': '*'}),
+            'SELECT *',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': 'bar'}),
+            "SELECT 'bar'",
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': True}),
+            'SELECT TRUE',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s', {'key': False}),
+            'SELECT FALSE',
+        )
 
 
 if __name__ == '__main__':
