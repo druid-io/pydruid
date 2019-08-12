@@ -26,7 +26,7 @@ from base64 import b64encode
 
 
 # extract error from the <PRE> tag inside the HTML response
-HTML_ERROR = re.compile('<pre>\s*(.*?)\s*</pre>', re.IGNORECASE)
+HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
 
 
 class BaseDruidClient(object):
@@ -49,16 +49,16 @@ class BaseDruidClient(object):
         urllib.request.install_opener(opener)
 
     def _prepare_url_headers_and_body(self, query):
-        querystr = json.dumps(query.query_dict).encode('utf-8')
-        if self.url.endswith('/'):
+        querystr = json.dumps(query.query_dict).encode("utf-8")
+        if self.url.endswith("/"):
             url = self.url + self.endpoint
         else:
-            url = self.url + '/' + self.endpoint
-        headers = {'Content-Type': 'application/json'}
+            url = self.url + "/" + self.endpoint
+        headers = {"Content-Type": "application/json"}
         if (self.username is not None) and (self.password is not None):
-            authstring = '{}:{}'.format(self.username, self.password)
+            authstring = "{}:{}".format(self.username, self.password)
             b64string = b64encode(authstring.encode()).decode()
-            headers['Authorization'] = 'Basic {}'.format(b64string)
+            headers["Authorization"] = "Basic {}".format(b64string)
 
         return headers, querystr, url
 
@@ -449,7 +449,8 @@ class BaseDruidClient(object):
         """
         if self.query_builder.last_query is None:
             raise AttributeError(
-                "There was no query executed by this client yet. Can't export!")
+                "There was no query executed by this client yet. Can't export!"
+            )
         else:
             return self.query_builder.last_query.export_tsv(dest_path)
 
@@ -462,7 +463,8 @@ class BaseDruidClient(object):
         """
         if self.query_builder.last_query is None:
             raise AttributeError(
-                "There was no query executed by this client yet. Can't export!")
+                "There was no query executed by this client yet. Can't export!"
+            )
         else:
             return self.query_builder.last_query.export_pandas()
 
@@ -539,6 +541,7 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
+
     def __init__(self, url, endpoint):
         super(PyDruid, self).__init__(url, endpoint)
 
@@ -561,12 +564,18 @@ class PyDruid(BaseDruidClient):
                 except (ValueError, AttributeError, KeyError):
                     pass
 
-            raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
-                    e, err, json.dumps(
+            raise IOError(
+                "{0} \n Druid Error: {1} \n Query is: {2}".format(
+                    e,
+                    err,
+                    json.dumps(
                         query.query_dict,
                         indent=4,
                         sort_keys=True,
-                        separators=(',', ': '))))
+                        separators=(",", ": "),
+                    ),
+                )
+            )
         else:
             query.parse(data)
             return query

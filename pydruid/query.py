@@ -53,8 +53,11 @@ class Query(collections.MutableSequence):
             res = json.loads(self.result_json)
             self.result = res
         else:
-            raise IOError('{Error parsing result: {0} for {1} query'.format(
-                    self.result_json, self.query_type))
+            raise IOError(
+                "{Error parsing result: {0} for {1} query".format(
+                    self.result_json, self.query_type
+                )
+            )
 
     def export_tsv(self, dest_path):
         """
@@ -86,32 +89,33 @@ class Query(collections.MutableSequence):
                     6.0	user_2	2013-10-04T00:00:00.000Z
         """
         if six.PY3:
-            f = open(dest_path, 'w', newline='', encoding='utf-8')
+            f = open(dest_path, "w", newline="", encoding="utf-8")
         else:
-            f = open(dest_path, 'wb')
+            f = open(dest_path, "wb")
         w = UnicodeWriter(f)
 
         if self.query_type == "timeseries":
-            header = list(self.result[0]['result'].keys())
-            header.append('timestamp')
-        elif self.query_type == 'topN':
-            header = list(self.result[0]['result'][0].keys())
-            header.append('timestamp')
+            header = list(self.result[0]["result"].keys())
+            header.append("timestamp")
+        elif self.query_type == "topN":
+            header = list(self.result[0]["result"][0].keys())
+            header.append("timestamp")
         elif self.query_type == "groupBy":
-            header = list(self.result[0]['event'].keys())
-            header.append('timestamp')
-            header.append('version')
+            header = list(self.result[0]["event"].keys())
+            header.append("timestamp")
+            header.append("version")
         else:
             raise NotImplementedError(
-                'TSV export not implemented for query type: {0}'.format(self.query_type))
+                "TSV export not implemented for query type: {0}".format(self.query_type)
+            )
 
         w.writerow(header)
 
         if self.result:
             if self.query_type == "topN" or self.query_type == "timeseries":
                 for item in self.result:
-                    timestamp = item['timestamp']
-                    result = item['result']
+                    timestamp = item["timestamp"]
+                    result = item["result"]
                     if type(result) is list:  # topN
                         for line in result:
                             w.writerow(list(line.values()) + [timestamp])
@@ -119,10 +123,9 @@ class Query(collections.MutableSequence):
                         w.writerow(list(result.values()) + [timestamp])
             elif self.query_type == "groupBy":
                 for item in self.result:
-                    timestamp = item['timestamp']
-                    version = item['version']
-                    w.writerow(
-                        list(item['event'].values()) + [timestamp] + [version])
+                    timestamp = item["timestamp"]
+                    version = item["version"]
+                    w.writerow(list(item["event"].values()) + [timestamp] + [version])
 
         f.close()
 
@@ -160,33 +163,40 @@ class Query(collections.MutableSequence):
 
         if self.result:
             if self.query_type == "timeseries":
-                nres = [list(v['result'].items()) + [('timestamp', v['timestamp'])]
-                        for v in self.result]
+                nres = [
+                    list(v["result"].items()) + [("timestamp", v["timestamp"])]
+                    for v in self.result
+                ]
                 nres = [dict(v) for v in nres]
             elif self.query_type == "topN":
                 nres = []
                 for item in self.result:
-                    timestamp = item['timestamp']
-                    results = item['result']
-                    tres = [dict(list(res.items()) + [('timestamp', timestamp)])
-                            for res in results]
+                    timestamp = item["timestamp"]
+                    results = item["result"]
+                    tres = [
+                        dict(list(res.items()) + [("timestamp", timestamp)])
+                        for res in results
+                    ]
                     nres += tres
             elif self.query_type == "groupBy":
-                nres = [list(v['event'].items()) + [('timestamp', v['timestamp'])]
-                        for v in self.result]
+                nres = [
+                    list(v["event"].items()) + [("timestamp", v["timestamp"])]
+                    for v in self.result
+                ]
                 nres = [dict(v) for v in nres]
             elif self.query_type == "select":
                 nres = []
                 for item in self.result:
-                    nres += [e.get('event') for e in item['result'].get('events')]
+                    nres += [e.get("event") for e in item["result"].get("events")]
             elif self.query_type == "scan":
                 nres = []
                 for item in self.result:
-                    nres += [e for e in item.get('events')]
+                    nres += [e for e in item.get("events")]
             else:
                 raise NotImplementedError(
-                    'Pandas export not implemented for query '
-                    'type: {0}'.format(self.query_type))
+                    "Pandas export not implemented for query "
+                    "type: {0}".format(self.query_type)
+                )
 
             df = pandas.DataFrame(nres)
             return df
@@ -227,18 +237,19 @@ class QueryBuilder(object):
         :raise ValueError: if input is not string or list of strings
         """
         if not (
-                    isinstance(datasource, six.string_types) or
-                    (
-                        isinstance(datasource, list) and
-                        all([isinstance(x, six.string_types) for x in datasource])
-                    )
-                ):
+            isinstance(datasource, six.string_types)
+            or (
+                isinstance(datasource, list)
+                and all([isinstance(x, six.string_types) for x in datasource])
+            )
+        ):
             raise ValueError(
-                'Datasource definition not valid. Must be string or list of strings')
+                "Datasource definition not valid. Must be string or list of strings"
+            )
         if isinstance(datasource, six.string_types):
             return datasource
         else:
-            return {'type': 'union', 'dataSources': datasource}
+            return {"type": "union", "dataSources": datasource}
 
     @staticmethod
     def validate_query(query_type, valid_parts, args):
@@ -255,14 +266,15 @@ class QueryBuilder(object):
         :param dict args: the dict of args to be sent
         :raise ValueError: if an invalid object is given
         """
-        valid_parts = valid_parts[:] + ['context']
+        valid_parts = valid_parts[:] + ["context"]
         for key, val in six.iteritems(args):
             if key not in valid_parts:
                 raise ValueError(
-                        'Query component: {0} is not valid for query type: {1}.'
-                        .format(key, query_type) +
-                        'The list of valid components is: \n {0}'
-                        .format(valid_parts))
+                    "Query component: {0} is not valid for query type: {1}.".format(
+                        key, query_type
+                    )
+                    + "The list of valid components is: \n {0}".format(valid_parts)
+                )
 
     def build_query(self, query_type, args):
         """
@@ -273,29 +285,30 @@ class QueryBuilder(object):
         :return: the resulting query
         :rtype: Query
         """
-        query_dict = {'queryType': query_type}
+        query_dict = {"queryType": query_type}
 
         for key, val in six.iteritems(args):
-            if key == 'aggregations':
+            if key == "aggregations":
                 query_dict[key] = build_aggregators(val)
-            elif key == 'post_aggregations':
-                query_dict['postAggregations'] = \
-                    Postaggregator.build_post_aggregators(val)
-            elif key == 'context':
-                query_dict['context'] = val
-            elif key == 'datasource':
-                query_dict['dataSource'] = self.parse_datasource(val, query_type)
-            elif key == 'paging_spec':
-                query_dict['pagingSpec'] = val
-            elif key == 'limit_spec':
-                query_dict['limitSpec'] = val
+            elif key == "post_aggregations":
+                query_dict["postAggregations"] = Postaggregator.build_post_aggregators(
+                    val
+                )
+            elif key == "context":
+                query_dict["context"] = val
+            elif key == "datasource":
+                query_dict["dataSource"] = self.parse_datasource(val, query_type)
+            elif key == "paging_spec":
+                query_dict["pagingSpec"] = val
+            elif key == "limit_spec":
+                query_dict["limitSpec"] = val
             elif key == "filter" and val is not None:
                 query_dict[key] = Filter.build_filter(val)
             elif key == "having" and val is not None:
                 query_dict[key] = Having.build_having(val)
-            elif key == 'dimension' and val is not None:
+            elif key == "dimension" and val is not None:
                 query_dict[key] = build_dimension(val)
-            elif key == 'dimensions':
+            elif key == "dimensions":
                 query_dict[key] = [build_dimension(v) for v in val]
             else:
                 query_dict[key] = val
@@ -316,11 +329,17 @@ class QueryBuilder(object):
         :return: topn query
         :rtype: Query
         """
-        query_type = 'topN'
+        query_type = "topN"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'aggregations',
-            'post_aggregations', 'intervals', 'dimension', 'threshold',
-            'metric'
+            "datasource",
+            "granularity",
+            "filter",
+            "aggregations",
+            "post_aggregations",
+            "intervals",
+            "dimension",
+            "threshold",
+            "metric",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -335,10 +354,15 @@ class QueryBuilder(object):
         :return: timeseries query
         :rtype: Query
         """
-        query_type = 'timeseries'
+        query_type = "timeseries"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'aggregations', 'descending',
-            'post_aggregations', 'intervals'
+            "datasource",
+            "granularity",
+            "filter",
+            "aggregations",
+            "descending",
+            "post_aggregations",
+            "intervals",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -353,11 +377,17 @@ class QueryBuilder(object):
         :return: group by query
         :rtype: Query
         """
-        query_type = 'groupBy'
+        query_type = "groupBy"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'aggregations',
-            'having', 'post_aggregations', 'intervals', 'dimensions',
-            'limit_spec',
+            "datasource",
+            "granularity",
+            "filter",
+            "aggregations",
+            "having",
+            "post_aggregations",
+            "intervals",
+            "dimensions",
+            "limit_spec",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -370,15 +400,21 @@ class QueryBuilder(object):
 
         :rtype: json
         """
-        query_type = 'groupBy'
+        query_type = "groupBy"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'aggregations',
-            'having', 'post_aggregations', 'intervals', 'dimensions',
-            'limit_spec',
+            "datasource",
+            "granularity",
+            "filter",
+            "aggregations",
+            "having",
+            "post_aggregations",
+            "intervals",
+            "dimensions",
+            "limit_spec",
         ]
         self.validate_query(query_type, valid_parts, args)
         interim_query = self.build_query(query_type, args)
-        final_query = {"type": "query", "query": interim_query.__dict__['query_dict']}
+        final_query = {"type": "query", "query": interim_query.__dict__["query_dict"]}
         return final_query
 
     def segment_metadata(self, args):
@@ -394,8 +430,8 @@ class QueryBuilder(object):
         :return: segment metadata query
         :rtype: Query
         """
-        query_type = 'segmentMetadata'
-        valid_parts = ['datasource', 'intervals', 'analysisTypes', 'merge']
+        query_type = "segmentMetadata"
+        valid_parts = ["datasource", "intervals", "analysisTypes", "merge"]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
 
@@ -408,8 +444,8 @@ class QueryBuilder(object):
         :return: time boundary query
         :rtype: Query
         """
-        query_type = 'timeBoundary'
-        valid_parts = ['datasource']
+        query_type = "timeBoundary"
+        valid_parts = ["datasource"]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
 
@@ -422,10 +458,15 @@ class QueryBuilder(object):
         :return: select query
         :rtype: Query
         """
-        query_type = 'select'
+        query_type = "select"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'dimensions', 'metrics',
-            'paging_spec', 'intervals'
+            "datasource",
+            "granularity",
+            "filter",
+            "dimensions",
+            "metrics",
+            "paging_spec",
+            "intervals",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -439,10 +480,16 @@ class QueryBuilder(object):
         :return: search query
         :rtype: Query
         """
-        query_type = 'search'
+        query_type = "search"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'searchDimensions', 'query',
-            'limit', 'intervals', 'sort'
+            "datasource",
+            "granularity",
+            "filter",
+            "searchDimensions",
+            "query",
+            "limit",
+            "intervals",
+            "sort",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -456,10 +503,15 @@ class QueryBuilder(object):
         :return: select query
         :rtype: Query
         """
-        query_type = 'scan'
+        query_type = "scan"
         valid_parts = [
-            'datasource', 'granularity', 'filter', 'columns', 'metrics',
-            'intervals', 'limit',
+            "datasource",
+            "granularity",
+            "filter",
+            "columns",
+            "metrics",
+            "intervals",
+            "limit",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
