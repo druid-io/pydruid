@@ -24,7 +24,7 @@ try:
     from tornado import gen
     from tornado.httpclient import AsyncHTTPClient, HTTPError
 except ImportError:
-    print('Warning: unable to import Tornado. The asynchronous client will not work.')
+    print("Warning: unable to import Tornado. The asynchronous client will not work.")
 
 
 class AsyncPyDruid(BaseDruidClient):
@@ -110,7 +110,8 @@ class AsyncPyDruid(BaseDruidClient):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             response = yield http_client.fetch(
-                url, method='POST', headers=headers, body=querystr)
+                url, method="POST", headers=headers, body=querystr
+            )
         except HTTPError as e:
             self.__handle_http_error(e, query)
         else:
@@ -127,9 +128,12 @@ class AsyncPyDruid(BaseDruidClient):
             except ValueError:
                 pass
             else:
-                err = err.get('error', None)
-        raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
-                e, err, json.dumps(query.query_dict, indent=4)))
+                err = err.get("error", None)
+        raise IOError(
+            "{0} \n Druid Error: {1} \n Query is: {2}".format(
+                e, err, json.dumps(query.query_dict, indent=4)
+            )
+        )
 
     @gen.coroutine
     def topn(self, **kwargs):

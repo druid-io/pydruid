@@ -267,3 +267,12 @@ TABLES
 > BYE;
 GoodBye!
 ```
+
+# Contributing
+
+Contributions are welcomed of course. We like to use `black` and `flake8`.
+
+```bash
+pip install -r requirements-dev.txt  # installs useful dev deps
+pre-commit install  # installs useful commit hooks
+```
