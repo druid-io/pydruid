@@ -268,6 +268,20 @@ TABLES
 GoodBye!
 ```
 
+
+# Compressed Data
+
+Consider using the new "extra_headers" optional parameter to send
+"Accept-Encoding: gzip" and have Druid return the results compressed,
+increasing the performance of the query especially for large data sets.
+
+```python
+from pydruid.client import PyDruid
+
+query = PyDruid(druid_url_goes_here, 'druid/v2', extra_headers={"Accept-Encoding": "gzip"})
+```
+
+
 # Contributing
 
 Contributions are welcomed of course. We like to use `black` and `flake8`.
