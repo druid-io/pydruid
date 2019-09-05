@@ -170,7 +170,6 @@ class Cursor(object):
         self.url = url
         self.context = context or {}
         self.header = header
-        self.url = url
         self.user = user
         self.password = password
 
