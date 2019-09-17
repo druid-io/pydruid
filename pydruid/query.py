@@ -246,7 +246,7 @@ class QueryBuilder(object):
             isinstance(datasource, dict)
         ):
             raise ValueError(
-                "Datasource definition not valid. Must be string or"
+                "Datasource definition not valid. Must be string or "
                 "dict or list of strings"
             )
         if isinstance(datasource, six.string_types):
