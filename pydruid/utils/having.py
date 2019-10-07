@@ -22,53 +22,58 @@ except ImportError:
 class Having:
     def __init__(self, **args):
 
-        if args['type'] in ('equalTo', 'lessThan', 'greaterThan'):
-            self.having = {'having': {'type': args['type'],
-                                      'aggregation': args['aggregation'],
-                                      'value': args['value']}}
+        if args["type"] in ("equalTo", "lessThan", "greaterThan"):
+            self.having = {
+                "having": {
+                    "type": args["type"],
+                    "aggregation": args["aggregation"],
+                    "value": args["value"],
+                }
+            }
 
-        elif args['type'] == 'and':
-            self.having = {'having': {'type': 'and',
-                                      'havingSpecs': args['havingSpecs']}}
+        elif args["type"] == "and":
+            self.having = {
+                "having": {"type": "and", "havingSpecs": args["havingSpecs"]}
+            }
 
-        elif args['type'] == 'or':
-            self.having = {'having': {'type': 'or',
-                                      'havingSpecs': args['havingSpecs']}}
+        elif args["type"] == "or":
+            self.having = {"having": {"type": "or", "havingSpecs": args["havingSpecs"]}}
 
-        elif args['type'] == 'not':
-            self.having = {'having': {'type': 'not',
-                                      'havingSpec': args['havingSpec']}}
+        elif args["type"] == "not":
+            self.having = {"having": {"type": "not", "havingSpec": args["havingSpec"]}}
         else:
-            raise NotImplemented(
-                'Having type: {0} does not exist'.format(args['type']))
+            raise NotImplementedError(
+                "Having type: {0} does not exist".format(args["type"])
+            )
 
     def show(self):
         print(json.dumps(self.having, indent=4))
 
     def _combine(self, typ, x):
         # collapse nested and/ors
-        if self.having['having']['type'] == typ:
-            havingSpecs = self.having['having']['havingSpecs'] + [x.having['having']]
+        if self.having["having"]["type"] == typ:
+            havingSpecs = self.having["having"]["havingSpecs"] + [x.having["having"]]
             return Having(type=typ, havingSpecs=havingSpecs)
-        elif x.having['having']['type'] == typ:
-            havingSpecs = [self.having['having']] + x.having['having']['havingSpecs']
+        elif x.having["having"]["type"] == typ:
+            havingSpecs = [self.having["having"]] + x.having["having"]["havingSpecs"]
             return Having(type=typ, havingSpecs=havingSpecs)
         else:
-            return Having(type=typ,
-                          havingSpecs=[self.having['having'], x.having['having']])
+            return Having(
+                type=typ, havingSpecs=[self.having["having"], x.having["having"]]
+            )
 
     def __and__(self, x):
-        return self._combine('and', x)
+        return self._combine("and", x)
 
     def __or__(self, x):
-        return self._combine('or', x)
+        return self._combine("or", x)
 
     def __invert__(self):
-        return Having(type='not', havingSpec=self.having['having'])
+        return Having(type="not", havingSpec=self.having["having"])
 
     @staticmethod
     def build_having(having_obj):
-        return having_obj.having['having']
+        return having_obj.having["having"]
 
 
 class Aggregation:
@@ -76,10 +81,10 @@ class Aggregation:
         self.aggregation = agg
 
     def __eq__(self, other):
-        return Having(type='equalTo', aggregation=self.aggregation, value=other)
+        return Having(type="equalTo", aggregation=self.aggregation, value=other)
 
     def __lt__(self, other):
-        return Having(type='lessThan', aggregation=self.aggregation, value=other)
+        return Having(type="lessThan", aggregation=self.aggregation, value=other)
 
     def __gt__(self, other):
-        return Having(type='greaterThan', aggregation=self.aggregation, value=other)
+        return Having(type="greaterThan", aggregation=self.aggregation, value=other)

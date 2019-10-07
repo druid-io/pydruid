@@ -21,15 +21,15 @@ class Type(object):
 
 
 def connect(
-        host='localhost',
-        port=8082,
-        path='/druid/v2/sql/',
-        scheme='http',
-        user=None,
-        password=None,
-        context=None,
-        header=False,
-    ):  # noqa: E125
+    host="localhost",
+    port=8082,
+    path="/druid/v2/sql/",
+    scheme="http",
+    user=None,
+    password=None,
+    context=None,
+    header=False,
+):  # noqa: E125
     """
     Constructor for creating a connection to the database.
 
@@ -47,8 +47,10 @@ def check_closed(f):
     def g(self, *args, **kwargs):
         if self.closed:
             raise exceptions.Error(
-                '{klass} already closed'.format(klass=self.__class__.__name__))
+                "{klass} already closed".format(klass=self.__class__.__name__)
+            )
         return f(self, *args, **kwargs)
+
     return g
 
 
@@ -57,8 +59,9 @@ def check_result(f):
 
     def g(self, *args, **kwargs):
         if self._results is None:
-            raise exceptions.Error('Called before `execute`')
+            raise exceptions.Error("Called before `execute`")
         return f(self, *args, **kwargs)
+
     return g
 
 
@@ -72,12 +75,12 @@ def get_description_from_row(row):
     """
     return [
         (
-            name,                            # name
-            get_type(value),                 # type_code
-            None,                            # [display_size]
-            None,                            # [internal_size]
-            None,                            # [precision]
-            None,                            # [scale]
+            name,  # name
+            get_type(value),  # type_code
+            None,  # [display_size]
+            None,  # [internal_size]
+            None,  # [precision]
+            None,  # [scale]
             get_type(value) == Type.STRING,  # [null_ok]
         )
         for name, value in row.items()
@@ -85,16 +88,20 @@ def get_description_from_row(row):
 
 
 def get_type(value):
-    """Infer type from value."""
+    """
+    Infer type from value.
+
+    Note that bool is a subclass of int so order of statements matter.
+    """
+
     if isinstance(value, string_types) or value is None:
         return Type.STRING
-    elif isinstance(value, (int, float)):
-        return Type.NUMBER
     elif isinstance(value, bool):
         return Type.BOOLEAN
+    elif isinstance(value, (int, float)):
+        return Type.NUMBER
 
-    raise exceptions.Error(
-        'Value of unknown type: {value}'.format(value=value))
+    raise exceptions.Error("Value of unknown type: {value}".format(value=value))
 
 
 class Connection(object):
@@ -103,18 +110,17 @@ class Connection(object):
 
     def __init__(
         self,
-        host='localhost',
+        host="localhost",
         port=8082,
-        path='/druid/v2/sql/',
-        scheme='http',
+        path="/druid/v2/sql/",
+        scheme="http",
         user=None,
         password=None,
         context=None,
         header=False,
     ):
-        netloc = '{host}:{port}'.format(host=host, port=port)
-        self.url = parse.urlunparse(
-            (scheme, netloc, path, None, None, None))
+        netloc = "{host}:{port}".format(host=host, port=port)
+        self.url = parse.urlunparse((scheme, netloc, path, None, None, None))
         self.context = context or {}
         self.closed = False
         self.cursors = []
@@ -144,8 +150,7 @@ class Connection(object):
     @check_closed
     def cursor(self):
         """Return a new Cursor Object using the connection."""
-        cursor = Cursor(self.url, self.user, self.password, self.context,
-                        self.header)
+        cursor = Cursor(self.url, self.user, self.password, self.context, self.header)
         self.cursors.append(cursor)
 
         return cursor
@@ -166,12 +171,10 @@ class Cursor(object):
 
     """Connection cursor."""
 
-    def __init__(self, url, user=None, password=None, context=None,
-                 header=False):
+    def __init__(self, url, user=None, password=None, context=None, header=False):
         self.url = url
         self.context = context or {}
         self.header = header
-        self.url = url
         self.user = user
         self.password = password
 
@@ -214,8 +217,7 @@ class Cursor(object):
         try:
             first_row = next(results)
             self._results = (
-                results if self.header else
-                itertools.chain([first_row], results)
+                results if self.header else itertools.chain([first_row], results)
             )
         except StopIteration:
             self._results = iter([])
@@ -225,7 +227,8 @@ class Cursor(object):
     @check_closed
     def executemany(self, operation, seq_of_parameters=None):
         raise exceptions.NotSupportedError(
-            '`executemany` is not supported, use `execute` instead')
+            "`executemany` is not supported, use `execute` instead"
+        )
 
     @check_result
     @check_closed
@@ -289,33 +292,29 @@ class Cursor(object):
         """
         self.description = None
 
-        headers = {'Content-Type': 'application/json'}
+        headers = {"Content-Type": "application/json"}
 
-        payload = {
-            'query': query,
-            'context': self.context,
-            'header': self.header,
-        }
+        payload = {"query": query, "context": self.context, "header": self.header}
 
-        auth = requests.auth.HTTPBasicAuth(self.user,
-                                           self.password) if self.user else None
-        r = requests.post(self.url, stream=True, headers=headers, json=payload,
-                          auth=auth)
+        auth = (
+            requests.auth.HTTPBasicAuth(self.user, self.password) if self.user else None
+        )
+        r = requests.post(
+            self.url, stream=True, headers=headers, json=payload, auth=auth
+        )
         if r.encoding is None:
-            r.encoding = 'utf-8'
+            r.encoding = "utf-8"
         # raise any error messages
         if r.status_code != 200:
             try:
                 payload = r.json()
             except Exception:
                 payload = {
-                    'error': 'Unknown error',
-                    'errorClass': 'Unknown',
-                    'errorMessage': r.text,
+                    "error": "Unknown error",
+                    "errorClass": "Unknown",
+                    "errorMessage": r.text,
                 }
-            msg = (
-                '{error} ({errorClass}): {errorMessage}'.format(**payload)
-            )
+            msg = "{error} ({errorClass}): {errorMessage}".format(**payload)
             raise exceptions.ProgrammingError(msg)
 
         # Druid will stream the data in chunks of 8k bytes, splitting the JSON
@@ -327,13 +326,12 @@ class Cursor(object):
             # update description
             if self.description is None:
                 self.description = (
-                    list(row.items()) if self.header else
-                    get_description_from_row(row)
+                    list(row.items()) if self.header else get_description_from_row(row)
                 )
 
             # return row in namedtuple
             if Row is None:
-                Row = namedtuple('Row', row.keys(), rename=True)
+                Row = namedtuple("Row", row.keys(), rename=True)
             yield Row(*row.values())
 
 
@@ -345,10 +343,10 @@ def rows_from_chunks(chunks):
     JSON objects. This function will parse all complete rows inside each chunk,
     yielding them as soon as possible.
     """
-    body = ''
+    body = ""
     for chunk in chunks:
         if chunk:
-            body = ''.join((body, chunk))
+            body = "".join((body, chunk))
 
         # find last complete row
         boundary = 0
@@ -358,45 +356,50 @@ def rows_from_chunks(chunks):
             if char == '"':
                 if not in_string:
                     in_string = True
-                elif body[i - 1] != '\\':
+                elif body[i - 1] != "\\":
                     in_string = False
 
             if in_string:
                 continue
 
-            if char == '{':
+            if char == "{":
                 brackets += 1
-            elif char == '}':
+            elif char == "}":
                 brackets -= 1
                 if brackets == 0 and i > boundary:
                     boundary = i + 1
 
-        rows = body[:boundary].lstrip('[,')
+        rows = body[:boundary].lstrip("[,")
         body = body[boundary:]
 
-        for row in json.loads('[{rows}]'.format(rows=rows),
-                              object_pairs_hook=OrderedDict):
+        for row in json.loads(
+            "[{rows}]".format(rows=rows), object_pairs_hook=OrderedDict
+        ):
             yield row
 
 
 def apply_parameters(operation, parameters):
-    if parameters is None:
+    if not parameters:
         return operation
 
-    escaped_parameters = {
-        key: escape(value) for key, value in parameters.items()
-    }
+    escaped_parameters = {key: escape(value) for key, value in parameters.items()}
     return operation % escaped_parameters
 
 
 def escape(value):
-    if value == '*':
+    """
+    Escape the parameter value.
+
+    Note that bool is a subclass of int so order of statements matter.
+    """
+
+    if value == "*":
         return value
     elif isinstance(value, string_types):
         return "'{}'".format(value.replace("'", "''"))
     elif isinstance(value, bool):
-        return 'TRUE' if value else 'FALSE'
+        return "TRUE" if value else "FALSE"
     elif isinstance(value, (int, float)):
         return value
     elif isinstance(value, (list, tuple)):
-        return ', '.join(escape(element) for element in value)
+        return ", ".join(escape(element) for element in value)

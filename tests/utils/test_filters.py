@@ -55,8 +55,11 @@ class TestFilter:
 
     def test_bound_filter(self):
         actual = filters.Filter.build_filter(
-            filters.Bound(dimension='dim', lower='1', lowerStrict=True, upper='10', upperStrict=True, alphaNumeric=True))
-        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10', 'upperStrict': True, 'alphaNumeric': True}
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True,
+                          upper='10', upperStrict=True, ordering="numeric"))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1',
+                    'lowerStrict': True, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': False, 'ordering': 'numeric'}
         assert actual == expected
 
     def test_bound_filter_with_extraction_function(self):
@@ -66,10 +69,26 @@ class TestFilter:
         actual = filters.Filter.build_filter(f)
         expected = {'type': 'bound', 'dimension': 'd', 'lower': '1',
                     'lowerStrict': False, 'upper': '3', 'upperStrict': True,
-                    'alphaNumeric': False, 'extractionFn': {
-                        'type': 'regex', 'expr': '.*([0-9]+)'}}
+                    'ordering': 'lexicographic', 'alphaNumeric': False,
+                    'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}}
         assert actual == expected
 
+    def test_bound_filter_alphanumeric(self):
+        actual = filters.Filter.build_filter(
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True,
+                          upper='10', upperStrict=True, alphaNumeric=True))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1',
+                    'lowerStrict': True, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': True, 'ordering': 'lexicographic'}
+        assert actual == expected
+
+    def test_bound_filter_lower_not_included(self):
+        actual = filters.Filter.build_filter(
+            filters.Bound(dimension='dim', upper='10', upperStrict=True))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': None,
+                    'lowerStrict': False, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': False, 'ordering': 'lexicographic'}
+        assert actual == expected
 
     def test_interval_filter(self):
         actual = filters.Filter.build_filter(
