@@ -88,13 +88,18 @@ def get_description_from_row(row):
 
 
 def get_type(value):
-    """Infer type from value."""
+    """
+    Infer type from value.
+
+    Note that bool is a subclass of int so order of statements matter.
+    """
+
     if isinstance(value, string_types) or value is None:
         return Type.STRING
-    elif isinstance(value, (int, float)):
-        return Type.NUMBER
     elif isinstance(value, bool):
         return Type.BOOLEAN
+    elif isinstance(value, (int, float)):
+        return Type.NUMBER
 
     raise exceptions.Error("Value of unknown type: {value}".format(value=value))
 
@@ -382,6 +387,12 @@ def apply_parameters(operation, parameters):
 
 
 def escape(value):
+    """
+    Escape the parameter value.
+
+    Note that bool is a subclass of int so order of statements matter.
+    """
+
     if value == "*":
         return value
     elif isinstance(value, string_types):
