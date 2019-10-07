@@ -374,7 +374,7 @@ def rows_from_chunks(chunks):
 
 
 def apply_parameters(operation, parameters):
-    if parameters is None:
+    if not parameters:
         return operation
 
     escaped_parameters = {key: escape(value) for key, value in parameters.items()}
