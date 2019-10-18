@@ -16,6 +16,7 @@
 from __future__ import division
 from __future__ import absolute_import
 
+import sys
 import json
 import re
 
@@ -24,19 +25,35 @@ from six.moves import urllib
 from pydruid.query import QueryBuilder
 from base64 import b64encode
 
+if sys.version_info.major == 2 and sys.version_info.minor == 7:
+    import StringIO
+    from gzip import GzipFile
+
+    def decompress(data):
+        infile = StringIO.StringIO()
+        infile.write(data)
+        with GzipFile(fileobj=infile, mode="r") as f:
+            f.rewind()
+            ud = f.read()
+        return ud
+
+
+else:
+    from gzip import decompress
 
 # extract error from the <PRE> tag inside the HTML response
 HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
 
 
 class BaseDruidClient(object):
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, extra_headers=None):
         self.url = url
         self.endpoint = endpoint
         self.query_builder = QueryBuilder()
         self.username = None
         self.password = None
         self.proxies = None
+        self.extra_headers = extra_headers
 
     def set_basic_auth_credentials(self, username, password):
         self.username = username
@@ -55,6 +72,8 @@ class BaseDruidClient(object):
         else:
             url = self.url + "/" + self.endpoint
         headers = {"Content-Type": "application/json"}
+        if self.extra_headers and isinstance(self.extra_headers, dict):
+            headers.update(self.extra_headers)
         if (self.username is not None) and (self.password is not None):
             authstring = "{}:{}".format(self.username, self.password)
             b64string = b64encode(authstring.encode()).decode()
@@ -542,15 +561,23 @@ class PyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint):
-        super(PyDruid, self).__init__(url, endpoint)
+    def __init__(self, url, endpoint, extra_headers=None):
+        super(PyDruid, self).__init__(url, endpoint, extra_headers)
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
             res = urllib.request.urlopen(req)
-            data = res.read().decode("utf-8")
+            content_encoding = res.info().get("Content-Encoding")
+            if content_encoding == "gzip":
+                data = decompress(res.read()).decode("utf-8")
+            elif content_encoding:
+                raise ValueError(
+                    "Invalid content encoding: {}".format(content_encoding)
+                )
+            else:
+                data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
             err = e.read()
