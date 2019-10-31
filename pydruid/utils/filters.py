@@ -189,7 +189,7 @@ class Bound(Filter):
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
         NOTE: For backwards compatibility - Use "ordering" instead.
-    :ivar bool ordering: Sorting Order. Initial value: lexicographic
+    :ivar str ordering: Sorting Order. Initial value: lexicographic
     :ivar ExtractionFunction extraction_function: extraction function to use,
                                                   if not None
     """
