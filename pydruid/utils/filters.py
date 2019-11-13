@@ -193,7 +193,8 @@ class Bound(Filter):
         Specifies the sorting order to use when comparing values against the bound.
         Can be one of the following values: "lexicographic", "alphanumeric", "numeric",
         "strlen", "version". See Sorting Orders
-        (https://druid.apache.org/docs/latest/querying/filters.html#bound-filter) for more details.
+        https://druid.apache.org/docs/latest/querying/filters.html#bound-filter
+        for more details.
     :ivar ExtractionFunction extraction_function: extraction function to use,
                                                   if not None
     """
