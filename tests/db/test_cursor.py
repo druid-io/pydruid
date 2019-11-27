@@ -122,7 +122,12 @@ class CursorTestSuite(unittest.TestCase):
         )
 
         self.assertEquals(
-            apply_parameters('SELECT %(key)s AS "100%%"', {"key": 100}),
+            apply_parameters('SELECT 100 AS "100%"', {}),
+            'SELECT 100 AS "100%"',
+        )
+
+        self.assertEquals(
+            apply_parameters('SELECT %(key)s AS "100%%"', {'key': 100}),
             'SELECT 100 AS "100%"',
         )
 
