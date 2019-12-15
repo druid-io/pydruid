@@ -5,3 +5,4 @@ ipdb==0.12
 pip-tools==3.7.0
 pre-commit==1.17.0
 tox==3.11.1
+tabulate==0.8.6
