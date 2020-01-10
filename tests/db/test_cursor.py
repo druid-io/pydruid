@@ -63,6 +63,7 @@ class CursorTestSuite(unittest.TestCase):
             stream=True,
             headers={'Content-Type': 'application/json'},
             json={'query': query, 'context': context, 'header': False},
+            verify=True
         )
 
     @patch('requests.post')
