@@ -1,5 +1,29 @@
 ## Change Log
 
+### 0.5.8 (2020/01/10 19:52 +00:00)
+- [#180](https://github.com/druid-io/pydruid/pull/180) [dbapi] Added ssl certificate (#180) (@TechGeekD)
+
+### 0.5.7 (2019/10/07 20:15 +00:00)
+- [#172](https://github.com/druid-io/pydruid/pull/172) [dbapi] Fixing type ordering (#172) (@john-bodley)
+- [#174](https://github.com/druid-io/pydruid/pull/174) [parameters] Fix empty parameter check (#174) (@john-bodley)
+- [#178](https://github.com/druid-io/pydruid/pull/178) [api] Remove duplicate line (#178) (@john-bodley)
+- [#176](https://github.com/druid-io/pydruid/pull/176) Black + various pre-commit hooks (#176) (@mistercrunch)
+- [#170](https://github.com/druid-io/pydruid/pull/170) Updated bound filter to latest Druid API specs (#170) (@wjdecorte)
+
+### 0.5.6 (2019/07/04 05:54 +00:00)
+- [#171](https://github.com/druid-io/pydruid/pull/171) [dbapi] Fixing pyformat parameters (#171) (@john-bodley)
+- [#163](https://github.com/druid-io/pydruid/pull/163) Added http_client parameter to AsyncPyDruid class init to specify which client to use (#163) (@wjdecorte)
+- [#168](https://github.com/druid-io/pydruid/pull/168) [dbapi] Fixing header description (#168) (@john-bodley)
+- [#167](https://github.com/druid-io/pydruid/pull/167) Add README.md to pypi (#167) (@mistercrunch)
+
+### 0.5.4 (2019/06/10 01:40 +00:00)
+- [#146](https://github.com/druid-io/pydruid/pull/146) Add proxies support to BaseDruidClient (#146) (@jobar)
+- [#165](https://github.com/druid-io/pydruid/pull/165) CHANGELOG 0.5.0 to 0.5.3 (#165) (@mistercrunch)
+- [#159](https://github.com/druid-io/pydruid/pull/159) F timeout issue 140 (#159) (@wjdecorte)
+- [#161](https://github.com/druid-io/pydruid/pull/161) Parse actual response body for HTTP error (#161) (@haltwise)
+- [#139](https://github.com/druid-io/pydruid/pull/139) SubQueries Support (#139) (@pantlavanya)
+- [#164](https://github.com/druid-io/pydruid/pull/164) Add Trove classifiers for supported Python versions. (#164) (@jezdez)
+
 ### 0.5.3 (2019/05/29 21:23 +00:00)
 - [#153](https://github.com/druid-io/pydruid/pull/153) Registered lookups (#153) (@srggrs)
 - [#156](https://github.com/druid-io/pydruid/pull/156) Support for search and like filters (#156) (@Makesh-Gmak)
