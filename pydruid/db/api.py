@@ -21,16 +21,16 @@ class Type(object):
 
 
 def connect(
-        host="localhost",
-        port=8082,
-        path="/druid/v2/sql/",
-        scheme="http",
-        user=None,
-        password=None,
-        context=None,
-        header=False,
-        ssl_verify_cert=True,
-        proxies=None,
+    host="localhost",
+    port=8082,
+    path="/druid/v2/sql/",
+    scheme="http",
+    user=None,
+    password=None,
+    context=None,
+    header=False,
+    ssl_verify_cert=True,
+    proxies=None,
 ):  # noqa: E125
     """
     Constructor for creating a connection to the database.
@@ -42,17 +42,17 @@ def connect(
     context = context or {}
 
     return Connection(
-                host,
-                port,
-                path,
-                scheme,
-                user,
-                password,
-                context,
-                header,
-                ssl_verify_cert,
-                proxies,
-            )
+        host,
+        port,
+        path,
+        scheme,
+        user,
+        password,
+        context,
+        header,
+        ssl_verify_cert,
+        proxies,
+    )
 
 
 def check_closed(f):
@@ -169,14 +169,14 @@ class Connection(object):
         """Return a new Cursor Object using the connection."""
 
         cursor = Cursor(
-                    self.url,
-                    self.user,
-                    self.password,
-                    self.context,
-                    self.header,
-                    self.ssl_verify_cert,
-                    self.proxies,
-                )
+            self.url,
+            self.user,
+            self.password,
+            self.context,
+            self.header,
+            self.ssl_verify_cert,
+            self.proxies,
+        )
 
         self.cursors.append(cursor)
 
@@ -197,7 +197,6 @@ class Connection(object):
 class Cursor(object):
     """Connection cursor."""
 
-
     def __init__(
         self,
         url,
@@ -212,8 +211,7 @@ class Cursor(object):
         self.context = context or {}
         self.header = header
         self.user = user
-        self.password = password        
-
+        self.password = password
         self.ssl_verify_cert = ssl_verify_cert
         self.proxies = proxies
 
@@ -339,8 +337,6 @@ class Cursor(object):
             requests.auth.HTTPBasicAuth(self.user, self.password) if self.user else None
         )
         r = requests.post(
-            self.url, stream=True, headers=headers, json=payload, auth=auth,
-            proxies=self.proxies
             self.url,
             stream=True,
             headers=headers,
@@ -420,7 +416,7 @@ def rows_from_chunks(chunks):
         body = body[boundary:]
 
         for row in json.loads(
-                "[{rows}]".format(rows=rows), object_pairs_hook=OrderedDict
+            "[{rows}]".format(rows=rows), object_pairs_hook=OrderedDict
         ):
             yield row
 
