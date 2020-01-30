@@ -21,16 +21,12 @@ from mock import Mock
 from pydruid.utils.aggregators import doublesum
 from pydruid.utils.filters import Dimension
 
-try:
-    import tornado
-    import tornado.ioloop
-    import tornado.web
-    from tornado.testing import AsyncHTTPTestCase
-    from tornado.httpclient import HTTPError
-    from pydruid.async_client import AsyncPyDruid
-except ImportError:
-    tornado = Mock()
-    AsyncHTTPTestCase = object
+import tornado
+import tornado.ioloop
+import tornado.web
+from tornado.testing import AsyncHTTPTestCase
+from tornado.httpclient import HTTPError
+from pydruid.async_client import AsyncPyDruid
 
 
 class FailureHandler(tornado.web.RequestHandler):
