@@ -243,7 +243,11 @@ class TestQuery:
         query = create_query_with_results()
         df = query.export_pandas()
         expected_df = pandas.DataFrame(EXPECTED_RESULTS_PANDAS)
-        assert_frame_equal(df, expected_df)
+        assert_frame_equal(df, expected_df, check_like=True)
+
+        query = Query({}, 'timeseries')
+        df = query.export_pandas()
+        assert_frame_equal(df, pandas.DataFrame())
 
     def test_query_acts_as_a_wrapper_for_raw_result(self):
         # given
@@ -253,4 +257,3 @@ class TestQuery:
         assert len(query) == 2
         assert isinstance(query[0], dict)
         assert isinstance(query[1], dict)
-

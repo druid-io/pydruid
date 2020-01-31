@@ -198,8 +198,9 @@ class Query(collections.MutableSequence):
                     "type: {0}".format(self.query_type)
                 )
 
-            df = pandas.DataFrame(nres)
-            return df
+            return pandas.DataFrame(nres)
+
+        return pandas.DataFrame()
 
     def __str__(self):
         return str(self.result)
