@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import json
 import re
 
+from six import binary_type
 from six.moves import urllib
 
 from pydruid.query import QueryBuilder
@@ -557,6 +558,9 @@ class PyDruid(BaseDruidClient):
             if e.code == 500:
                 # has Druid returned an error?
                 try:
+                    if isinstance(err, binary_type):
+                        # Decode the error before serialize it to JSON
+                        err = err.decode("utf-8")
                     err = json.loads(err)
                 except ValueError:
                     if HTML_ERROR.search(err):
