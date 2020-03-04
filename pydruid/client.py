@@ -542,14 +542,15 @@ class PyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, capath):
         super(PyDruid, self).__init__(url, endpoint)
+        self.capath = capath
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(req)
+            res = urllib.request.urlopen(url=req, capath=self.capath)
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
