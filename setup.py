@@ -20,7 +20,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setup(
     name="pydruid",
-    version="0.5.8",
+    version="0.5.9",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=["pydruid", "pydruid.db", "pydruid.utils"],
@@ -45,10 +45,9 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 )
