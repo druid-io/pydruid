@@ -24,7 +24,12 @@ setup(
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=["pydruid", "pydruid.db", "pydruid.utils"],
-    url="https://pypi.python.org/pypi/pydruid/",
+    url="https://druid.apache.org",
+    project_urls={
+        "Bug Tracker": "https://github.com/druid-io/pydruid/issues",
+        "Documentation": "https://pythonhosted.org/pydruid/",
+        "Source Code": "https://github.com/druid-io/pydruid",
+    },
     license="Apache License, Version 2.0",
     description="A Python connector for Druid.",
     long_description=long_description,
