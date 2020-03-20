@@ -596,8 +596,8 @@ class PyDruid(BaseDruidClient):
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of
           data to include in the query
-        :param list dimensions: The list of dimensions to select. If left
-          empty, all dimensions are returned
+        :param list columns: The list of columns to select. If left
+          empty, all columns are returned
         :param list metrics: The list of metrics to select. If left empty,
           all metrics are returned
         :param dict context: A dict of query context options
