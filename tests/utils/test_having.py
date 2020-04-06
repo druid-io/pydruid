@@ -2,6 +2,7 @@
 
 import pytest
 
+from pydruid.utils.filters import Filter
 from pydruid.utils.having import Having, Aggregation, Dimension
 
 
@@ -87,6 +88,17 @@ class TestHaving:
         h1 = Dimension("foo") == "bar"
         actual = Having.build_having(h1)
         expected = {"type": "dimSelector", "dimension": "foo", "value": "bar"}
+        assert actual == expected
+
+    def test_query_filter_having(self):
+        f1 = Filter(type="selector", dimension="foo", value="bar")
+        query_filter = Filter.build_filter(f1)
+        h1 = Having(type="filter", filter=query_filter)
+        actual = Having.build_having(h1)
+        expected = {
+            "type": "filter",
+            "filter": {"type": "selector", "dimension": "foo", "value": "bar"},
+        }
         assert actual == expected
 
     def test_not_exists_having_type(self):

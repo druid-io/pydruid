@@ -42,6 +42,9 @@ class Having:
         elif args["type"] == "not":
             self.having = {"having": {"type": "not", "havingSpec": args["havingSpec"]}}
 
+        elif args["type"] == "filter":
+            self.having = {"having": {"type": args["type"], "filter": args["filter"]}}
+
         elif args["type"] == "dimSelector":
             self.having = {
                 "having": {
