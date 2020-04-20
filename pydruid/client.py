@@ -477,6 +477,9 @@ class PyDruid(BaseDruidClient):
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
+    :param str cafile: Optional cafile that point to a single file
+    containing a bundle of CA certificates, useful when using Imply Cloud or
+    other Druid deployments via HTTPS.
 
     Example
 
@@ -542,14 +545,15 @@ class PyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, cafile=None):
         super(PyDruid, self).__init__(url, endpoint)
+        self.cafile = cafile
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(req)
+            res = urllib.request.urlopen(url=req, cafile=self.cafile)
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
