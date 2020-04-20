@@ -5,7 +5,7 @@ from setuptools import setup
 install_requires = ["six >= 1.9.0", "requests"]
 
 extras_require = {
-    "pandas": ["pandas"],
+    "pandas": ["pandas<1.0.0"],
     "async": ["tornado"],
     "sqlalchemy": ["sqlalchemy"],
     "cli": ["pygments", "prompt_toolkit<2.0.0", "tabulate"],

@@ -1,3 +1,2 @@
 -e .[async,cli,pandas,sqlalchemy]
-pandas<1.0.0
 pycurl
