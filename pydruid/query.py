@@ -513,6 +513,7 @@ class QueryBuilder(object):
             "metrics",
             "intervals",
             "limit",
+            "order"
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)

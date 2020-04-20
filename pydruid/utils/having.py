@@ -41,6 +41,19 @@ class Having:
 
         elif args["type"] == "not":
             self.having = {"having": {"type": "not", "havingSpec": args["havingSpec"]}}
+
+        elif args["type"] == "filter":
+            self.having = {"having": {"type": args["type"], "filter": args["filter"]}}
+
+        elif args["type"] == "dimSelector":
+            self.having = {
+                "having": {
+                    "type": args["type"],
+                    "dimension": args["dimension"],
+                    "value": args["value"],
+                }
+            }
+
         else:
             raise NotImplementedError(
                 "Having type: {0} does not exist".format(args["type"])
@@ -88,3 +101,11 @@ class Aggregation:
 
     def __gt__(self, other):
         return Having(type="greaterThan", aggregation=self.aggregation, value=other)
+
+
+class Dimension:
+    def __init__(self, dim):
+        self.dimension = dim
+
+    def __eq__(self, other):
+        return Having(type="dimSelector", dimension=self.dimension, value=other)

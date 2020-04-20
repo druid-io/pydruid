@@ -34,7 +34,7 @@ class Filter:
         "extraction",
     )
 
-    def __init__(self, extraction_function=None, **args):
+    def __init__(self, extraction_function=None, ordering="lexicographic", **args):
 
         type_ = args.get("type", "selector")
 
@@ -84,7 +84,7 @@ class Filter:
                     "upper": args["upper"],
                     "upperStrict": args["upperStrict"],
                     "alphaNumeric": args["alphaNumeric"],
-                    "ordering": args["ordering"],
+                    "ordering": ordering,
                 }
             )
         elif type_ == "columnComparison":

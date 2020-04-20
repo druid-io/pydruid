@@ -30,6 +30,7 @@ def connect(
     context=None,
     header=False,
     ssl_verify_cert=True,
+    ssl_client_cert=None,
     proxies=None,
 ):  # noqa: E125
     """
@@ -51,6 +52,7 @@ def connect(
         context,
         header,
         ssl_verify_cert,
+        ssl_client_cert,
         proxies,
     )
 
@@ -132,6 +134,7 @@ class Connection(object):
         context=None,
         header=False,
         ssl_verify_cert=True,
+        ssl_client_cert=None,
         proxies=None,
     ):
         netloc = "{host}:{port}".format(host=host, port=port)
@@ -143,6 +146,7 @@ class Connection(object):
         self.user = user
         self.password = password
         self.ssl_verify_cert = ssl_verify_cert
+        self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
 
     @check_closed
@@ -175,6 +179,7 @@ class Connection(object):
             self.context,
             self.header,
             self.ssl_verify_cert,
+            self.ssl_client_cert,
             self.proxies,
         )
 
@@ -206,6 +211,7 @@ class Cursor(object):
         header=False,
         ssl_verify_cert=True,
         proxies=None,
+        ssl_client_cert=None,
     ):
         self.url = url
         self.context = context or {}
@@ -213,6 +219,7 @@ class Cursor(object):
         self.user = user
         self.password = password
         self.ssl_verify_cert = ssl_verify_cert
+        self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
 
         # This read/write attribute specifies the number of rows to fetch at a
@@ -343,6 +350,7 @@ class Cursor(object):
             json=payload,
             auth=auth,
             verify=self.ssl_verify_cert,
+            cert=self.ssl_client_cert,
             proxies=self.proxies,
         )
         if r.encoding is None:

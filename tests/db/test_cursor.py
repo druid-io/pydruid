@@ -64,6 +64,7 @@ class CursorTestSuite(unittest.TestCase):
             headers={'Content-Type': 'application/json'},
             json={'query': query, 'context': context, 'header': False},
             verify=True,
+            cert=None,
             proxies=None,
         )
 
