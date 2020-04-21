@@ -18,6 +18,8 @@ class TestAggregators:
             ("doublemax", "doubleMax"),
             ("count", "count"),
             ("hyperunique", "hyperUnique"),
+            ("stringfirst", "stringFirst"),
+            ("stringlast", "stringLast"),
         ]
         aggs_funcs = [
             (getattr(aggregators, agg_name), agg_type) for agg_name, agg_type in aggs

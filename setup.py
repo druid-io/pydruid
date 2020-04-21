@@ -24,7 +24,12 @@ setup(
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=["pydruid", "pydruid.db", "pydruid.utils"],
-    url="https://pypi.python.org/pypi/pydruid/",
+    url="https://druid.apache.org",
+    project_urls={
+        "Bug Tracker": "https://github.com/druid-io/pydruid/issues",
+        "Documentation": "https://pythonhosted.org/pydruid/",
+        "Source Code": "https://github.com/druid-io/pydruid",
+    },
     license="Apache License, Version 2.0",
     description="A Python connector for Druid.",
     long_description=long_description,
@@ -45,10 +50,9 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 )

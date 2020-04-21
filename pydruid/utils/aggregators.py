@@ -97,6 +97,14 @@ def javascript(columns_list, fn_aggregate, fn_combine, fn_reset):
     }
 
 
+def stringfirst(raw_metric):
+    return {"type": "stringFirst", "fieldName": raw_metric}
+
+
+def stringlast(raw_metric):
+    return {"type": "stringLast", "fieldName": raw_metric}
+
+
 def build_aggregators(agg_input):
     return [_build_aggregator(name, kwargs) for (name, kwargs) in iteritems(agg_input)]
 

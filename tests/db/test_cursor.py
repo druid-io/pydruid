@@ -58,8 +58,11 @@ class CursorTestSuite(unittest.TestCase):
             "http://example.com/",
             auth=None,
             stream=True,
-            headers={"Content-Type": "application/json"},
-            json={"query": query, "context": context, "header": False},
+            headers={'Content-Type': 'application/json'},
+            json={'query': query, 'context': context, 'header': False},
+            verify=True,
+            cert=None,
+            proxies=None,
         )
 
     @patch("requests.post")
