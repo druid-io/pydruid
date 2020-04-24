@@ -4,7 +4,9 @@ python:
   - "3.6"
   - "3.7"
 install:
-  - pip install flake8==3.5.0
+  - pip install flake8==3.5.0 black==19.3b0
   - python setup.py install
 before_script: flake8
-script: py.test
+script: 
+  - black . --check
+  - py.test
