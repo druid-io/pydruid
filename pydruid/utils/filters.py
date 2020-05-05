@@ -283,6 +283,6 @@ class Spatial(Filter):
             _bound["abscissa"] = args["abscissa"]
             _bound["ordinate"] = args["ordinate"]
         else:
-            raise ValueError(f"Unsupport Spatial Bound type: {bound_type}")
+            raise ValueError("Unsupport Spatial Bound type: {0}".format(bound_type))
 
         Filter.__init__(self, type="spatial", dimension=dimension, bound=_bound)
