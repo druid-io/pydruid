@@ -258,31 +258,31 @@ class Spatial(Filter):
         'radius': 'coords' and 'radius'
         'polygon': 'abscissa' and 'ordinate'
     """
-    def __init__(self,dimension, bound_type, **args):
 
-        _bound = {'type': bound_type}
+    def __init__(self, dimension, bound_type, **args):
 
-        if bound_type == 'rectangle':
-            if not args['minCoords'] or not args['maxCoords']:
-                raise ValueError("Rectangle bound must include both minCoords and maxCoords")
-            _bound['minCoords'] = args['minCoords']
-            _bound['maxCoords'] = args['maxCoords']
-        elif bound_type == 'radius':
-            if not args['coords'] or not args['radius']:
+        _bound = {"type": bound_type}
+
+        if bound_type == "rectangle":
+            if not args["minCoords"] or not args["maxCoords"]:
+                raise ValueError(
+                    "Rectangle bound must include both minCoords and maxCoords"
+                )
+            _bound["minCoords"] = args["minCoords"]
+            _bound["maxCoords"] = args["maxCoords"]
+        elif bound_type == "radius":
+            if not args["coords"] or not args["radius"]:
                 raise ValueError("Radius bound must include both coords and radius")
-            _bound['coords'] = args['coords']
-            _bound['radius'] = args['radius']
-        elif bound_type == 'polygon':
-            if not args['abscissa'] or not args['ordinate']:
-                raise ValueError("Polygon bound must include both abscissa and ordinate")
-            _bound['abscissa'] = args['abscissa']
-            _bound['ordinate'] = args['ordinate']
+            _bound["coords"] = args["coords"]
+            _bound["radius"] = args["radius"]
+        elif bound_type == "polygon":
+            if not args["abscissa"] or not args["ordinate"]:
+                raise ValueError(
+                    "Polygon bound must include both abscissa and ordinate"
+                )
+            _bound["abscissa"] = args["abscissa"]
+            _bound["ordinate"] = args["ordinate"]
         else:
             raise ValueError(f"Unsupport Spatial Bound type: {bound_type}")
 
-        Filter.__init__(
-            self,
-            type="spatial",
-            dimension=dimension,
-            bound=_bound
-        )
+        Filter.__init__(self, type="spatial", dimension=dimension, bound=_bound)
