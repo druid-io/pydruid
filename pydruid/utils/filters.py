@@ -193,7 +193,12 @@ class Bound(Filter):
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
         NOTE: For backwards compatibility - Use "ordering" instead.
-    :ivar bool ordering: Sorting Order. Initial value: lexicographic
+    :ivar str ordering: Sorting Order. Initial value: lexicographic
+        Specifies the sorting order to use when comparing values against the bound.
+        Can be one of the following values: "lexicographic", "alphanumeric", "numeric",
+        "strlen", "version". See Sorting Orders
+        https://druid.apache.org/docs/latest/querying/filters.html#bound-filter
+        for more details.
     :ivar ExtractionFunction extraction_function: extraction function to use,
                                                   if not None
     """
