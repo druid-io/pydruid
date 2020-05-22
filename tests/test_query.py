@@ -21,12 +21,8 @@ import pytest
 from pydruid.query import QueryBuilder, Query
 import csv
 
-try:
-    import pandas
-    from pandas.util.testing import assert_frame_equal
-except ImportError:
-    pandas = None
-
+import pandas
+from pandas.util.testing import assert_frame_equal
 from six import PY3
 from pydruid.utils import aggregators
 from pydruid.utils import postaggregator
@@ -238,7 +234,6 @@ class TestQuery:
             actual = [line for line in reader]
             assert actual == expected_results_csv_reader()
 
-    @pytest.mark.skipif(pandas is None, reason="requires pandas")
     def test_export_pandas(self):
         query = create_query_with_results()
         df = query.export_pandas()
