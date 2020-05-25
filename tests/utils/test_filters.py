@@ -158,6 +158,63 @@ class TestFilter:
         }
         assert actual == expected
 
+    def test_spatial_filter_rectangle(self):
+        actual = filters.Filter.build_filter(
+            filters.Spatial(
+                dimension="dim",
+                bound_type="rectangle",
+                minCoords=[100.0, 100.0],
+                maxCoords=[100.1, 100.1],
+                radius=10.0,
+            )
+        )
+        expected = {
+            "type": "spatial",
+            "dimension": "dim",
+            "bound": {
+                "type": "rectangle",
+                "minCoords": [100.0, 100.0],
+                "maxCoords": [100.1, 100.1],
+            },
+        }
+        assert actual == expected
+
+    def test_spatial_filter_radius(self):
+        actual = filters.Filter.build_filter(
+            filters.Spatial(
+                dimension="dim",
+                bound_type="radius",
+                coords=[100.0, 100.0],
+                radius=100.0,
+            )
+        )
+        expected = {
+            "type": "spatial",
+            "dimension": "dim",
+            "bound": {"type": "radius", "coords": [100.0, 100.0], "radius": 100.0},
+        }
+        assert actual == expected
+
+    def test_spatial_filter_polygon(self):
+        actual = filters.Filter.build_filter(
+            filters.Spatial(
+                dimension="dim",
+                bound_type="polygon",
+                abscissa=[2.0, 3.0, 7.0, 8.0],
+                ordinate=[4.0, 9.0, 8.0, 1.0],
+            )
+        )
+        expected = {
+            "type": "spatial",
+            "dimension": "dim",
+            "bound": {
+                "type": "polygon",
+                "abscissa": [2.0, 3.0, 7.0, 8.0],
+                "ordinate": [4.0, 9.0, 8.0, 1.0],
+            },
+        }
+        assert actual == expected
+
     def test_interval_filter(self):
         actual = filters.Filter.build_filter(
             filters.Interval(
