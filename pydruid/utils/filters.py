@@ -114,6 +114,10 @@ class Filter:
             self.filter["filter"].update(
                 {"dimension": args["dimension"], "pattern": args["pattern"]}
             )
+        elif type_ == "spatial":
+            self.filter["filter"].update(
+                {"dimension": args["dimension"], "bound": args["bound"]}
+            )
         else:
             raise NotImplementedError("Filter type: {0} does not exist".format(type_))
 
@@ -191,7 +195,12 @@ class Bound(Filter):
     :ivar bool upperStrict: Strict upper inclusion. Initial value: False
     :ivar bool alphaNumeric: Numeric comparison. Initial value: False
         NOTE: For backwards compatibility - Use "ordering" instead.
-    :ivar bool ordering: Sorting Order. Initial value: lexicographic
+    :ivar str ordering: Sorting Order. Initial value: lexicographic
+        Specifies the sorting order to use when comparing values against the bound.
+        Can be one of the following values: "lexicographic", "alphanumeric", "numeric",
+        "strlen", "version". See Sorting Orders
+        https://druid.apache.org/docs/latest/querying/filters.html#bound-filter
+        for more details.
     :ivar ExtractionFunction extraction_function: extraction function to use,
                                                   if not None
     """
@@ -243,3 +252,44 @@ class Interval(Filter):
             intervals=intervals,
             extraction_function=extraction_function,
         )
+
+
+class Spatial(Filter):
+    """
+    Spatial filter can be used to filter by spatial bounds
+
+    :ivar str dimension: Dimension to filter on.
+    :ivar str bound_type: Spatial bound type: ['rectangle','radius','polygon'].
+    :param `**kwargs`: addition arguments required for the selected bound type:
+        'rectange': 'minCoords' and 'maxCoords'
+        'radius': 'coords' and 'radius'
+        'polygon': 'abscissa' and 'ordinate'
+    """
+
+    def __init__(self, dimension, bound_type, **args):
+
+        _bound = {"type": bound_type}
+
+        if bound_type == "rectangle":
+            if not args["minCoords"] or not args["maxCoords"]:
+                raise ValueError(
+                    "Rectangle bound must include both minCoords and maxCoords"
+                )
+            _bound["minCoords"] = args["minCoords"]
+            _bound["maxCoords"] = args["maxCoords"]
+        elif bound_type == "radius":
+            if not args["coords"] or not args["radius"]:
+                raise ValueError("Radius bound must include both coords and radius")
+            _bound["coords"] = args["coords"]
+            _bound["radius"] = args["radius"]
+        elif bound_type == "polygon":
+            if not args["abscissa"] or not args["ordinate"]:
+                raise ValueError(
+                    "Polygon bound must include both abscissa and ordinate"
+                )
+            _bound["abscissa"] = args["abscissa"]
+            _bound["ordinate"] = args["ordinate"]
+        else:
+            raise ValueError("Unsupport Spatial Bound type: {0}".format(bound_type))
+
+        Filter.__init__(self, type="spatial", dimension=dimension, bound=_bound)

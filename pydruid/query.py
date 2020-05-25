@@ -235,7 +235,7 @@ class QueryBuilder(object):
 
         :param datasource: datasource parameter
         :param string query_type: query type
-        :raise ValueError: if input is not string or list of strings
+        :raise ValueError: if input is not string or list of strings or dict
         """
         if not (
             isinstance(datasource, six.string_types)
@@ -243,9 +243,12 @@ class QueryBuilder(object):
                 isinstance(datasource, list)
                 and all([isinstance(x, six.string_types) for x in datasource])
             )
+            or
+            isinstance(datasource, dict)
         ):
             raise ValueError(
-                "Datasource definition not valid. Must be string or list of strings"
+                "Datasource definition not valid. Must be string or "
+                "dict or list of strings"
             )
         if isinstance(datasource, six.string_types):
             return datasource
