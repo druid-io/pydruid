@@ -243,8 +243,7 @@ class QueryBuilder(object):
                 isinstance(datasource, list)
                 and all([isinstance(x, six.string_types) for x in datasource])
             )
-            or
-            isinstance(datasource, dict)
+            or isinstance(datasource, dict)
         ):
             raise ValueError(
                 "Datasource definition not valid. Must be string or "
