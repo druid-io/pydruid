@@ -2,7 +2,7 @@
 import textwrap
 
 import pytest
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from six.moves import urllib
 from six import StringIO
 

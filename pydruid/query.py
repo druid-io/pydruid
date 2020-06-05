@@ -25,7 +25,7 @@ from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
 
 
-class Query(collections.MutableSequence):
+class Query(collections.abc.MutableSequence):
     """
     Query objects are produced by PyDruid clients and can be used for
     exporting query results into TSV files or
@@ -54,7 +54,7 @@ class Query(collections.MutableSequence):
             self.result = res
         else:
             raise IOError(
-                "{Error parsing result: {0} for {1} query".format(
+                "Error parsing result: {0} for {1} query".format(
                     self.result_json, self.query_type
                 )
             )

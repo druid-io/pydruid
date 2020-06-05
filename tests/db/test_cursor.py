@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-from mock import patch
+from unittest.mock import patch
 import unittest
 
 from requests.models import Response

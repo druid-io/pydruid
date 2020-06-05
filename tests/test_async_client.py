@@ -17,7 +17,7 @@
 
 import pytest
 
-from mock import Mock
+from unittest.mock import Mock
 from pydruid.utils.aggregators import doublesum
 from pydruid.utils.filters import Dimension
 
