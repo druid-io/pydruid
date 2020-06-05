@@ -1,6 +1,6 @@
 import io
 import sys
-from setuptools import setup
+from setuptools import find_packages, setup
 
 install_requires = ["six >= 1.9.0", "requests"]
 
@@ -23,7 +23,8 @@ setup(
     version="0.999.0dev",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
-    packages=["pydruid", "pydruid.db", "pydruid.utils"],
+    packages=find_packages("pydruid"),
+    package_dir={"": "pydruid"},
     url="https://druid.apache.org",
     project_urls={
         "Bug Tracker": "https://github.com/druid-io/pydruid/issues",
