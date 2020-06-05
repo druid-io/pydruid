@@ -25,7 +25,7 @@ from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
 
 
-class Query(collections.MutableSequence):
+class Query(collections.abc.MutableSequence):
     """
     Query objects are produced by PyDruid clients and can be used for
     exporting query results into TSV files or
@@ -54,7 +54,7 @@ class Query(collections.MutableSequence):
             self.result = res
         else:
             raise IOError(
-                "{Error parsing result: {0} for {1} query".format(
+                "Error parsing result: {0} for {1} query".format(
                     self.result_json, self.query_type
                 )
             )
@@ -235,7 +235,7 @@ class QueryBuilder(object):
 
         :param datasource: datasource parameter
         :param string query_type: query type
-        :raise ValueError: if input is not string or list of strings
+        :raise ValueError: if input is not string or list of strings or dict
         """
         if not (
             isinstance(datasource, six.string_types)
@@ -243,9 +243,11 @@ class QueryBuilder(object):
                 isinstance(datasource, list)
                 and all([isinstance(x, six.string_types) for x in datasource])
             )
+            or isinstance(datasource, dict)
         ):
             raise ValueError(
-                "Datasource definition not valid. Must be string or list of strings"
+                "Datasource definition not valid. Must be string or "
+                "dict or list of strings"
             )
         if isinstance(datasource, six.string_types):
             return datasource
@@ -513,7 +515,7 @@ class QueryBuilder(object):
             "metrics",
             "intervals",
             "limit",
-            "order"
+            "order",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)

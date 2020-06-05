@@ -5,7 +5,7 @@ from setuptools import setup
 install_requires = ["six >= 1.9.0", "requests"]
 
 extras_require = {
-    "pandas": ["pandas"],
+    "pandas": ["pandas<1.0.0"],
     "async": ["tornado"],
     "sqlalchemy": ["sqlalchemy"],
     "cli": ["pygments", "prompt_toolkit<2.0.0", "tabulate"],
@@ -36,7 +36,6 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=install_requires,
     extras_require=extras_require,
-    setup_requires=["pytest-runner"],
     tests_require=["pytest", "six", "mock"],
     entry_points={
         "console_scripts": ["pydruid = pydruid.console:main"],
@@ -54,5 +53,6 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
 )
