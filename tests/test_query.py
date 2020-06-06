@@ -15,19 +15,15 @@
 # limitations under the License.
 #
 
-import os
-import pytest
-
-from pydruid.query import QueryBuilder, Query
 import csv
+import os
 
 import pandas
-from pandas.util.testing import assert_frame_equal
-from six import PY3
-from pydruid.utils import aggregators
-from pydruid.utils import postaggregator
-from pydruid.utils import filters
-from pydruid.utils import having
+import pytest
+from pandas.testing import assert_frame_equal
+
+from pydruid.query import Query, QueryBuilder
+from pydruid.utils import aggregators, filters, having, postaggregator
 
 
 def create_query_with_results():

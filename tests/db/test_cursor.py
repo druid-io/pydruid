@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from collections import namedtuple
-from unittest.mock import patch
 import unittest
+from collections import namedtuple
+from io import BytesIO
+from unittest.mock import patch
 
 from requests.models import Response
-from six import BytesIO
 
 from pydruid.db.api import apply_parameters, Cursor
 
@@ -25,7 +25,7 @@ class CursorTestSuite(unittest.TestCase):
         cursor.execute("SELECT * FROM table")
         result = cursor.fetchall()
         expected = [Row(name="alice"), Row(name="bob"), Row(name="charlie")]
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)
 
     @patch("requests.post")
     def test_execute_empty_result(self, requests_post_mock):
@@ -38,7 +38,7 @@ class CursorTestSuite(unittest.TestCase):
         cursor.execute("SELECT * FROM table")
         result = cursor.fetchall()
         expected = []
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)
 
     @patch("requests.post")
     def test_context(self, requests_post_mock):
@@ -79,9 +79,9 @@ class CursorTestSuite(unittest.TestCase):
         cursor = Cursor(url, header=False)
         cursor.execute(query)
         result = cursor.fetchall()
-        self.assertEquals(result, [Row(name="alice")])
+        self.assertEqual(result, [Row(name="alice")])
 
-        self.assertEquals(
+        self.assertEqual(
             cursor.description, [("name", 1, None, None, None, None, True)]
         )
 
@@ -99,8 +99,8 @@ class CursorTestSuite(unittest.TestCase):
         cursor = Cursor(url, header=True)
         cursor.execute(query)
         result = cursor.fetchall()
-        self.assertEquals(result, [Row(name="alice")])
-        self.assertEquals(cursor.description, [("name", None)])
+        self.assertEqual(result, [Row(name="alice")])
+        self.assertEqual(cursor.description, [("name", None)])
 
     @patch("requests.post")
     def test_names_with_underscores(self, requests_post_mock):
@@ -116,34 +116,34 @@ class CursorTestSuite(unittest.TestCase):
         cursor = Cursor(url, header=True)
         cursor.execute(query)
         result = cursor.fetchall()
-        self.assertEquals(result, [Row(_0="alice")])
-        self.assertEquals(cursor.description, [("_name", None)])
+        self.assertEqual(result, [Row(_0="alice")])
+        self.assertEqual(cursor.description, [("_name", None)])
 
     def test_apply_parameters(self):
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters('SELECT 100 AS "100%"', None), 'SELECT 100 AS "100%"'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters('SELECT 100 AS "100%"', {}), 'SELECT 100 AS "100%"'
         )
 
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters('SELECT %(key)s AS "100%%"', {"key": 100}),
             'SELECT 100 AS "100%"',
         )
 
-        self.assertEquals(apply_parameters("SELECT %(key)s", {"key": "*"}), "SELECT *")
+        self.assertEqual(apply_parameters("SELECT %(key)s", {"key": "*"}), "SELECT *")
 
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters("SELECT %(key)s", {"key": "bar"}), "SELECT 'bar'"
         )
 
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters("SELECT %(key)s", {"key": True}), "SELECT TRUE"
         )
 
-        self.assertEquals(
+        self.assertEqual(
             apply_parameters("SELECT %(key)s", {"key": False}), "SELECT FALSE"
         )
 

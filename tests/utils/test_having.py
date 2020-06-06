@@ -3,7 +3,7 @@
 import pytest
 
 from pydruid.utils.filters import Filter
-from pydruid.utils.having import Having, Aggregation, Dimension
+from pydruid.utils.having import Aggregation, Dimension, Having
 
 
 class TestHaving:

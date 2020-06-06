@@ -1,10 +1,9 @@
 # -*- coding: UTF-8 -*-
 
-from operator import itemgetter
 from copy import deepcopy
+from operator import itemgetter
 
-from pydruid.utils import aggregators
-from pydruid.utils import filters
+from pydruid.utils import aggregators, filters
 
 
 class TestAggregators:

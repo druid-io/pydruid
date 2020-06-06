@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
 import textwrap
+import urllib
+from io import StringIO
+from unittest.mock import Mock, patch
 
 import pytest
-from unittest.mock import patch, Mock
-from six.moves import urllib
-from six import StringIO
 
 from pydruid.client import PyDruid
 from pydruid.query import Query
