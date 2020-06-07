@@ -1,5 +1,36 @@
 ## Change Log
 
+### 0.6.0 (2020/06/07 04:02 +00:00)
+
+NOTE: This release is deprecating support for Python 2.*
+
+- [#219](https://github.com/druid-io/pydruid/pull/219) chore: fix deprecations and bump dependencies (#219) (@villebro)
+- [#218](https://github.com/druid-io/pydruid/pull/218) fix: build env (#218) (@villebro)
+
+### 0.5.11 (2020/06/05 19:45 +00:00)
+- [#216](https://github.com/druid-io/pydruid/pull/216) make compatible with python 3.7 (#216) (@villebro)
+- [#212](https://github.com/druid-io/pydruid/pull/212) Apply Black and Add Black Check in CI (#212) (@SongYunSeop)
+- [#179](https://github.com/druid-io/pydruid/pull/179) add dict for datasource as sub_query return dict (#179) (@pantlavanya)
+- [#182](https://github.com/druid-io/pydruid/pull/182) Fixed typo in docstring for Bound class (#182) (@wjdecorte)
+- [#213](https://github.com/druid-io/pydruid/pull/213) adding support for Spatial filters (#213) (@lokkju)
+- [#190](https://github.com/druid-io/pydruid/pull/190) [ci] Adding tox (#190) (@john-bodley)
+
+### 0.5.10 (2020/04/20 22:46 +00:00)
+- [#183](https://github.com/druid-io/pydruid/pull/183) support order in query component (scan) (#183) (@hieunguyen1809)
+- [#184](https://github.com/druid-io/pydruid/pull/184) fix: make 'ordering' arg optional for 'Filter' (#184) (@mistercrunch)
+- [#200](https://github.com/druid-io/pydruid/pull/200) correct optional parameter name in docstring (#200) (@ZichaoHuang)
+- [#197](https://github.com/druid-io/pydruid/pull/197) GAME-9671-Adapt-Druid-to-accept-adding-certificate-ga-ds-modules (#197) (@Thelin90)
+- [#199](https://github.com/druid-io/pydruid/pull/199) Add project urls to setup.py (#199) (@villebro)
+- [#201](https://github.com/druid-io/pydruid/pull/201) Add optional cert to request signature (#201) (@villebro)
+- [#203](https://github.com/druid-io/pydruid/pull/203) Add having type dimSelector (#203) (@SongYunSeop)
+- [#206](https://github.com/druid-io/pydruid/pull/206) aggregators: support stringfirst and stringlast aggregators (#206) (@nivye)
+
+### 0.5.9 (2020/03/13 15:14 +00:00)
+- [#189](https://github.com/druid-io/pydruid/pull/189) [fix] Ensuring export_pandas returns a pandas.DataFrame (#189) (@john-bodley)
+- [#188](https://github.com/druid-io/pydruid/pull/188) chore: signal for `py < 3.5` support deprecation (#188) (@mistercrunch)
+- [#185](https://github.com/druid-io/pydruid/pull/185) Update connect function in api.py to accept proxies (#185) (@manojbalaji1)
+- [#187](https://github.com/druid-io/pydruid/pull/187) Update CHANGELOG to 0.5.8 (#187) (@mistercrunch)
+
 ### 0.5.8 (2020/01/10 19:52 +00:00)
 - [#180](https://github.com/druid-io/pydruid/pull/180) [dbapi] Added ssl certificate (#180) (@TechGeekD)
 
