@@ -13,17 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from __future__ import division
-from __future__ import absolute_import
-
 import json
 import re
-
-from six.moves import urllib
-
-from pydruid.query import QueryBuilder
+import urllib
 from base64 import b64encode
 
+from pydruid.query import QueryBuilder
 
 # extract error from the <PRE> tag inside the HTML response
 HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)

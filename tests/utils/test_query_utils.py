@@ -1,22 +1,16 @@
 # -*- coding: UTF-8 -*-
 
 import os
-from six import PY3
+
 from pydruid.utils import query_utils
 
 
 def open_file(file_path):
-    if PY3:
-        f = open(file_path, "w", newline="", encoding="utf-8")
-    else:
-        f = open(file_path, "wb")
-    return f
+    return open(file_path, "w", newline="", encoding="utf-8")
 
 
 def line_ending():
-    if PY3:
-        return os.linesep
-    return "\r\n"
+    return os.linesep
 
 
 class TestUnicodeWriter:

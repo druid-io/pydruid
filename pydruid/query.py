@@ -14,13 +14,13 @@
 # limitations under the License.
 #
 
-import six
-import json
 import collections
+import json
+
 from pydruid.utils.aggregators import build_aggregators
+from pydruid.utils.dimensions import build_dimension
 from pydruid.utils.filters import Filter
 from pydruid.utils.having import Having
-from pydruid.utils.dimensions import build_dimension
 from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
 
@@ -88,10 +88,7 @@ class Query(collections.abc.MutableSequence):
                     7.0	user_1	2013-10-04T00:00:00.000Z
                     6.0	user_2	2013-10-04T00:00:00.000Z
         """
-        if six.PY3:
-            f = open(dest_path, "w", newline="", encoding="utf-8")
-        else:
-            f = open(dest_path, "wb")
+        f = open(dest_path, "w", newline="", encoding="utf-8")
         w = UnicodeWriter(f)
 
         if self.query_type == "timeseries":
@@ -238,10 +235,10 @@ class QueryBuilder(object):
         :raise ValueError: if input is not string or list of strings or dict
         """
         if not (
-            isinstance(datasource, six.string_types)
+            isinstance(datasource, str)
             or (
                 isinstance(datasource, list)
-                and all([isinstance(x, six.string_types) for x in datasource])
+                and all([isinstance(x, str) for x in datasource])
             )
             or isinstance(datasource, dict)
         ):
@@ -249,7 +246,7 @@ class QueryBuilder(object):
                 "Datasource definition not valid. Must be string or "
                 "dict or list of strings"
             )
-        if isinstance(datasource, six.string_types):
+        if isinstance(datasource, str):
             return datasource
         else:
             return {"type": "union", "dataSources": datasource}
@@ -270,7 +267,7 @@ class QueryBuilder(object):
         :raise ValueError: if an invalid object is given
         """
         valid_parts = valid_parts[:] + ["context"]
-        for key, val in six.iteritems(args):
+        for key, val in args.items():
             if key not in valid_parts:
                 raise ValueError(
                     "Query component: {0} is not valid for query type: {1}.".format(
@@ -290,7 +287,7 @@ class QueryBuilder(object):
         """
         query_dict = {"queryType": query_type}
 
-        for key, val in six.iteritems(args):
+        for key, val in args.items():
             if key == "aggregations":
                 query_dict[key] = build_aggregators(val)
             elif key == "post_aggregations":

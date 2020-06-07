@@ -15,18 +15,18 @@
 # limitations under the License.
 #
 
-import pytest
-
 from unittest.mock import Mock
-from pydruid.utils.aggregators import doublesum
-from pydruid.utils.filters import Dimension
 
+import pytest
 import tornado
 import tornado.ioloop
 import tornado.web
-from tornado.testing import AsyncHTTPTestCase
 from tornado.httpclient import HTTPError
+from tornado.testing import AsyncHTTPTestCase
+
 from pydruid.async_client import AsyncPyDruid
+from pydruid.utils.aggregators import doublesum
+from pydruid.utils.filters import Dimension
 
 
 class FailureHandler(tornado.web.RequestHandler):

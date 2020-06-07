@@ -13,11 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from __future__ import division
-
-import six
-
-
 class Postaggregator:
     def __init__(self, fn, fields, name):
         self.post_aggregator = {
@@ -54,7 +49,7 @@ class Postaggregator:
 
         return [
             rename_postagg(new_name, postagg.post_aggregator)
-            for (new_name, postagg) in six.iteritems(postaggs)
+            for (new_name, postagg) in postaggs.items()
         ]
 
 
@@ -202,7 +197,7 @@ class ThetaSketchOp(object):
 
         return [
             rename_thetasketchop(new_name, thetasketchop.post_aggregator)
-            for (new_name, thetasketchop) in six.iteritems(thetasketchops)
+            for (new_name, thetasketchop) in thetasketchops.items()
         ]
 
 

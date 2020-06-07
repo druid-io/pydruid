@@ -1,0 +1,10 @@
+black
+flake8
+flake8-mypy
+ipdb
+isort
+pip-tools
+pre-commit
+pycurl
+pytest
+tox

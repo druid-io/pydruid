@@ -1,21 +1,18 @@
-from __future__ import unicode_literals
-
 import os
 import re
 import sys
+from urllib import parse
 
-from prompt_toolkit import prompt, AbortAction
-from prompt_toolkit.history import FileHistory
+from prompt_toolkit import AbortAction, prompt
 from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit.history import FileHistory
 from pygments.lexers import SqlLexer
 from pygments.style import Style
-from pygments.token import Token
 from pygments.styles.default import DefaultStyle
-from six.moves.urllib import parse
+from pygments.token import Token
 from tabulate import tabulate
 
 from pydruid.db.api import connect
-
 
 keywords = [
     "EXPLAIN PLAN FOR",

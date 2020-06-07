@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-from pydruid.utils import dimensions, filters
-
 import pytest
+
+from pydruid.utils import dimensions, filters
 
 
 class TestDimension:

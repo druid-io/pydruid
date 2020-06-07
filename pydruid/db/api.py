@@ -1,13 +1,7 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-from collections import namedtuple, OrderedDict
 import itertools
 import json
-from six import string_types
-from six.moves.urllib import parse
+from collections import namedtuple, OrderedDict
+from urllib import parse
 
 import requests
 
@@ -110,7 +104,7 @@ def get_type(value):
     Note that bool is a subclass of int so order of statements matter.
     """
 
-    if isinstance(value, string_types) or value is None:
+    if isinstance(value, str) or value is None:
         return Type.STRING
     elif isinstance(value, bool):
         return Type.BOOLEAN
@@ -446,7 +440,7 @@ def escape(value):
 
     if value == "*":
         return value
-    elif isinstance(value, string_types):
+    elif isinstance(value, str):
         return "'{}'".format(value.replace("'", "''"))
     elif isinstance(value, bool):
         return "TRUE" if value else "FALSE"

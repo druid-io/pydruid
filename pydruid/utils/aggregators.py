@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from six import iteritems
-
 from .filters import Filter
 
 
@@ -106,7 +104,7 @@ def stringlast(raw_metric):
 
 
 def build_aggregators(agg_input):
-    return [_build_aggregator(name, kwargs) for (name, kwargs) in iteritems(agg_input)]
+    return [_build_aggregator(name, kwargs) for (name, kwargs) in agg_input.items()]
 
 
 def _build_aggregator(name, kwargs):

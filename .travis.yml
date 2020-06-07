@@ -3,8 +3,7 @@ matrix:
   include:
     - env: TOXENV=black
     - env: TOXENV=flake8
-    - env: TOXENV=py35
-      python: 3.5
+    - env: TOXENV=isort
     - env: TOXENV=py36
       python: 3.6
     - env: TOXENV=py37
