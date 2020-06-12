@@ -19,8 +19,7 @@ setup(
     version="0.6.0",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
-    packages=find_packages("pydruid"),
-    package_dir={"": "pydruid"},
+    packages=find_packages(),
     url="https://druid.apache.org",
     project_urls={
         "Bug Tracker": "https://github.com/druid-io/pydruid/issues",

@@ -1,5 +1,6 @@
 include *.txt
 include *.md
-recursive-include docs
-recursive-include pydruid
+recursive-include docs *.txt
+recursive-include pydruid *.py
+global-exclude *.py[co]
 include LICENSE
