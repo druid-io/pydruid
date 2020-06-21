@@ -59,17 +59,14 @@ class TestPyDruid:
             """
             <html>
             <head>
-            <meta http-equiv="Content-Type" content="text/html;
-            charset=ISO-8859-1"/>
+            <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
             <title>Error 500 </title>
             </head>
             <body>
             <h2>HTTP ERROR: 500</h2>
             <p>Problem accessing /druid/v2/. Reason:
-            <pre>    javax.servlet.ServletException:
-            java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
-            <hr /><a href="http://eclipse.org/jetty">
-            Powered by Jetty:// 9.3.19.v20170502</a><hr/>
+            <pre>    javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded</pre></p>
+            <hr /><a href="http://eclipse.org/jetty">Powered by Jetty:// 9.3.19.v20170502</a><hr/>
             </body>
             </html>
         """
@@ -96,8 +93,7 @@ class TestPyDruid:
             == textwrap.dedent(
                 """
             HTTP Error 500: Internal Server Error
-             Druid Error: javax.servlet.ServletException:
-             java.lang.OutOfMemoryError: GC overhead limit exceeded
+             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded
              Query is: {
                 "aggregations": [
                     {
