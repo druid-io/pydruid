@@ -10,4 +10,4 @@ import-order-style = google
 max-line-length = 90
 
 per-file-ignores =
-    tests/test_client.py: E501
+    tests/test_client.py: E501 W291

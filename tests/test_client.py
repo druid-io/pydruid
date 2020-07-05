@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import textwrap
 import urllib
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 from unittest.mock import Mock, patch
 
 import pytest
@@ -92,8 +92,8 @@ class TestPyDruid:
             str(e.value)
             == textwrap.dedent(
                 """
-            HTTP Error 500: Internal Server Error
-             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded
+            HTTP Error 500: Internal Server Error 
+             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
              Query is: {
                 "aggregations": [
                     {
