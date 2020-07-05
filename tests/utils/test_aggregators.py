@@ -1,157 +1,219 @@
 # -*- coding: UTF-8 -*-
 
-from operator import itemgetter
 from copy import deepcopy
+from operator import itemgetter
 
-from pydruid.utils import aggregators
-from pydruid.utils import filters
+from pydruid.utils import aggregators, filters
 
 
 class TestAggregators:
-
     def test_aggregators(self):
-        aggs = [('longsum', 'longSum'), ('longmin', 'longMin'), ('longmax', 'longMax'),
-                ('doublesum', 'doubleSum'), ('doublemin', 'doubleMin'), ('doublemax', 'doubleMax'),
-                ('count', 'count'), ('hyperunique', 'hyperUnique')]
-        aggs_funcs = [(getattr(aggregators, agg_name), agg_type)
-                      for agg_name, agg_type in aggs]
+        aggs = [
+            ("longsum", "longSum"),
+            ("longmin", "longMin"),
+            ("longmax", "longMax"),
+            ("doublesum", "doubleSum"),
+            ("doublemin", "doubleMin"),
+            ("doublemax", "doubleMax"),
+            ("count", "count"),
+            ("hyperunique", "hyperUnique"),
+            ("stringfirst", "stringFirst"),
+            ("stringlast", "stringLast"),
+        ]
+        aggs_funcs = [
+            (getattr(aggregators, agg_name), agg_type) for agg_name, agg_type in aggs
+        ]
         for f, agg_type in aggs_funcs:
-            assert f('metric') == {'type': agg_type, 'fieldName': 'metric'}
+            assert f("metric") == {"type": agg_type, "fieldName": "metric"}
 
     def test_filtered_aggregator(self):
-        filter_ = filters.Filter(dimension='dim', value='val')
-        aggs = [aggregators.count('metric1'),
-                aggregators.longsum('metric2'),
-                aggregators.doublesum('metric3'),
-                aggregators.doublemin('metric4'),
-                aggregators.doublemax('metric5'),
-                aggregators.hyperunique('metric6'),
-                aggregators.cardinality('dim1'),
-                aggregators.cardinality(['dim1', 'dim2'], by_row=True),
-                aggregators.thetasketch('dim1'),
-                aggregators.thetasketch('metric7'),
-                aggregators.thetasketch('metric8', isinputthetasketch=True, size=8192)
-               ]
+        filter_ = filters.Filter(dimension="dim", value="val")
+        aggs = [
+            aggregators.count("metric1"),
+            aggregators.longsum("metric2"),
+            aggregators.doublesum("metric3"),
+            aggregators.doublemin("metric4"),
+            aggregators.doublemax("metric5"),
+            aggregators.hyperunique("metric6"),
+            aggregators.cardinality("dim1"),
+            aggregators.cardinality(["dim1", "dim2"], by_row=True),
+            aggregators.thetasketch("dim1"),
+            aggregators.thetasketch("metric7"),
+            aggregators.thetasketch("metric8", isinputthetasketch=True, size=8192),
+        ]
         for agg in aggs:
             expected = {
-                'type': 'filtered',
-                'filter': {
-                    'type': 'selector',
-                    'dimension': 'dim',
-                    'value': 'val'
-                },
-                'aggregator': agg
+                "type": "filtered",
+                "filter": {"type": "selector", "dimension": "dim", "value": "val"},
+                "aggregator": agg,
             }
             actual = aggregators.filtered(filter_, agg)
             assert actual == expected
 
     def test_nested_filtered_aggregator(self):
-        filter1 = filters.Filter(dimension='dim1', value='val')
-        filter2 = filters.Filter(dimension='dim2', value='val')
-        agg = aggregators.filtered(filter1,
-                                   aggregators.filtered(filter2, aggregators.count('metric1')))
-        actual = aggregators.build_aggregators({'agg_name': agg})
+        filter1 = filters.Filter(dimension="dim1", value="val")
+        filter2 = filters.Filter(dimension="dim2", value="val")
+        agg = aggregators.filtered(
+            filter1, aggregators.filtered(filter2, aggregators.count("metric1"))
+        )
+        actual = aggregators.build_aggregators({"agg_name": agg})
         # the innermost aggregation must have 'agg_name'
-        expected = [{
-            'type': 'filtered',
-            'aggregator': {
-                'type': 'filtered',
-                'aggregator': {'fieldName': 'metric1', 'type': 'count', 'name': 'agg_name'},
-                'filter': {'dimension': 'dim2', 'value': 'val', 'type': 'selector'}},
-            'filter': {'dimension': 'dim1', 'value': 'val', 'type': 'selector'}
-        }]
+        expected = [
+            {
+                "type": "filtered",
+                "aggregator": {
+                    "type": "filtered",
+                    "aggregator": {
+                        "fieldName": "metric1",
+                        "type": "count",
+                        "name": "agg_name",
+                    },
+                    "filter": {"dimension": "dim2", "value": "val", "type": "selector"},
+                },
+                "filter": {"dimension": "dim1", "value": "val", "type": "selector"},
+            }
+        ]
         assert expected == actual
 
     def test_build_aggregators(self):
         agg_input = {
-            'agg1': aggregators.count('metric1'),
-            'agg2': aggregators.longsum('metric2'),
-            'agg3': aggregators.doublesum('metric3'),
-            'agg4': aggregators.doublemin('metric4'),
-            'agg5': aggregators.doublemax('metric5'),
-            'agg6': aggregators.hyperunique('metric6'),
-            'agg7': aggregators.cardinality('dim1'),
-            'agg8': aggregators.cardinality(['dim1', 'dim2'], by_row=True),
-            'agg9': aggregators.thetasketch('dim1'),
-            'agg10': aggregators.thetasketch('metric7'),
-            'agg11': aggregators.thetasketch('metric8', isinputthetasketch = True, size=8192)
+            "agg1": aggregators.count("metric1"),
+            "agg2": aggregators.longsum("metric2"),
+            "agg3": aggregators.doublesum("metric3"),
+            "agg4": aggregators.doublemin("metric4"),
+            "agg5": aggregators.doublemax("metric5"),
+            "agg6": aggregators.hyperunique("metric6"),
+            "agg7": aggregators.cardinality("dim1"),
+            "agg8": aggregators.cardinality(["dim1", "dim2"], by_row=True),
+            "agg9": aggregators.thetasketch("dim1"),
+            "agg10": aggregators.thetasketch("metric7"),
+            "agg11": aggregators.thetasketch(
+                "metric8", isinputthetasketch=True, size=8192
+            ),
         }
         built_agg = aggregators.build_aggregators(agg_input)
         expected = [
-            {'name': 'agg1', 'type': 'count', 'fieldName': 'metric1'},
-            {'name': 'agg2', 'type': 'longSum', 'fieldName': 'metric2'},
-            {'name': 'agg3', 'type': 'doubleSum', 'fieldName': 'metric3'},
-            {'name': 'agg4', 'type': 'doubleMin', 'fieldName': 'metric4'},
-            {'name': 'agg5', 'type': 'doubleMax', 'fieldName': 'metric5'},
-            {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
-            {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
-            {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
-            {'name': 'agg9', 'type': 'thetaSketch', 'fieldName': 'dim1', 'isInputThetaSketch': False, 'size': 16384},
-            {'name': 'agg10', 'type': 'thetaSketch', 'fieldName': 'metric7', 'isInputThetaSketch': False, 'size': 16384},
-            {'name': 'agg11', 'type': 'thetaSketch', 'fieldName': 'metric8', 'isInputThetaSketch': True, 'size': 8192}
-
+            {"name": "agg1", "type": "count", "fieldName": "metric1"},
+            {"name": "agg2", "type": "longSum", "fieldName": "metric2"},
+            {"name": "agg3", "type": "doubleSum", "fieldName": "metric3"},
+            {"name": "agg4", "type": "doubleMin", "fieldName": "metric4"},
+            {"name": "agg5", "type": "doubleMax", "fieldName": "metric5"},
+            {"name": "agg6", "type": "hyperUnique", "fieldName": "metric6"},
+            {
+                "name": "agg7",
+                "type": "cardinality",
+                "fieldNames": ["dim1"],
+                "byRow": False,
+            },
+            {
+                "name": "agg8",
+                "type": "cardinality",
+                "fieldNames": ["dim1", "dim2"],
+                "byRow": True,
+            },
+            {
+                "name": "agg9",
+                "type": "thetaSketch",
+                "fieldName": "dim1",
+                "isInputThetaSketch": False,
+                "size": 16384,
+            },
+            {
+                "name": "agg10",
+                "type": "thetaSketch",
+                "fieldName": "metric7",
+                "isInputThetaSketch": False,
+                "size": 16384,
+            },
+            {
+                "name": "agg11",
+                "type": "thetaSketch",
+                "fieldName": "metric8",
+                "isInputThetaSketch": True,
+                "size": 8192,
+            },
         ]
-        assert (sorted(built_agg, key=itemgetter('name')) ==
-                sorted(expected, key=itemgetter('name')))
+        assert sorted(built_agg, key=itemgetter("name")) == sorted(
+            expected, key=itemgetter("name")
+        )
 
     def test_build_filtered_aggregator(self):
-        filter_ = filters.Filter(dimension='dim', value='val')
+        filter_ = filters.Filter(dimension="dim", value="val")
         agg_input = {
-            'agg1': aggregators.filtered(filter_,
-                                         aggregators.count('metric1')),
-            'agg2': aggregators.filtered(filter_,
-                                         aggregators.longsum('metric2')),
-            'agg3': aggregators.filtered(filter_,
-                                         aggregators.doublesum('metric3')),
-            'agg4': aggregators.filtered(filter_,
-                                         aggregators.doublemin('metric4')),
-            'agg5': aggregators.filtered(filter_,
-                                         aggregators.doublemax('metric5')),
-            'agg6': aggregators.filtered(filter_,
-                                         aggregators.hyperunique('metric6')),
-            'agg7': aggregators.filtered(filter_,
-                                         aggregators.cardinality('dim1')),
-            'agg8': aggregators.filtered(filter_,
-                                         aggregators.cardinality(['dim1', 'dim2'], by_row=True)),
-            'agg9': aggregators.filtered(filter_,
-                                         aggregators.thetasketch('dim1')),
-            'agg10': aggregators.filtered(filter_,
-                                         aggregators.thetasketch('metric7')),
-            'agg11': aggregators.filtered(filter_,
-                                         aggregators.thetasketch('metric8', isinputthetasketch = True, size=8192)),
+            "agg1": aggregators.filtered(filter_, aggregators.count("metric1")),
+            "agg2": aggregators.filtered(filter_, aggregators.longsum("metric2")),
+            "agg3": aggregators.filtered(filter_, aggregators.doublesum("metric3")),
+            "agg4": aggregators.filtered(filter_, aggregators.doublemin("metric4")),
+            "agg5": aggregators.filtered(filter_, aggregators.doublemax("metric5")),
+            "agg6": aggregators.filtered(filter_, aggregators.hyperunique("metric6")),
+            "agg7": aggregators.filtered(filter_, aggregators.cardinality("dim1")),
+            "agg8": aggregators.filtered(
+                filter_, aggregators.cardinality(["dim1", "dim2"], by_row=True)
+            ),
+            "agg9": aggregators.filtered(filter_, aggregators.thetasketch("dim1")),
+            "agg10": aggregators.filtered(filter_, aggregators.thetasketch("metric7")),
+            "agg11": aggregators.filtered(
+                filter_,
+                aggregators.thetasketch("metric8", isinputthetasketch=True, size=8192),
+            ),
         }
         base = {
-            'type': 'filtered',
-            'filter': {
-                'type': 'selector',
-                'dimension': 'dim',
-                'value': 'val'
-            }
+            "type": "filtered",
+            "filter": {"type": "selector", "dimension": "dim", "value": "val"},
         }
 
         aggs = [
-            {'name': 'agg1', 'type': 'count', 'fieldName': 'metric1'},
-            {'name': 'agg2', 'type': 'longSum', 'fieldName': 'metric2'},
-            {'name': 'agg3', 'type': 'doubleSum', 'fieldName': 'metric3'},
-            {'name': 'agg4', 'type': 'doubleMin', 'fieldName': 'metric4'},
-            {'name': 'agg5', 'type': 'doubleMax', 'fieldName': 'metric5'},
-            {'name': 'agg6', 'type': 'hyperUnique', 'fieldName': 'metric6'},
-            {'name': 'agg7', 'type': 'cardinality', 'fieldNames': ['dim1'], 'byRow': False},
-            {'name': 'agg8', 'type': 'cardinality', 'fieldNames': ['dim1', 'dim2'], 'byRow': True},
-            {'name': 'agg9', 'type': 'thetaSketch', 'fieldName': 'dim1', 'isInputThetaSketch': False, 'size': 16384},
-            {'name': 'agg10', 'type': 'thetaSketch', 'fieldName': 'metric7', 'isInputThetaSketch': False, 'size': 16384},
-            {'name': 'agg11', 'type': 'thetaSketch', 'fieldName': 'metric8', 'isInputThetaSketch': True, 'size': 8192}
-
+            {"name": "agg1", "type": "count", "fieldName": "metric1"},
+            {"name": "agg2", "type": "longSum", "fieldName": "metric2"},
+            {"name": "agg3", "type": "doubleSum", "fieldName": "metric3"},
+            {"name": "agg4", "type": "doubleMin", "fieldName": "metric4"},
+            {"name": "agg5", "type": "doubleMax", "fieldName": "metric5"},
+            {"name": "agg6", "type": "hyperUnique", "fieldName": "metric6"},
+            {
+                "name": "agg7",
+                "type": "cardinality",
+                "fieldNames": ["dim1"],
+                "byRow": False,
+            },
+            {
+                "name": "agg8",
+                "type": "cardinality",
+                "fieldNames": ["dim1", "dim2"],
+                "byRow": True,
+            },
+            {
+                "name": "agg9",
+                "type": "thetaSketch",
+                "fieldName": "dim1",
+                "isInputThetaSketch": False,
+                "size": 16384,
+            },
+            {
+                "name": "agg10",
+                "type": "thetaSketch",
+                "fieldName": "metric7",
+                "isInputThetaSketch": False,
+                "size": 16384,
+            },
+            {
+                "name": "agg11",
+                "type": "thetaSketch",
+                "fieldName": "metric8",
+                "isInputThetaSketch": True,
+                "size": 8192,
+            },
         ]
         expected = []
         for agg in aggs:
             exp = deepcopy(base)
-            exp.update({'aggregator': agg})
+            exp.update({"aggregator": agg})
             expected.append(exp)
 
         built_agg = aggregators.build_aggregators(agg_input)
-        expected = sorted(built_agg, key=lambda k: itemgetter('name')(
-            itemgetter('aggregator')(k)))
-        actual = sorted(expected, key=lambda k: itemgetter('name')(
-            itemgetter('aggregator')(k)))
+        expected = sorted(
+            built_agg, key=lambda k: itemgetter("name")(itemgetter("aggregator")(k))
+        )
+        actual = sorted(
+            expected, key=lambda k: itemgetter("name")(itemgetter("aggregator")(k))
+        )
         assert expected == actual

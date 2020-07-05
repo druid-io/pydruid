@@ -1,7 +1,7 @@
 from pydruid.db.api import connect
 from pydruid.db.exceptions import (
-    DataError,
     DatabaseError,
+    DataError,
     Error,
     IntegrityError,
     InterfaceError,
@@ -11,7 +11,6 @@ from pydruid.db.exceptions import (
     ProgrammingError,
     Warning,
 )
-
 
 __all__ = [
     "connect",

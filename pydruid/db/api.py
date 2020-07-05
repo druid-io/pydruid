@@ -1,13 +1,7 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-from collections import namedtuple, OrderedDict
 import itertools
 import json
-from six import string_types
-from six.moves.urllib import parse
+from collections import namedtuple, OrderedDict
+from urllib import parse
 
 import requests
 
@@ -30,6 +24,7 @@ def connect(
     context=None,
     header=False,
     ssl_verify_cert=True,
+    ssl_client_cert=None,
     proxies=None,
 ):  # noqa: E125
     """
@@ -51,6 +46,7 @@ def connect(
         context,
         header,
         ssl_verify_cert,
+        ssl_client_cert,
         proxies,
     )
 
@@ -108,7 +104,7 @@ def get_type(value):
     Note that bool is a subclass of int so order of statements matter.
     """
 
-    if isinstance(value, string_types) or value is None:
+    if isinstance(value, str) or value is None:
         return Type.STRING
     elif isinstance(value, bool):
         return Type.BOOLEAN
@@ -132,6 +128,7 @@ class Connection(object):
         context=None,
         header=False,
         ssl_verify_cert=True,
+        ssl_client_cert=None,
         proxies=None,
     ):
         netloc = "{host}:{port}".format(host=host, port=port)
@@ -143,6 +140,7 @@ class Connection(object):
         self.user = user
         self.password = password
         self.ssl_verify_cert = ssl_verify_cert
+        self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
 
     @check_closed
@@ -175,6 +173,7 @@ class Connection(object):
             self.context,
             self.header,
             self.ssl_verify_cert,
+            self.ssl_client_cert,
             self.proxies,
         )
 
@@ -206,6 +205,7 @@ class Cursor(object):
         header=False,
         ssl_verify_cert=True,
         proxies=None,
+        ssl_client_cert=None,
     ):
         self.url = url
         self.context = context or {}
@@ -213,6 +213,7 @@ class Cursor(object):
         self.user = user
         self.password = password
         self.ssl_verify_cert = ssl_verify_cert
+        self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
 
         # This read/write attribute specifies the number of rows to fetch at a
@@ -343,6 +344,7 @@ class Cursor(object):
             json=payload,
             auth=auth,
             verify=self.ssl_verify_cert,
+            cert=self.ssl_client_cert,
             proxies=self.proxies,
         )
         if r.encoding is None:
@@ -438,7 +440,7 @@ def escape(value):
 
     if value == "*":
         return value
-    elif isinstance(value, string_types):
+    elif isinstance(value, str):
         return "'{}'".format(value.replace("'", "''"))
     elif isinstance(value, bool):
         return "TRUE" if value else "FALSE"

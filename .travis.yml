@@ -1,10 +1,19 @@
 language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
+matrix:
+  include:
+    - env: TOXENV=black
+    - env: TOXENV=flake8
+    - env: TOXENV=isort
+    - env: TOXENV=py36
+      python: 3.6
+    - env: TOXENV=py37
+      python: 3.7
+    - env: TOXENV=py38
+      python: 3.8
+before_install:
+   - sudo apt-get update
+   - sudo apt-get install libgnutls28-dev
 install:
-  - pip install flake8==3.5.0
-  - python setup.py install
-before_script: flake8
-script: py.test
+  - pip install tox
+script:
+  - tox

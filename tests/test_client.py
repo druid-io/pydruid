@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
 import textwrap
+import urllib
+from io import StringIO, BytesIO
+from unittest.mock import Mock, patch
 
 import pytest
-from mock import patch, Mock
-from six.moves import urllib
-from six import StringIO, binary_type, BytesIO
 
 from pydruid.client import PyDruid
 from pydruid.query import Query
@@ -22,12 +22,12 @@ def create_blank_query():
 
 def _http_error(code, msg, data=""):
     # Need a file-like object for the response data
-    if isinstance(data, binary_type):
+    if isinstance(data, bytes):
         fp = BytesIO(data)
     else:
         fp = StringIO(data)
     return urllib.error.HTTPError(
-        url="http://fakeurl:8080/druid/v2/", hdrs={}, code=code, msg=msg, fp=fp,
+        url="http://fakeurl:8080/druid/v2/", hdrs={}, code=code, msg=msg, fp=fp
     )
 
 

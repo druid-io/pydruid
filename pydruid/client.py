@@ -13,18 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from __future__ import division
-from __future__ import absolute_import
-
 import json
 import re
-
-from six import binary_type
-from six.moves import urllib
-
-from pydruid.query import QueryBuilder
+import urllib
 from base64 import b64encode
 
+from pydruid.query import QueryBuilder
 
 # extract error from the <PRE> tag inside the HTML response
 HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
@@ -478,6 +472,9 @@ class PyDruid(BaseDruidClient):
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
+    :param str cafile: Optional cafile that point to a single file
+    containing a bundle of CA certificates, useful when using Imply Cloud or
+    other Druid deployments via HTTPS.
 
     Example
 
@@ -543,14 +540,15 @@ class PyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, cafile=None):
         super(PyDruid, self).__init__(url, endpoint)
+        self.cafile = cafile
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(req)
+            res = urllib.request.urlopen(url=req, cafile=self.cafile)
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
@@ -558,7 +556,7 @@ class PyDruid(BaseDruidClient):
             if e.code == 500:
                 # has Druid returned an error?
                 try:
-                    if isinstance(err, binary_type):
+                    if isinstance(err, bytes):
                         # Decode the error before serialize it to JSON
                         err = err.decode("utf-8")
                     err = json.loads(err)
@@ -600,8 +598,8 @@ class PyDruid(BaseDruidClient):
 
         :param pydruid.utils.filters.Filter filter: Indicates which rows of
           data to include in the query
-        :param list dimensions: The list of dimensions to select. If left
-          empty, all dimensions are returned
+        :param list columns: The list of columns to select. If left
+          empty, all columns are returned
         :param list metrics: The list of metrics to select. If left empty,
           all metrics are returned
         :param dict context: A dict of query context options

@@ -1,15 +1,9 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
+from sqlalchemy import types
 from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
-from sqlalchemy import types
 
 import pydruid.db
 from pydruid.db import exceptions
-
 
 RESERVED_SCHEMAS = ["INFORMATION_SCHEMA"]
 
