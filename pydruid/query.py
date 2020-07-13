@@ -340,6 +340,7 @@ class QueryBuilder(object):
             "dimension",
             "threshold",
             "metric",
+            "virtualColumns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -363,6 +364,7 @@ class QueryBuilder(object):
             "descending",
             "post_aggregations",
             "intervals",
+            "virtualColumns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -388,6 +390,7 @@ class QueryBuilder(object):
             "intervals",
             "dimensions",
             "limit_spec",
+            "virtualColumns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
