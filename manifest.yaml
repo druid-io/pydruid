@@ -33,8 +33,10 @@ deploy:
     legacy: true
     role: lyftpypi-staging-iad-deploy
     orca: []
+    environment: staging
   - name: production
     legacy: true
     role: lyftpypi-production-iad-deploy
     automatic: true
     orca: []
+    environment: production
