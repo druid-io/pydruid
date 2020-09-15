@@ -3,8 +3,8 @@ import re
 import sys
 from urllib import parse
 
-from prompt_toolkit import AbortAction, prompt
-from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit import prompt
+from prompt_toolkit.completion.word_completer import WordCompleter
 from prompt_toolkit.history import FileHistory
 from pygments.lexers import SqlLexer
 from pygments.style import Style
@@ -174,9 +174,8 @@ def main():
                 completer=sql_completer,
                 style=DocumentStyle,
                 history=history,
-                on_abort=AbortAction.RETRY,
             )
-        except EOFError:
+        except (EOFError, KeyboardInterrupt):
             break  # Control-D pressed.
 
         # run query
