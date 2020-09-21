@@ -16,6 +16,8 @@
 import json
 import re
 import urllib
+import urllib.error
+import urllib.request
 from base64 import b64encode
 
 from pydruid.query import QueryBuilder
