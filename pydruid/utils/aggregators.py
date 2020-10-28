@@ -62,6 +62,11 @@ def doublemin(raw_metric):
 def doublemax(raw_metric):
     return {"type": "doubleMax", "fieldName": raw_metric}
 
+def doublelast(raw_metric):
+    return {"type": "doubleLast", "fieldName": raw_metric}
+
+def doublefirst(raw_metric):
+    return {"type": "doubleFirst", "fieldName": raw_metric}
 
 def count(raw_metric):
     return {"type": "count", "fieldName": raw_metric}
