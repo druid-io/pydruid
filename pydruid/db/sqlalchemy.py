@@ -75,7 +75,7 @@ class DruidTypeCompiler(compiler.GenericTypeCompiler):
         raise exceptions.NotSupportedError("Type VARBINARY is not supported")
 
     def visit_BLOB(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type BLOB is not supported")
+        return "OTHER"
 
     def visit_CLOB(self, type_, **kwargs):
         raise exceptions.NotSupportedError("Type CBLOB is not supported")
