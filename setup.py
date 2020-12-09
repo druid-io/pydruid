@@ -8,7 +8,7 @@ extras_require = {
     "pandas": ["pandas"],
     "async": ["tornado"],
     "sqlalchemy": ["sqlalchemy"],
-    "cli": ["pygments", "prompt_toolkit", "tabulate"],
+    "cli": ["pygments", "prompt_toolkit>=2.0.0", "tabulate"],
 }
 
 with io.open("README.md", encoding="utf-8") as f:

@@ -3,7 +3,6 @@ from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
 
 import pydruid.db
-from pydruid.db import exceptions
 
 RESERVED_SCHEMAS = ["INFORMATION_SCHEMA"]
 
@@ -63,25 +62,18 @@ class DruidTypeCompiler(compiler.GenericTypeCompiler):
     visit_TEXT = visit_CHAR
 
     def visit_DATETIME(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type DATETIME is not supported")
+        return "LONG"
 
     def visit_TIME(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type TIME is not supported")
-
-    def visit_BINARY(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type BINARY is not supported")
-
-    def visit_VARBINARY(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type VARBINARY is not supported")
+        return "LONG"
 
     def visit_BLOB(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type BLOB is not supported")
+        return "COMPLEX"
 
-    def visit_CLOB(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type CBLOB is not supported")
-
-    def visit_NCLOB(self, type_, **kwargs):
-        raise exceptions.NotSupportedError("Type NCBLOB is not supported")
+    visit_CLOB = visit_BLOB
+    visit_NCLOB = visit_BLOB
+    visit_VARBINARY = visit_BLOB
+    visit_BINARY = visit_BLOB
 
 
 class DruidDialect(default.DefaultDialect):
