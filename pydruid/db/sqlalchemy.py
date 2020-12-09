@@ -3,7 +3,6 @@ from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
 
 import pydruid.db
-from pydruid.db import exceptions
 
 RESERVED_SCHEMAS = ["INFORMATION_SCHEMA"]
 
