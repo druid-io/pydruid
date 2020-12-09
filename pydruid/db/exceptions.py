@@ -1,4 +1,4 @@
-from sqlalchemy.ex import CompileError
+from sqlalchemy.exc import CompileError
 
 
 class Error(Exception):
