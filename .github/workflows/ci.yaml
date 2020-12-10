@@ -1,0 +1,41 @@
+name: Verify
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - toxenv: black
+          python: 3.6
+        - toxenv: flake8
+          python: 3.6
+        - toxenv: isort
+          python: 3.6
+        - toxenv: py36
+          python: 3.6
+        - toxenv: py37
+          python: 3.7
+        - toxenv: py38
+          python: 3.8
+    env:
+      TOXENV: ${{ matrix.toxenv }}
+    name: TOXENV=${{ matrix.toxenv }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install Dependencies
+      run: sudo apt-get update && sudo apt-get install libssl-dev libcurl4-openssl-dev python3-dev
+    - name: Install Tox
+      run: pip install tox
+    - name: Tox
+      run: tox
