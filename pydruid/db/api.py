@@ -406,7 +406,7 @@ def rows_from_chunks(chunks):
                     # ignore the trailing X in escapes like \uXXXX, since each
                     # of those X characters must be alphanumeric anyway
                     in_escape = False
-                elif char == '\\':
+                elif char == "\\":
                     in_escape = True
                 elif char == '"':
                     in_string = False
