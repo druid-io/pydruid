@@ -16,7 +16,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.3.4',   # forked ad pydruid version 0.3.1
+    version='0.3.5',   # forked ad pydruid version 0.3.1
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.utils'],
@@ -26,6 +26,6 @@ setup(
     long_description='See https://github.com/druid-io/pydruid for more information.',
     install_requires=install_requires,
     extras_require=extras_require,
-    setup_requires=['pytest-runner'],
+    setup_requires=['pytest-runner<=5.2.0'],
     tests_require=['pytest', 'six', 'mock'],
 )
