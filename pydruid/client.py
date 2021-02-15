@@ -415,7 +415,7 @@ class PyDruid(BaseDruidClient):
             else:
                 content = res.read()
 
-            query.query_headers = res.info()
+            query.response_headers = res.info()
             query.query_id = res.info().get('x-druid-query-id')
             data = content.decode("utf-8")
             res.close()
