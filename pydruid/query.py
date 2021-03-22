@@ -15,8 +15,10 @@
 #
 
 import six
-import json
 import collections
+
+import ujson
+
 from pydruid.utils.aggregators import build_aggregators
 from pydruid.utils.filters import Filter
 from pydruid.utils.having import Having
@@ -44,18 +46,14 @@ class Query(collections.MutableSequence):
         self.query_dict = query_dict
         self.query_type = query_type
         self.result = None
-        self.result_json = None
         self.query_id = None
         self.response_headers = None
 
     def parse(self, data):
-        if data:
-            self.result_json = data
-            res = json.loads(self.result_json)
-            self.result = res
-        else:
-            raise IOError('{Error parsing result: {0} for {1} query'.format(
-                    self.result_json, self.query_type))
+        if not data:
+            raise IOError('{Error parsing result: {0} for {1} query'.format(data, self.query_type))
+
+        self.result = ujson.loads(data)
 
     def export_tsv(self, dest_path):
         """
@@ -126,6 +124,14 @@ class Query(collections.MutableSequence):
 
         f.close()
 
+    def export_dask(self):
+        import dask.dataframe
+
+        if not self.result:
+            return None
+
+        return dask.dataframe.from_pandas(self.export_pandas())
+
     def export_pandas(self):
         """
         Export the current query result to a Pandas DataFrame object.
@@ -160,26 +166,19 @@ class Query(collections.MutableSequence):
 
         if self.result:
             if self.query_type == "timeseries":
-                nres = [list(v['result'].items()) + [('timestamp', v['timestamp'])]
-                        for v in self.result]
-                nres = [dict(v) for v in nres]
-            elif self.query_type == "topN":
+                return pandas.DataFrame([dict(timestamp=v['timestamp'], **v['result']) for v in self.result])
+
+            if self.query_type == "topN":
                 nres = []
                 for item in self.result:
                     timestamp = item['timestamp']
-                    results = item['result']
-                    tres = [dict(list(res.items()) + [('timestamp', timestamp)])
-                            for res in results]
-                    nres += tres
-            elif self.query_type == "groupBy":
-                nres = [list(v['event'].items()) + [('timestamp', v['timestamp'])]
-                        for v in self.result]
-                nres = [dict(v) for v in nres]
-            else:
-                raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
+                    nres += [dict(timestamp=timestamp, **res.items()) for res in item['result']]
+                return pandas.DataFrame(nres)
 
-            df = pandas.DataFrame(nres)
-            return df
+            if self.query_type == "groupBy":
+                return pandas.DataFrame([dict(timestamp=v['timestamp'], **v['event']) for v in self.result])
+
+            raise NotImplementedError('Pandas export not implemented for query type: {0}'.format(self.query_type))
 
     def __str__(self):
         return str(self.result)
@@ -217,10 +216,10 @@ class QueryBuilder(object):
         :raise ValueError: if input is not string or list of strings
         """
         if not (
-                    isinstance(datasource, str) or
-                    (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource])) or
-                    isinstance(datasource, dict)
-                ):
+                isinstance(datasource, str) or
+                (isinstance(datasource, list) and all([isinstance(x, str) for x in datasource])) or
+                isinstance(datasource, dict)
+        ):
             raise ValueError('Datasource definition not valid. Must be string or list of strings')
         if isinstance(datasource, (str, dict)):
             return datasource
@@ -245,10 +244,10 @@ class QueryBuilder(object):
         for key, val in six.iteritems(args):
             if key not in valid_parts:
                 raise ValueError(
-                        'Query component: {0} is not valid for query type: {1}.'
-                        .format(key, query_type) +
-                        'The list of valid components is: \n {0}'
-                        .format(valid_parts))
+                    'Query component: {0} is not valid for query type: {1}.'
+                    .format(key, query_type) +
+                    'The list of valid components is: \n {0}'
+                    .format(valid_parts))
 
     def build_query(self, query_type, args):
         """

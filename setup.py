@@ -3,10 +3,12 @@ from setuptools import setup
 
 install_requires = [
     "six >= 1.9.0",
+    "ujson >= 2.0.3",
 ]
 
 extras_require = {
     "pandas": ["pandas"],
+    "dask": ["dask"],
     "async": ["tornado"]
 }
 
@@ -16,7 +18,7 @@ if sys.version_info < (2, 6):
 
 setup(
     name='pydruid',
-    version='0.3.6s',   # forked ad pydruid version 0.3.1
+    version='0.3.7s',   # forked ad pydruid version 0.3.1
     author='Druid Developers',
     author_email='druid-development@googlegroups.com',
     packages=['pydruid', 'pydruid.utils'],
