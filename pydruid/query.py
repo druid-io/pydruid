@@ -361,7 +361,7 @@ class QueryBuilder(object):
         :rtype: Query
         """
         query_type = 'segmentMetadata'
-        valid_parts = ['datasource', 'intervals', 'analysisTypes', 'merge']
+        valid_parts = ['datasource', 'intervals', 'analysisTypes', 'merge', 'toInclude']
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
 
