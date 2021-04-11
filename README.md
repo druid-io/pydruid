@@ -213,6 +213,49 @@ for row in curs:
     print(row)
 ```
 
+## Dynamic Parameters
+
+Druid 0.18.0 introduced support for [Dynamic Parameters](https://druid.apache.org/docs/latest/querying/sql.html#dynamic-parameters) where parameters are bound to `?` placeholders at execution time. This can be set using `dynamic_parameters`. on `connect`.
+
+Parameters support the types below, additionally allowing for tuples and lists for convenience with each value coerced to the appropriate Druid type.
+
+```
+| Instance Type | Druid Type |
+|---------------|------------|
+| int           | INTEGER    |
+| float         | FLOAT      |
+| str           | VARCHAR    |
+| bool          | BOOLEAN    |
+```
+
+Example:
+
+```python
+from pydruid.db import connect
+
+conn = connect(host='localhost', port=8082, path='/druid/v2/sql/', scheme='http', dynamic_parameters=True)
+curs = conn.cursor()
+parameters = {
+    "start_dt": "2015-09-12 00:00:00",
+    "channels": ("#en.wikipedia", "#es.wikipedia"),
+    "added_gt": 10,
+}
+curs.execute("""
+     SELECT
+        channel,
+        page,
+        SUM(added)
+    FROM wikipedia
+    WHERE
+        __time >= TIMESTAMP %(start_dt)s
+    AND
+        channel IN (%(channels)s)
+    GROUP BY channel, page
+    ORDER BY SUM(added) DESC
+    HAVING SUM(added) >= %(added_gt)s
+""", parameters)
+```
+
 # SQLAlchemy
 
 ```python

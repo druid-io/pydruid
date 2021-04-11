@@ -1,5 +1,6 @@
 import itertools
 import json
+import re
 from collections import namedtuple, OrderedDict
 from urllib import parse
 
@@ -26,6 +27,7 @@ def connect(
     ssl_verify_cert=True,
     ssl_client_cert=None,
     proxies=None,
+    dynamic_parameters=False,
 ):  # noqa: E125
     """
     Constructor for creating a connection to the database.
@@ -48,6 +50,7 @@ def connect(
         ssl_verify_cert,
         ssl_client_cert,
         proxies,
+        dynamic_parameters,
     )
 
 
@@ -130,6 +133,7 @@ class Connection(object):
         ssl_verify_cert=True,
         ssl_client_cert=None,
         proxies=None,
+        dynamic_parameters=False,
     ):
         netloc = "{host}:{port}".format(host=host, port=port)
         self.url = parse.urlunparse((scheme, netloc, path, None, None, None))
@@ -142,6 +146,7 @@ class Connection(object):
         self.ssl_verify_cert = ssl_verify_cert
         self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
+        self.dynamic_parameters = dynamic_parameters
 
     @check_closed
     def close(self):
@@ -175,6 +180,7 @@ class Connection(object):
             self.ssl_verify_cert,
             self.ssl_client_cert,
             self.proxies,
+            self.dynamic_parameters,
         )
 
         self.cursors.append(cursor)
@@ -206,6 +212,7 @@ class Cursor(object):
         ssl_verify_cert=True,
         proxies=None,
         ssl_client_cert=None,
+        dynamic_parameters=False,
     ):
         self.url = url
         self.context = context or {}
@@ -215,6 +222,7 @@ class Cursor(object):
         self.ssl_verify_cert = ssl_verify_cert
         self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
+        self.dynamic_parameters = dynamic_parameters
 
         # This read/write attribute specifies the number of rows to fetch at a
         # time with .fetchmany(). It defaults to 1 meaning to fetch a single
@@ -246,8 +254,14 @@ class Cursor(object):
 
     @check_closed
     def execute(self, operation, parameters=None):
-        query = apply_parameters(operation, parameters)
-        results = self._stream_query(query)
+        dynamic_parameters = None
+
+        if self.dynamic_parameters:
+            query, dynamic_parameters = apply_dynamic_parameters(operation, parameters)
+        else:
+            query = apply_parameters(operation, parameters)
+
+        results = self._stream_query(query, dynamic_parameters)
 
         # `_stream_query` returns a generator that produces the rows; we need to
         # consume the first row so that `description` is properly set, so let's
@@ -321,7 +335,7 @@ class Cursor(object):
 
     next = __next__
 
-    def _stream_query(self, query):
+    def _stream_query(self, query, dynamic_parameters):
         """
         Stream rows from a query.
 
@@ -333,6 +347,9 @@ class Cursor(object):
         headers = {"Content-Type": "application/json"}
 
         payload = {"query": query, "context": self.context, "header": self.header}
+
+        if dynamic_parameters is not None:
+            payload["parameters"] = dynamic_parameters
 
         auth = (
             requests.auth.HTTPBasicAuth(self.user, self.password) if self.user else None
@@ -448,3 +465,47 @@ def escape(value):
         return value
     elif isinstance(value, (list, tuple)):
         return ", ".join(escape(element) for element in value)
+
+
+def apply_dynamic_parameters(operation, parameters):
+    if not parameters:
+        return operation, None
+
+    p = re.compile("%\\((.*?)\\)s")
+    operation_parameters = p.findall(operation)
+
+    if set(parameters.keys()) != set(operation_parameters):
+        raise exceptions.OperationalError("Parameters and placeholders do not match")
+
+    values = []
+
+    for op_parameter in operation_parameters:
+        if isinstance(parameters[op_parameter], (tuple, list)):
+            values.extend(list(parameters[op_parameter]))
+        else:
+            values.append(parameters[op_parameter])
+
+    param_placements = {
+        key: dynamic_placeholder(value) for key, value in parameters.items()
+    }
+
+    dynamic_parameters = [dynamic_parameter(v) for v in values]
+
+    return operation % param_placements, dynamic_parameters
+
+
+def dynamic_parameter(value):
+    types_map = {
+        "str": "VARCHAR",
+        "int": "INTEGER",
+        "float": "FLOAT",
+        "bool": "BOOLEAN",
+    }
+
+    return {"value": value, "type": types_map[value.__class__.__name__]}
+
+
+def dynamic_placeholder(value):
+    if isinstance(value, (list, tuple)):
+        return ", ".join("?" * len(value))
+    return "?"
