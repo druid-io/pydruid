@@ -1,6 +1,3 @@
-from sqlalchemy.exc import CompileError
-
-
 class Error(Exception):
     pass
 
@@ -37,5 +34,15 @@ class DataError(DatabaseError):
     pass
 
 
-class NotSupportedError(CompileError):
+support_error_child_cls = None
+
+try:
+    from sqlalchemy.exc import CompileError
+
+    support_error_child_cls = CompileError
+except ImportError:
+    support_error_child_cls = DatabaseError
+
+
+class NotSupportedError(support_error_child_cls):
     pass
