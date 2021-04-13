@@ -8,13 +8,12 @@ from unittest.mock import patch
 from requests.models import Response
 
 from pydruid.db.api import (
+    apply_dynamic_parameters,
     apply_parameters,
     Cursor,
-    apply_dynamic_parameters,
     dynamic_parameter,
     dynamic_placeholder,
 )
-
 from pydruid.db.exceptions import OperationalError
 
 

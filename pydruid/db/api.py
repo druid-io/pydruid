@@ -471,23 +471,22 @@ def apply_dynamic_parameters(operation, parameters):
     if not parameters:
         return operation, None
 
+    # Search for params in the following format `%(param_one)s`
     p = re.compile("%\\((.*?)\\)s")
     operation_parameters = p.findall(operation)
 
-    if set(parameters.keys()) != set(operation_parameters):
+    if set(parameters) != set(operation_parameters):
         raise exceptions.OperationalError("Parameters and placeholders do not match")
 
     values = []
 
     for op_parameter in operation_parameters:
         if isinstance(parameters[op_parameter], (tuple, list)):
-            values.extend(list(parameters[op_parameter]))
+            values.extend(parameters[op_parameter])
         else:
             values.append(parameters[op_parameter])
 
-    param_placements = {
-        key: dynamic_placeholder(value) for key, value in parameters.items()
-    }
+    param_placements = {key: dynamic_placeholder(v) for key, v in parameters.items()}
 
     dynamic_parameters = [dynamic_parameter(v) for v in values]
 
