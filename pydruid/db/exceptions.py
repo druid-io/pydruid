@@ -34,6 +34,8 @@ class DataError(DatabaseError):
     pass
 
 
+# Allow for the support of using `sqlalchemy.exc.CompileError` when using the
+# `extra_require` of sqlalchemy - implemented in #243
 support_error_child_cls = None
 
 try:

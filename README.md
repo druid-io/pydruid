@@ -215,9 +215,9 @@ for row in curs:
 
 ## Dynamic Parameters
 
-Druid 0.18.0 introduced support for [Dynamic Parameters](https://druid.apache.org/docs/latest/querying/sql.html#dynamic-parameters) where parameters are bound to `?` placeholders at execution time. This can be set using `dynamic_parameters`. on `connect`.
+Druid 0.18.0 introduced support for [Dynamic Parameters](https://druid.apache.org/docs/latest/querying/sql.html#dynamic-parameters) where parameters are bound to `?` placeholders at execution time. Dynamic parameters can be optionally used by setting `dynamic_parameters` to `True` on `connect`.
 
-Parameters support the types below, additionally allowing for tuples and lists for convenience with each value coerced to the appropriate Druid type.
+Parameters support the instance types specified below, additionally allowing for tuples and lists for convenience with each value coerced to the appropriate Druid type.
 
 ```
 | Instance Type | Druid Type |

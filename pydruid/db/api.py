@@ -486,11 +486,11 @@ def apply_dynamic_parameters(operation, parameters):
         else:
             values.append(parameters[op_parameter])
 
-    param_placements = {key: dynamic_placeholder(v) for key, v in parameters.items()}
+    placeholders = {key: dynamic_placeholder(v) for key, v in parameters.items()}
 
     dynamic_parameters = [dynamic_parameter(v) for v in values]
 
-    return operation % param_placements, dynamic_parameters
+    return operation % placeholders, dynamic_parameters
 
 
 def dynamic_parameter(value):

@@ -155,7 +155,7 @@ class CursorTestSuite(unittest.TestCase):
         )
 
     @patch("requests.post")
-    def test_execute_with_dynamic_parameter(self, requests_post_mock):
+    def test_execute_with_dynamic_parameters(self, requests_post_mock):
         response = Response()
         response.status_code = 200
         response.raw = BytesIO(b"[]")
