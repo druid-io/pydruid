@@ -89,8 +89,8 @@ class TestPyDruid:
             str(e.value)
             == textwrap.dedent(
                 """
-            HTTP Error 500: Internal Server Error 
-             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded 
+            HTTP Error 500: Internal Server Error
+             Druid Error: javax.servlet.ServletException: java.lang.OutOfMemoryError: GC overhead limit exceeded
              Query is: {
                 "aggregations": [
                     {
