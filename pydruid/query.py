@@ -516,6 +516,7 @@ class QueryBuilder(object):
             "intervals",
             "limit",
             "order",
+            "offset"
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
