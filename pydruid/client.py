@@ -15,6 +15,7 @@
 #
 import json
 import re
+import ssl
 import urllib
 from base64 import b64encode
 
@@ -42,6 +43,12 @@ class BaseDruidClient(object):
         proxy_support = urllib.request.ProxyHandler(proxies)
         opener = urllib.request.build_opener(proxy_support)
         urllib.request.install_opener(opener)
+
+    def set_cert_chain(self, certfile, keyfile=None, password=None):
+        context = ssl.create_default_context()
+        context.load_cert_chain(certfile, keyfile, password)
+        handler = urllib.request.HTTPSHandler(context=context)
+        urllib.request.install_opener(handler)
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode("utf-8")
