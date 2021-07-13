@@ -48,7 +48,8 @@ class BaseDruidClient(object):
         context = ssl.create_default_context()
         context.load_cert_chain(certfile, keyfile, password)
         handler = urllib.request.HTTPSHandler(context=context)
-        urllib.request.install_opener(handler)
+        opener = urllib.request.build_opener(handler)
+        urllib.request.install_opener(opener)
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode("utf-8")
