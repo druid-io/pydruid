@@ -38,10 +38,12 @@ class PyDruidError(Exception):
 
 
 class BaseDruidClient(object):
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, query_builder=None):
         self.url = url
         self.endpoint = endpoint
-        self.query_builder = QueryBuilder()
+        if query_builder is None:
+            query_builder = QueryBuilder()
+        self.query_builder = query_builder
 
     def _prepare_url_headers_and_body(self, query):
         querystr = json.dumps(query.query_dict).encode('utf-8')
@@ -397,8 +399,8 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
-    def __init__(self, url, endpoint, gzip=True):
-        super(PyDruid, self).__init__(url, endpoint)
+    def __init__(self, url, endpoint, gzip=True, query_builder=None):
+        super(PyDruid, self).__init__(url, endpoint, query_builder=query_builder)
         self.gzip = gzip
 
     def _post(self, query):
