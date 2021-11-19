@@ -421,7 +421,11 @@ class RawQuery(Query):
     Use this Query class to avoid expensive json parsing
     """
     def parse(self, data):
-        return data
+        if data:
+            self.result = self.result_json = data
+        else:
+            raise IOError('{Error parsing result: {0} for {1} query'.format(
+                self.result_json, self.query_type))
 
 
 class RawQueryBuilder(QueryBuilder):
