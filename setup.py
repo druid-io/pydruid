@@ -3,6 +3,7 @@ from setuptools import setup
 
 install_requires = [
     "six >= 1.9.0",
+    "ujson >= 1.34",
 ]
 
 extras_require = {

@@ -15,7 +15,7 @@
 #
 
 import six
-import json
+import ujson as json
 import collections
 from pydruid.utils.aggregators import build_aggregators
 from pydruid.utils.filters import Filter
