@@ -15,7 +15,7 @@
 #
 
 import six
-import json
+import ujson as json
 import collections
 from pydruid.utils.aggregators import build_aggregators
 from pydruid.utils.filters import Filter
@@ -201,6 +201,8 @@ class Query(collections.MutableSequence):
 
 
 class QueryBuilder(object):
+    query_class = Query
+
     def __init__(self):
         self.last_query = None
 
@@ -260,7 +262,7 @@ class QueryBuilder(object):
         :rtype: Query
         """
         query_dict = self.build_query_dict(query_type, args)
-        self.last_query = Query(query_dict, query_type)
+        self.last_query = self.query_class(query_dict, query_type)
         return self.last_query
 
     def build_query_dict(self, query_type, args):
@@ -412,3 +414,22 @@ class QueryBuilder(object):
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
+
+
+class RawQuery(Query):
+    """
+    Use this Query class to avoid expensive json parsing
+    """
+    def parse(self, data):
+        if data:
+            self.result = self.result_json = data
+        else:
+            raise IOError('{Error parsing result: {0} for {1} query'.format(
+                self.result_json, self.query_type))
+
+
+class RawQueryBuilder(QueryBuilder):
+    """
+    Use this QueryBuilder class to avoid expensive json parsing
+    """
+    query_class = RawQuery
