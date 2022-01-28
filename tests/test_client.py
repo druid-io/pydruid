@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import textwrap
-import urllib
+import urllib.error
 from io import StringIO
 from unittest.mock import Mock, patch
 
