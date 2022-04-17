@@ -19,9 +19,8 @@ from __future__ import absolute_import
 import json
 import sys
 import gzip
-from StringIO import StringIO
 
-from six.moves import urllib
+from six.moves import urllib, StringIO
 
 from pydruid.query import QueryBuilder
 
