@@ -3,7 +3,7 @@ import pytest
 from mock import patch, Mock
 from six.moves import urllib
 
-from pydruid.client import PyDruid
+from pydruid.client import PyDruid, PyDruidError
 from pydruid.utils.aggregators import doublesum
 from pydruid.utils.filters import Dimension
 
@@ -21,7 +21,7 @@ class TestPyDruid:
         client = create_client()
 
         # when / then
-        with pytest.raises(IOError):
+        with pytest.raises(PyDruidError):
             client.topn(
                     datasource="testdatasource",
                     granularity="all",

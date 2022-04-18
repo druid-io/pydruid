@@ -148,12 +148,15 @@ class TestQueryBuilder:
 
         # you should be able to pass `None` to dimension/having/filter
         for v in ['dimension', 'having', 'filter']:
-            expected_query_dict[v] = None
-            builder_dict[v] = None
+            print('running for {}'.format(v))
+            current_expected_query_dict = expected_query_dict.copy()
+            del current_expected_query_dict[v]
+            current_builder_dict = builder_dict.copy()
+            current_builder_dict[v] = None
 
-            query = builder.build_query(None, builder_dict)
+            query = builder.build_query(None, current_builder_dict)
 
-            assert query.query_dict == expected_query_dict
+            assert query.query_dict == current_expected_query_dict
 
 
     def test_validate_query(self):
