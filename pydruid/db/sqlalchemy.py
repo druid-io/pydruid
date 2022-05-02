@@ -117,6 +117,17 @@ class DruidDialect(default.DefaultDialect):
         }
         return ([], kwargs)
 
+    def do_ping(self, dbapi_connection) -> bool:
+        """
+        Return if the database can be reached.
+        """
+        try:
+            dbapi_connection.execute(text('SELECT 1'))
+        except Exception as ex:
+            return False
+
+        return True
+
     def get_schema_names(self, connection, **kwargs):
         # Each Druid datasource appears as a table in the "druid" schema. This
         # is also the default schema, so Druid datasources can be referenced as
