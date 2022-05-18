@@ -1,4 +1,4 @@
-from sqlalchemy import types
+from sqlalchemy import text, types
 from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
 
@@ -117,12 +117,23 @@ class DruidDialect(default.DefaultDialect):
         }
         return ([], kwargs)
 
+    def do_ping(self, dbapi_connection) -> bool:
+        """
+        Return if the database can be reached.
+        """
+        try:
+            dbapi_connection.execute(text('SELECT 1'))
+        except Exception as ex:
+            return False
+
+        return True
+
     def get_schema_names(self, connection, **kwargs):
         # Each Druid datasource appears as a table in the "druid" schema. This
         # is also the default schema, so Druid datasources can be referenced as
         # either druid.dataSourceName or simply dataSourceName.
         result = connection.execute(
-            "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA"
+            text("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA")
         )
 
         return [
@@ -138,7 +149,7 @@ class DruidDialect(default.DefaultDialect):
             table_name=table_name
         )
 
-        result = connection.execute(query)
+        result = connection.execute(text(query))
         return result.fetchone().exists_
 
     def get_table_names(self, connection, schema=None, **kwargs):
@@ -148,7 +159,7 @@ class DruidDialect(default.DefaultDialect):
                 query=query, schema=schema
             )
 
-        result = connection.execute(query)
+        result = connection.execute(text(query))
         return [row.TABLE_NAME for row in result]
 
     def get_view_names(self, connection, schema=None, **kwargs):
@@ -173,7 +184,7 @@ class DruidDialect(default.DefaultDialect):
                 query=query, schema=schema
             )
 
-        result = connection.execute(query)
+        result = connection.execute(text(query))
 
         return [
             {
