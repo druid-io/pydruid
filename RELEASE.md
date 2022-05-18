@@ -17,7 +17,7 @@ Finally:
 * commit with commit message `0.X.N`
 * `git tag 0.X.N`
 * Push release to repo `git push druid-io 0.X 0.X.N`
-* Push to pypi `python setup.py sdist upload`
+* Push to pypi `./pypi_push.sh`
 
 Post changelog
 * `./gen_changelog.sh 0.0.0...0.X.N`
