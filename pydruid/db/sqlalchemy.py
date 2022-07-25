@@ -122,8 +122,8 @@ class DruidDialect(default.DefaultDialect):
         Return if the database can be reached.
         """
         try:
-            dbapi_connection.execute("SELECT 1")
-        except Exception:
+            dbapi_connection.execute(text("SELECT 1"))
+        except Exception as ex:
             return False
 
         return True
