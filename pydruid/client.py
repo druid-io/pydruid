@@ -33,7 +33,10 @@ HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
 class PyDruidError(Exception):
     def __init__(self, err):
         if err is not None:
-            self.error_message = err.get("errorMessage")
+            if isinstance(err, dict):
+                self.error_message = err.get("errorMessage")
+            else:
+                self.error_message = err
         else:
             self.error_message = "Unknown error"
 
