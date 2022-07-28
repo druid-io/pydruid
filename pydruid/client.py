@@ -17,12 +17,17 @@ from __future__ import division
 from __future__ import absolute_import
 
 import json
-import sys
 import gzip
+import re
 
 from six.moves import urllib, StringIO
 
 from pydruid.query import QueryBuilder
+from base64 import b64encode
+
+
+# extract error from the <PRE> tag inside the HTML response
+HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
 
 
 class PyDruidError(Exception):
@@ -40,17 +45,37 @@ class BaseDruidClient(object):
     def __init__(self, url, endpoint, query_builder=None):
         self.url = url
         self.endpoint = endpoint
+
         if query_builder is None:
             query_builder = QueryBuilder()
         self.query_builder = query_builder
 
+        self.username = None
+        self.password = None
+        self.proxies = None
+
+    def set_basic_auth_credentials(self, username, password):
+        self.username = username
+        self.password = password
+
+    def set_proxies(self, proxies):
+        self.proxies = proxies
+        proxy_support = urllib.request.ProxyHandler(proxies)
+        opener = urllib.request.build_opener(proxy_support)
+        urllib.request.install_opener(opener)
+
     def _prepare_url_headers_and_body(self, query):
-        querystr = json.dumps(query.query_dict).encode('utf-8')
-        if self.url.endswith('/'):
+        querystr = json.dumps(query.query_dict).encode("utf-8")
+        if self.url.endswith("/"):
             url = self.url + self.endpoint
         else:
-            url = self.url + '/' + self.endpoint
-        headers = {'Content-Type': 'application/json'}
+            url = self.url + "/" + self.endpoint
+        headers = {"Content-Type": "application/json"}
+        if (self.username is not None) and (self.password is not None):
+            authstring = "{}:{}".format(self.username, self.password)
+            b64string = b64encode(authstring.encode()).decode()
+            headers["Authorization"] = "Basic {}".format(b64string)
+
         return headers, querystr, url
 
     def _post(self, query):
@@ -68,8 +93,10 @@ class BaseDruidClient(object):
 
     def topn(self, **kwargs):
         """
-        A TopN query returns a set of the values in a given dimension, sorted by a specified metric. Conceptually, a
-        topN can be thought of as an approximate GroupByQuery over a single dimension with an Ordering spec. TopNs are
+        A TopN query returns a set of the values in a given dimension,
+        sorted by a specified metric. Conceptually, a topN can be
+        thought of as an approximate GroupByQuery over a single
+        dimension with an Ordering spec. TopNs are
         faster and more resource efficient than GroupBy for this use case.
 
         Required key/value pairs:
@@ -78,7 +105,8 @@ class BaseDruidClient(object):
         :param str granularity: Aggregate data by hour, day, minute, etc.,
         :param intervals: ISO-8601 intervals of data to query
         :type intervals: str or list
-        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param dict aggregations: A map from aggregator name to one of
+          the pydruid.utils.aggregators e.g., doublesum
         :param str dimension: Dimension to run the query against
         :param str metric: Metric over which to sort the specified dimension by
         :param int threshold: How many of the top items to return
@@ -88,8 +116,10 @@ class BaseDruidClient(object):
 
         Optional key/value pairs:
 
-        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param pydruid.utils.filters.Filter filter: Indicates which rows
+          of data to include in the query
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name',
+          and value pydruid.utils.PostAggregator
         :param dict context: A dict of query context options
 
         Example:
@@ -109,14 +139,16 @@ class BaseDruidClient(object):
                             context={"timeout": 1000}
                         )
                 >>> print top
-                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': [{'count': 22.0, 'user': "cool_user"}}]}]
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z',
+                    'result': [{'count': 22.0, 'user': "cool_user"}}]}]
         """
         query = self.query_builder.topn(kwargs)
         return self._post(query)
 
     def timeseries(self, **kwargs):
         """
-        A timeseries query returns the values of the requested metrics (in aggregate) for each timestamp.
+        A timeseries query returns the values of the requested metrics (in aggregate)
+        for each timestamp.
 
         Required key/value pairs:
 
@@ -124,15 +156,18 @@ class BaseDruidClient(object):
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
         :param intervals: ISO-8601 intervals for which to run the query on
         :type intervals: str or list
-        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param dict aggregations: A map from aggregator name to one of the
+          ``pydruid.utils.aggregators`` e.g., ``doublesum``
 
         :return: The query result
         :rtype: Query
 
         Optional key/value pairs:
 
-        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of
+          data to include in the query
+        :param post_aggregations:   A dict with string key =
+          'post_aggregator_name', and value pydruid.utils.PostAggregator
         :param dict context: A dict of query context options
 
         Example:
@@ -144,19 +179,78 @@ class BaseDruidClient(object):
                         datasource=twitterstream,
                         granularity='hour',
                         intervals='2013-06-14/pt1h',
-                        aggregations={"count": doublesum("count"), "rows": count("rows")},
-                        post_aggregations={'percent': (Field('count') / Field('rows')) * Const(100))},
+                        aggregations=\
+                            {"count": doublesum("count"), "rows": count("rows")},
+                        post_aggregations=\
+                            {'percent': (Field('count') / Field('rows')) * Const(100))},
                         context={"timeout": 1000}
                     )
                 >>> print counts
-                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'count': 9619.0, 'rows': 8007, 'percent': 120.13238416385663}}]
+                >>> [{'timestamp': '2013-06-14T00:00:00.000Z',
+                    'result': {'count': 9619.0, 'rows': 8007,
+                    'percent': 120.13238416385663}}]
         """
         query = self.query_builder.timeseries(kwargs)
         return self._post(query)
 
+    def sub_query(self, **kwargs):
+        """
+        donot do a post here just return the dict..
+
+                Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> subquery_json = client.subquery(
+                        datasource=twitterstream,
+                        granularity='hour',
+                        intervals='2018-01-01/2018-05-31',
+                        dimensions=["dim_key"],
+                        filter=\
+                        (Dimension('user_lang') == 'en') &
+                        (Dimension('user_name') == 'ram'),
+                        aggregations=\
+                            aggregations={"first_value": doublefirst("data_stream"),
+                            "last_value": doublelast("data_stream")},
+                        post_aggregations=\
+                            {'final_value': (HyperUniqueCardinality('last_value') -
+                             HyperUniqueCardinality('first_value'))})
+                    )
+                >>> print subquery_json
+                >>> {'query': {'aggregations': [{'fieldName': 'stream_value',
+                    'name': 'first_value',
+                    'type': 'doubleFirst'},
+                   {'fieldName': 'stream_value', 'name': 'last_value', 'type':
+                   'doubleLast'}],
+                  'dataSource': 'twitterstream',
+                  'dimensions': ['dim_key'],
+                  'filter': {'fields': [{'dimension': 'user_lang',
+                     'type': 'selector',
+                     'value': 'en'},
+                    {'dimension': 'user_name', 'type': 'selector', 'value': 'ram'}],
+                   'type': 'and'},
+                  'granularity': 'hour',
+                  'intervals': '2018-01-01/2018-05-31',
+                  'postAggregations': [{'fields': [{'fieldName': 'last_value',
+                      'type': 'hyperUniqueCardinality'},
+                     {'fieldName': 'first_value', 'type': 'hyperUniqueCardinality'}],
+                    'fn': '-',
+                    'name': 'final_value',
+                    'type': 'arithmetic'}],
+                  'queryType': 'groupBy'},
+                 'type': 'query'}
+
+        :param kwargs:
+        :return:
+        """
+        query = self.query_builder.subquery(kwargs)
+        return query
+
     def groupby(self, **kwargs):
         """
-        A group-by query groups a results set (the requested aggregate metrics) by the specified dimension(s).
+        A group-by query groups a results set (the requested aggregate
+        metrics) by the specified dimension(s).
 
         Required key/value pairs:
 
@@ -164,7 +258,8 @@ class BaseDruidClient(object):
         :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.,
         :param intervals: ISO-8601 intervals for which to run the query on
         :type intervals: str or list
-        :param dict aggregations: A map from aggregator name to one of the pydruid.utils.aggregators e.g., doublesum
+        :param dict aggregations: A map from aggregator name to one of the
+          ``pydruid.utils.aggregators`` e.g., ``doublesum``
         :param list dimensions: The dimensions to group by
 
         :return: The query result
@@ -172,11 +267,15 @@ class BaseDruidClient(object):
 
         Optional key/value pairs:
 
-        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param pydruid.utils.having.Having having: Indicates which groups in results set of query to keep
-        :param post_aggregations:   A dict with string key = 'post_aggregator_name', and value pydruid.utils.PostAggregator
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of
+          data to include in the query
+        :param pydruid.utils.having.Having having: Indicates which groups
+          in results set of query to keep
+        :param post_aggregations:   A dict with string key = 'post_aggregator_name',
+          and value pydruid.utils.PostAggregator
         :param dict context: A dict of query context options
-        :param dict limit_spec: A dict of parameters defining how to limit the rows returned, as specified in the Druid api documentation
+        :param dict limit_spec: A dict of parameters defining how to limit
+          the rows returned, as specified in the Druid api documentation
 
         Example:
 
@@ -199,8 +298,25 @@ class BaseDruidClient(object):
                     )
                 >>> for k in range(2):
                     ...     print group[k]
-                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_1', 'reply_to_name': 'user_2'}}
-                >>> {'timestamp': '2013-10-04T00:00:00.000Z', 'version': 'v1', 'event': {'count': 1.0, 'user_name': 'user_2', 'reply_to_name': 'user_3'}}
+                >>> {
+                    'timestamp': '2013-10-04T00:00:00.000Z',
+                    'version': 'v1',
+                    'event': {
+                        'count': 1.0,
+                        'user_name': 'user_1',
+                        'reply_to_name': 'user_2',
+                    }
+                }
+                >>> {
+                    'timestamp': '2013-10-04T00:00:00.000Z',
+                    'version': 'v1',
+                    'event': {
+                        'count': 1.0,
+                        'user_name': 'user_2',
+                        'reply_to_name':
+                        'user_3',
+                    }
+                }
         """
         query = self.query_builder.groupby(kwargs)
         return self._post(query)
@@ -234,11 +350,17 @@ class BaseDruidClient(object):
         .. code-block:: python
             :linenos:
 
-                >>> meta = client.segment_metadata(datasource='twitterstream', intervals = '2013-10-04/pt1h')
+                >>> meta = client.segment_metadata(
+                    datasource='twitterstream', intervals = '2013-10-04/pt1h')
                 >>> print meta[0].keys()
                 >>> ['intervals', 'id', 'columns', 'size']
                 >>> print meta[0]['columns']['tweet_length']
-                >>> {'errorMessage': None, 'cardinality': None, 'type': 'FLOAT', 'size': 30908008}
+                >>> {
+                    'errorMessage': None,
+                    'cardinality': None,
+                    'type': 'FLOAT',
+                    'size': 30908008,
+                }
 
         """
         query = self.query_builder.segment_metadata(kwargs)
@@ -266,7 +388,13 @@ class BaseDruidClient(object):
 
                 >>> bound = client.time_boundary(datasource='twitterstream')
                 >>> print bound
-                >>> [{'timestamp': '2011-09-14T15:00:00.000Z', 'result': {'minTime': '2011-09-14T15:00:00.000Z', 'maxTime': '2014-03-04T23:44:00.000Z'}}]
+                >>> [{
+                    'timestamp': '2011-09-14T15:00:00.000Z',
+                    'result': {
+                        'minTime': '2011-09-14T15:00:00.000Z',
+                        'maxTime': '2014-03-04T23:44:00.000Z',
+                    }
+                }]
         """
         query = self.query_builder.time_boundary(kwargs)
         return self._post(query)
@@ -285,9 +413,12 @@ class BaseDruidClient(object):
 
         Optional key/value pairs:
 
-        :param pydruid.utils.filters.Filter filter: Indicates which rows of data to include in the query
-        :param list dimensions: The list of dimensions to select. If left empty, all dimensions are returned
-        :param list metrics: The list of metrics to select. If left empty, all metrics are returned
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of
+          data to include in the query
+        :param list dimensions: The list of dimensions to select. If left
+          empty, all dimensions are returned
+        :param list metrics: The list of metrics to select. If left empty,
+          all metrics are returned
         :param dict context: A dict of query context options
 
         :return: The query result
@@ -305,8 +436,22 @@ class BaseDruidClient(object):
                         paging_spec={'pagingIdentifies': {}, 'threshold': 1},
                         context={"timeout": 1000}
                     )
-                >>> print raw_data
-                >>> [{'timestamp': '2013-06-14T00:00:00.000Z', 'result': {'pagingIdentifiers': {'twitterstream_2013-06-14T00:00:00.000Z_2013-06-15T00:00:00.000Z_2013-06-15T08:00:00.000Z_v1': 1, 'events': [{'segmentId': 'twitterstream_2013-06-14T00:00:00.000Z_2013-06-15T00:00:00.000Z_2013-06-15T08:00:00.000Z_v1', 'offset': 0, 'event': {'timestamp': '2013-06-14T00:00:00.000Z', 'dim': 'value'}}]}}]
+                >>> print(raw_data)
+                >>> [{
+                    'timestamp': '2013-06-14T00:00:00.000Z',
+                    'result': {
+                        'pagingIdentifiers': {
+                            'twitterstream_...08:00:00.000Z_v1': 1,
+                            'events': [{
+                                'segmentId': 'twitterstr...000Z_v1',
+                                'offset': 0,
+                                'event': {
+                                    'timestamp': '2013-06-14T00:00:00.000Z',
+                                    'dim': 'value',
+                                }
+                            }]
+                        }
+                }]
         """
         query = self.query_builder.select(kwargs)
         return self._post(query)
@@ -319,7 +464,9 @@ class BaseDruidClient(object):
             Use Query.export_tsv() method instead.
         """
         if self.query_builder.last_query is None:
-            raise AttributeError("There was no query executed by this client yet. Can't export!")
+            raise AttributeError(
+                "There was no query executed by this client yet. Can't export!"
+            )
         else:
             return self.query_builder.last_query.export_tsv(dest_path)
 
@@ -331,15 +478,18 @@ class BaseDruidClient(object):
             Use Query.export_pandas() method instead
         """
         if self.query_builder.last_query is None:
-            raise AttributeError("There was no query executed by this client yet. Can't export!")
+            raise AttributeError(
+                "There was no query executed by this client yet. Can't export!"
+            )
         else:
             return self.query_builder.last_query.export_pandas()
 
 
 class PyDruid(BaseDruidClient):
     """
-    PyDruid contains the functions for creating and executing Druid queries. Returns Query objects that can be used
-    for exporting query results into TSV files or pandas.DataFrame objects for subsequent analysis.
+    PyDruid contains the functions for creating and executing Druid queries.
+    Returns Query objects that can be used for exporting query results
+    into TSV files or pandas.DataFrame objects for subsequent analysis.
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
@@ -389,8 +539,18 @@ class PyDruid(BaseDruidClient):
                 }
 
             >>> print top.result
-            >>> [{'timestamp': '2013-10-04T00:00:00.000Z',
-                'result': [{'count': 7.0, 'user_name': 'user_1'}, {'count': 6.0, 'user_name': 'user_2'}]}]
+            >>> [{
+                'timestamp': '2013-10-04T00:00:00.000Z',
+                'result': [
+                    {
+                        'count': 7.0,
+                        'user_name': 'user_1',
+                    },
+                    {
+                        'count': 6.0,
+                        'user_name': 'user_2',
+                    },
+                ]}]
 
             >>> df = top.export_pandas()
             >>> print df
@@ -398,6 +558,7 @@ class PyDruid(BaseDruidClient):
                 0      7  2013-10-04T00:00:00.000Z         user_1
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
+
     def __init__(self, url, endpoint, gzip=True, query_builder=None):
         super(PyDruid, self).__init__(url, endpoint, query_builder=query_builder)
         self.gzip = gzip
@@ -420,13 +581,15 @@ class PyDruid(BaseDruidClient):
             query.query_id = res.info().get('x-druid-query-id')
             data = content.decode("utf-8")
             res.close()
-        except urllib.error.HTTPError:
-            _, e, _ = sys.exc_info()
-            err = None
+        except urllib.error.HTTPError as e:
+            err = e.read()
             if e.code == 500:
                 # has Druid returned an error?
                 try:
-                    err = json.loads(e.read().decode("utf-8"))
+                    err = json.loads(err)
+                except ValueError:
+                    if HTML_ERROR.search(err):
+                        err = HTML_ERROR.search(err).group(1)
                 except (ValueError, AttributeError, KeyError):
                     pass
 
@@ -434,3 +597,52 @@ class PyDruid(BaseDruidClient):
         else:
             query.parse(data)
             return query
+
+    def scan(self, **kwargs):
+        """
+        A scan query returns raw Druid rows
+
+        Required key/value pairs:
+
+        :param str datasource: Data source to query
+        :param str granularity: Time bucket to aggregate data by hour, day, minute, etc.
+        :param int limit: The maximum number of rows to return
+        :param intervals: ISO-8601 intervals for which to run the query on
+        :type intervals: str or list
+
+        Optional key/value pairs:
+
+        :param pydruid.utils.filters.Filter filter: Indicates which rows of
+          data to include in the query
+        :param list dimensions: The list of dimensions to select. If left
+          empty, all dimensions are returned
+        :param list metrics: The list of metrics to select. If left empty,
+          all metrics are returned
+        :param dict context: A dict of query context options
+
+        :return: The query result
+        :rtype: Query
+
+        Example:
+
+        .. code-block:: python
+            :linenos:
+
+                >>> raw_data = client.scan(
+                        datasource=twitterstream,
+                        granularity='all',
+                        intervals='2013-06-14/pt1h',
+                        limit=1,
+                        context={"timeout": 1000}
+                    )
+                >>> print raw_data
+                >>> [{
+                    u'segmentId': u'zzzz',
+                    u'columns': [u'__time', 'status', 'region'],
+                    'events': [{
+                        u'status': u'ok', 'region': u'SF', u'__time': 1509494400000,
+                    }]
+                }]
+        """
+        query = self.query_builder.scan(kwargs)
+        return self._post(query)
