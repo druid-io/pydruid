@@ -19,8 +19,9 @@ from __future__ import absolute_import
 import json
 import gzip
 import re
+from io import BytesIO
 
-from six.moves import urllib, StringIO
+from six.moves import urllib
 
 from pydruid.query import QueryBuilder
 from base64 import b64encode
@@ -575,7 +576,7 @@ class PyDruid(BaseDruidClient):
 
             res = urllib.request.urlopen(req)
             if res.info().get('Content-Encoding') == 'gzip':
-                buffer = StringIO(res.read())
+                buffer = BytesIO(res.read())
                 content = gzip.GzipFile(fileobj=buffer).read()
             else:
                 content = res.read()
