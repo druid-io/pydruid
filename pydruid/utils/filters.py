@@ -75,17 +75,10 @@ class Filter:
                 {"dimension": args["dimension"], "pattern": args["pattern"]}
             )
         elif type_ == "bound":
-            self.filter["filter"].update(
-                {
-                    "dimension": args["dimension"],
-                    "lower": args["lower"],
-                    "lowerStrict": args["lowerStrict"],
-                    "upper": args["upper"],
-                    "upperStrict": args["upperStrict"],
-                    "alphaNumeric": args["alphaNumeric"],
-                    "ordering": args["ordering"],
-                }
-            )
+            self.filter["filter"]["dimension"] = args["dimension"]
+            for key in ["lower", "lowerStrict", "upper", "upperStrict", "ordering"]:
+                if key in args:
+                    self.filter["filter"][key] = args[key]
         elif type_ == "columnComparison":
             self.filter["filter"].update({"dimensions": args["dimensions"]})
         elif type_ == "interval":
