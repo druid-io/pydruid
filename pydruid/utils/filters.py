@@ -76,7 +76,7 @@ class Filter:
             )
         elif type_ == "bound":
             self.filter["filter"]["dimension"] = args["dimension"]
-            for key in ["lower", "lowerStrict", "upper", "upperStrict", "ordering"]:
+            for key in ["lower", "lowerStrict", "upper", "upperStrict", "alphaNumeric", "ordering"]:
                 if key in args:
                     self.filter["filter"][key] = args[key]
         elif type_ == "columnComparison":
