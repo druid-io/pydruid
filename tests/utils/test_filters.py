@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import pytest
+from pydruid.utils import dimensions, filters
 
-from pydruid.utils import filters
-from pydruid.utils.dimensions import DimensionSpec
+import pytest
 
 
 class TestDimension:
@@ -30,6 +29,24 @@ class TestFilter:
         expected = {'type': 'selector', 'dimension': 'dim', 'value': 'val'}
         assert actual == expected
 
+    def test_selector_filter_extraction_fn(self):
+        extraction_fn = dimensions.RegexExtraction('([a-b])')
+        f = filters.Filter(dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'selector', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'regex', 'expr': '([a-b])'}}
+        assert actual == expected
+
+    def test_extraction_filter(self):
+        extraction_fn = dimensions.PartialExtraction('([a-b])')
+        f = filters.Filter(type='extraction', dimension='dim', value='v',
+                           extraction_function=extraction_fn)
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'extraction', 'dimension': 'dim', 'value': 'v',
+                    'extractionFn': {'type': 'partial', 'expr': '([a-b])'}}
+        assert actual == expected
+
     def test_javascript_filter(self):
         actual = filters.Filter.build_filter(
             filters.Filter(type='javascript', dimension='dim', function='function(x){return true}'))
@@ -38,20 +55,59 @@ class TestFilter:
 
     def test_bound_filter(self):
         actual = filters.Filter.build_filter(
-            filters.Bound(dimension='dim',
-                          lower='1',
-                          lowerStrict=True,
-                          upper='10',
-                          upperStrict=True,
-                          ordering='numeric'))
-        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1', 'lowerStrict': True, 'upper': '10',
-                    'upperStrict': True, 'ordering': 'numeric'}
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True,
+                          upper='10', upperStrict=True, ordering="numeric"))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1',
+                    'lowerStrict': True, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': False, 'ordering': 'numeric'}
+        assert actual == expected
+
+    def test_bound_filter_with_extraction_function(self):
+        f = filters.Bound(
+            dimension='d', lower='1', upper='3', upperStrict=True,
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)'))
+        actual = filters.Filter.build_filter(f)
+        expected = {'type': 'bound', 'dimension': 'd', 'lower': '1',
+                    'lowerStrict': False, 'upper': '3', 'upperStrict': True,
+                    'ordering': 'lexicographic', 'alphaNumeric': False,
+                    'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}}
+        assert actual == expected
+
+    def test_bound_filter_alphanumeric(self):
+        actual = filters.Filter.build_filter(
+            filters.Bound(dimension='dim', lower='1', lowerStrict=True,
+                          upper='10', upperStrict=True, alphaNumeric=True))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': '1',
+                    'lowerStrict': True, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': True, 'ordering': 'lexicographic'}
+        assert actual == expected
+
+    def test_bound_filter_lower_not_included(self):
+        actual = filters.Filter.build_filter(
+            filters.Bound(dimension='dim', upper='10', upperStrict=True))
+        expected = {'type': 'bound', 'dimension': 'dim', 'lower': None,
+                    'lowerStrict': False, 'upper': '10', 'upperStrict': True,
+                    'alphaNumeric': False, 'ordering': 'lexicographic'}
         assert actual == expected
 
     def test_interval_filter(self):
         actual = filters.Filter.build_filter(
             filters.Interval(dimension='dim', intervals=["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]))
         expected = {'type': 'interval', 'dimension': 'dim', 'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"]}
+        assert actual == expected
+
+    def test_interval_with_extraction_function(self):
+        f = filters.Interval(
+            dimension='dim', intervals=[
+                "2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            extraction_function=dimensions.RegexExtraction('.*([0-9]+)')
+        )
+        actual = filters.Filter.build_filter(f)
+        expected = {
+            'type': 'interval', 'dimension': 'dim',
+            'intervals': ["2014-10-01T00:00:00.000Z/2014-10-07T00:00:00.000Z"],
+            'extractionFn': {'type': 'regex', 'expr': '.*([0-9]+)'}
+        }
         assert actual == expected
 
     def test_and_filter(self):
@@ -196,10 +252,32 @@ class TestFilter:
         actual = filters.Filter.build_filter(
             filters.Filter(type='columnComparison', dimensions=[
                 'dim1',
-                DimensionSpec('dim2', 'dim2')
+                dimensions.DimensionSpec('dim2', 'dim2')
             ]))
         expected = {'type': 'columnComparison', 'dimensions': [
                 'dim1',
                 {'type': 'default', 'dimension': 'dim2', 'outputName': 'dim2'}
             ]}
         assert actual == expected
+
+    def test_search_filter(self):
+        # Without caseSensitive param - default:false
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="search", dimension="dim", value='val'))
+        expected = {'type': 'search', 'dimension': 'dim',
+                    'query': {'type': 'contains', 'caseSensitive': 'false', 'value': 'val'}}
+        assert actual == expected
+
+        # With caseSensitive param
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="search", dimension="dim", value='val', caseSensitive='true'))
+        expected = {'type': 'search', 'dimension': 'dim',
+                    'query': {'type': 'contains', 'caseSensitive': 'true', 'value': 'val'}}
+        assert actual == expected
+
+    def test_like_filter(self):
+        actual = filters.Filter.build_filter(
+            filters.Filter(type="like", dimension="dim", pattern="%val%"))
+        expected = {'type': 'like', 'dimension': 'dim', 'pattern': '%val%'}
+        assert actual == expected
+        

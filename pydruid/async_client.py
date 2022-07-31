@@ -24,19 +24,24 @@ try:
     from tornado import gen
     from tornado.httpclient import AsyncHTTPClient, HTTPError
 except ImportError:
-    print('Warning: unable to import Tornado. The asynchronous client will not work.')
+    print("Warning: unable to import Tornado. The asynchronous client will not work.")
 
 
 class AsyncPyDruid(BaseDruidClient):
     """
-    Asynchronous PyDruid client which mirrors functionality of the synchronous PyDruid, but it executes queries
+    Asynchronous PyDruid client which mirrors functionality of the synchronous
+    PyDruid, but it executes queries
     asynchronously (using an asynchronous http client from Tornado framework).
 
-    Returns Query objects that can be used for exporting query results into TSV files or pandas.DataFrame objects
+    Returns Query objects that can be used for exporting query results into
+    TSV files or pandas.DataFrame objects
     for subsequent analysis.
 
     :param str url: URL of Broker node in the Druid cluster
     :param str endpoint: Endpoint that Broker listens for queries on
+    :param dict defaults: (optional) Dict of parameters for the Async HTTP Client subclass
+    :param str http_client: Tornado HTTP client implementation to use.
+        Default: None (use simple_httpclient)
 
     Example
 
@@ -83,7 +88,8 @@ class AsyncPyDruid(BaseDruidClient):
 
             >>> print top.result
             >>> [{'timestamp': '2013-10-04T00:00:00.000Z',
-                'result': [{'count': 7.0, 'user_name': 'user_1'}, {'count': 6.0, 'user_name': 'user_2'}]}]
+                'result': [{'count': 7.0, 'user_name': 'user_1'},
+                {'count': 6.0, 'user_name': 'user_2'}]}]
 
             >>> df = top.export_pandas()
             >>> print df
@@ -92,15 +98,20 @@ class AsyncPyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, defaults=None, http_client=None):
         super(AsyncPyDruid, self).__init__(url, endpoint)
+        self.async_http_defaults = defaults
+        self.http_client = http_client
 
     @gen.coroutine
     def _post(self, query):
+        AsyncHTTPClient.configure(self.http_client, defaults=self.async_http_defaults)
         http_client = AsyncHTTPClient()
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
-            response = yield http_client.fetch(url, method='POST', headers=headers, body=querystr)
+            response = yield http_client.fetch(
+                url, method="POST", headers=headers, body=querystr
+            )
         except HTTPError as e:
             self.__handle_http_error(e, query)
         else:
@@ -117,9 +128,12 @@ class AsyncPyDruid(BaseDruidClient):
             except ValueError:
                 pass
             else:
-                err = err.get('error', None)
-        raise IOError('{0} \n Druid Error: {1} \n Query is: {2}'.format(
-                e, err, json.dumps(query.query_dict, indent=4)))
+                err = err.get("error", None)
+        raise IOError(
+            "{0} \n Druid Error: {1} \n Query is: {2}".format(
+                e, err, json.dumps(query.query_dict, indent=4)
+            )
+        )
 
     @gen.coroutine
     def topn(self, **kwargs):

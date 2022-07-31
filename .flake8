@@ -1,0 +1,10 @@
+[flake8]
+application-import-names = pydruid
+exclude =
+    docs
+    env
+    tests
+    .eggs
+    build
+import-order-style = google
+max-line-length = 90

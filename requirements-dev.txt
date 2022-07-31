@@ -1,0 +1,7 @@
+black==19.3b0
+flake8-mypy==17.8.0
+flake8==3.7.7
+ipdb==0.12
+pip-tools==3.7.0
+pre-commit==1.17.0
+tox==3.11.1
