@@ -594,7 +594,7 @@ class PyDruid(BaseDruidClient):
                 except ValueError:
                     if HTML_ERROR.search(err):
                         err = HTML_ERROR.search(err).group(1)
-                except (ValueError, AttributeError, KeyError):
+                except (AttributeError, KeyError):
                     pass
 
             raise PyDruidError(err)
