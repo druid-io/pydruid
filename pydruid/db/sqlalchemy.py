@@ -1,4 +1,4 @@
-from sqlalchemy import text, types
+from sqlalchemy import text, types, util
 from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
 
@@ -189,7 +189,7 @@ class DruidDialect(default.DefaultDialect):
         return [
             {
                 "name": row.COLUMN_NAME,
-                "type": jdbc_type_map[row.JDBC_TYPE],
+                "type": self._map_jdbc_type(row),
                 "nullable": get_is_nullable(row.IS_NULLABLE),
                 "default": get_default(row.COLUMN_DEFAULT),
             }
@@ -225,6 +225,15 @@ class DruidDialect(default.DefaultDialect):
 
     def _check_unicode_description(self, connection):
         return True
+
+    def _map_jdbc_type(self, row):
+        if row.JDBC_TYPE in jdbc_type_map:
+            return jdbc_type_map[row.JDBC_TYPE]
+        util.warn(
+            "Failed to map column '{row.COLUMN_NAME}' with "
+            "JDBC type '{row.JDBC_TYPE}' to a sqlalchemy type.".format(row=row)
+        )
+        return types.NullType
 
 
 DruidHTTPDialect = DruidDialect

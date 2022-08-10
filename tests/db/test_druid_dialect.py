@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import warnings
 from unittest.mock import patch
 
-from sqlalchemy import types
+from sqlalchemy import exc, types
 
 from pydruid.db.sqlalchemy import DruidDialect
 
@@ -52,11 +53,36 @@ class DruidDialectTestSuite(unittest.TestCase):
             {"name": "Boolean", "type": types.Boolean, "nullable": True, "default": None},
             {"name": "DATE", "type": types.DATE, "nullable": True, "default": None},
             {"name": "TIMESTAMP", "type": types.TIMESTAMP, "nullable": True, "default": None},
-            {"name": "BLOB", "type": types.BLOB, "nullable": True, "default": None}
+            {"name": "BLOB", "type": types.BLOB, "nullable": True, "default": None},
         ]
         # fmt: on
 
-        self.assertListEqual(result, expected)
+        self.assertListEqual(expected, result)
+
+    @patch("pydruid.db.api.Connection")
+    def test_get_columns_type_mappings_with_unknown_type(self, connection_mock):
+        connection_mock.execute.return_value = [
+            anonymous_object(
+                COLUMN_NAME="UnknownType",
+                JDBC_TYPE=-42,
+                IS_NULLABLE="YES",
+                COLUMN_DEFAULT="",
+            ),
+        ]
+
+        with warnings.catch_warnings():
+            # avoid any noise due to our expected warn logs
+            warnings.simplefilter("ignore", category=exc.SAWarning)
+            result = self.dialect.get_columns(connection_mock, "table_name")
+
+        expected = {
+            "name": "UnknownType",
+            "type": types.NullType,
+            "nullable": True,
+            "default": None,
+        }
+        self.assertEqual(1, len(result))
+        self.assertEqual(expected, result[0])
 
     @patch("pydruid.db.api.Connection")
     def test_do_ping_success(self, connection_mock):
