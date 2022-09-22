@@ -246,10 +246,7 @@ class QueryBuilder(object):
                 "Datasource definition not valid. Must be string or "
                 "dict or list of strings"
             )
-        if isinstance(datasource, str) or isinstance(datasource, dict):
-            return datasource
-        else:
-            return {"type": "union", "dataSources": datasource}
+        return datasource
 
     @staticmethod
     def validate_query(query_type, valid_parts, args):
