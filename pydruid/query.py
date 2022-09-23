@@ -313,6 +313,12 @@ class QueryBuilder(object):
         self.last_query = Query(query_dict, query_type)
         return self.last_query
 
+    def topn_subquery(self, args):
+        """Build a sub-query with top N."""
+        interim_query = self.topn(args)
+        final_query = {"type": "query", "query": interim_query.__dict__["query_dict"]}
+        return final_query
+    
     def topn(self, args):
         """
         A TopN query returns a set of the values in a given dimension,

@@ -172,6 +172,10 @@ class BaseDruidClient(object):
         query = self.query_builder.timeseries(kwargs)
         return self._post(query)
 
+    def topn_sub_query(self, **kwargs):
+        query = self.query_builder.topn_subquery(kwargs)
+        return query
+    
     def sub_query(self, **kwargs):
         """
         donot do a post here just return the dict..
