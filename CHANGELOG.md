@@ -1,5 +1,30 @@
 ## Change Log
 
+### 0.6.5 (2022/11/02 22:04 +00:00)
+- [#295](https://github.com/druid-io/pydruid/pull/295) Revert "feat: support new types from 0.23 (#290)" (#295) (@betodealmeida)
+
+### 0.6.4 (2022/09/20 17:18 +00:00)
+- [#290](https://github.com/druid-io/pydruid/pull/290) feat: support new types from 0.23 (#290) (@betodealmeida)
+- [#288](https://github.com/druid-io/pydruid/pull/288) fix: Druid Type mappings for Druid >= 0.23.0 (#288) (@Usiel)
+- [#292](https://github.com/druid-io/pydruid/pull/292) Fixes do_ping on raw_connection (#292) (@Usiel)
+- [#285](https://github.com/druid-io/pydruid/pull/285) feat: improve RELEASE.md (#285) (@mistercrunch)
+
+### 0.6.3 (2022/05/18 19:47 +00:00)
+- [#284](https://github.com/druid-io/pydruid/pull/284) feat: implement do_ping (#284) (@betodealmeida)
+- [#275](https://github.com/druid-io/pydruid/pull/275) SQLAlchemy 1.4 compat (#275) (@betodealmeida)
+- [#243](https://github.com/druid-io/pydruid/pull/243) fix: visit_ methods raise CompileError exception childs (#243) (@dpgaspar)
+
+### 0.6.2 (2020/12/09 20:42 +00:00)
+- [#244](https://github.com/druid-io/pydruid/pull/244) Add BLOB and other types (#244) (@betodealmeida)
+- [#234](https://github.com/druid-io/pydruid/pull/234) fix: compatible with python3.8 (#234) (@aisk)
+- [#231](https://github.com/druid-io/pydruid/pull/231) fix: Updating prompt-toolkit (#231) (@john-bodley)
+- [#230](https://github.com/druid-io/pydruid/pull/230) Add virtualColumns to valid_parts (#230) (@bradengroom)
+
+### 0.6.1 (2020/06/12 06:45 +00:00)
+- [#221](https://github.com/druid-io/pydruid/pull/221) fix broken build (#221) (@villebro)
+- [13c5446](https://github.com/druid-io/pydruid/commit/13c54464bd524e479b830ed45c5e92a5917bb414) docs: CHANGELOG update from 0.5.8 to .6.0 (@mistercrunch)
+- [22df9df](https://github.com/druid-io/pydruid/commit/22df9dfee212091fc65cfe37f8661748900b5411) docs: CHANGELOG update from 0.5.8 to .6.0 (@mistercrunch)## Change Log
+
 ### 0.6.0 (2020/06/07 04:02 +00:00)
 
 NOTE: This release is deprecating support for Python 2.*
