@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright 2016 Metamarkets Group Inc.
 #
@@ -23,7 +23,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from pydruid.query import Query, QueryBuilder
-from pydruid.utils import aggregators, filters, having, postaggregator
+from pydruid.utils import aggregators, filters, having, postaggregator, virtualcolumns
 
 
 def create_query_with_results():
@@ -225,6 +225,34 @@ class TestQueryBuilder:
 
         # then
         assert subquery_dict == expected_query_dict
+
+    def test_topn_virtual_columns(self) -> None:
+        builder = QueryBuilder()
+
+        query_kwargs = {
+            "datasource": "things",
+            "intervals": "2013-10-23/2013-10-26",
+            "granularity": "all",
+            "dimension": "virtual_id",
+            "threshold": 5,
+            "metric": "views",
+            "virtual_columns": [
+                virtualcolumns.VirtualColumnSpec(
+                    "virtual_id", "concat('ns:' + real_id)", 'STRING'
+                )
+            ]
+        }
+
+        query = builder.topn(query_kwargs)
+        assert query.query_dict['queryType'] == 'topN'
+
+        expected_virtual_columns = [
+            {
+                'type': 'expression', 'name': 'virtual_id',
+                'expression': "concat('ns:' + real_id)", 'outputType': 'STRING'
+            }
+        ]
+        assert query.query_dict['virtualColumns'] == expected_virtual_columns
 
 
 class TestQuery:

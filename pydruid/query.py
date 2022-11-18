@@ -23,6 +23,7 @@ from pydruid.utils.filters import Filter
 from pydruid.utils.having import Having
 from pydruid.utils.postaggregator import Postaggregator
 from pydruid.utils.query_utils import UnicodeWriter
+from pydruid.utils.virtualcolumns import build_virtual_column
 
 
 class Query(MutableSequence):
@@ -310,6 +311,10 @@ class QueryBuilder(object):
                 query_dict[key] = build_dimension(val)
             elif key == "dimensions":
                 query_dict[key] = [build_dimension(v) for v in val]
+            elif key in ("virtualColumns", "virtual_columns"):
+                query_dict["virtualColumns"] = [
+                    build_virtual_column(virtual_col) for virtual_col in val
+                ]
             else:
                 query_dict[key] = val
 
@@ -341,6 +346,7 @@ class QueryBuilder(object):
             "threshold",
             "metric",
             "virtualColumns",
+            "virtual_columns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -365,6 +371,7 @@ class QueryBuilder(object):
             "post_aggregations",
             "intervals",
             "virtualColumns",
+            "virtual_columns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -391,6 +398,7 @@ class QueryBuilder(object):
             "dimensions",
             "limit_spec",
             "virtualColumns",
+            "virtual_columns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
@@ -516,6 +524,7 @@ class QueryBuilder(object):
             "intervals",
             "limit",
             "order",
+            "virtual_columns",
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)

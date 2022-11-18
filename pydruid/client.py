@@ -15,7 +15,8 @@
 #
 import json
 import re
-import urllib
+import urllib.error
+import urllib.request
 from base64 import b64encode
 
 from pydruid.query import QueryBuilder
@@ -89,6 +90,8 @@ class BaseDruidClient(object):
         :param str dimension: Dimension to run the query against
         :param str metric: Metric over which to sort the specified dimension by
         :param int threshold: How many of the top items to return
+        :param list virtual_columns: A list of VirtualColumnSpec or dict to add
+          to the query
 
         :return: The query result
         :rtype: Query
@@ -137,6 +140,8 @@ class BaseDruidClient(object):
         :type intervals: str or list
         :param dict aggregations: A map from aggregator name to one of the
           ``pydruid.utils.aggregators`` e.g., ``doublesum``
+        :param list virtual_columns: A list of VirtualColumnSpec or dict to add
+          to the query
 
         :return: The query result
         :rtype: Query
@@ -240,6 +245,8 @@ class BaseDruidClient(object):
         :param dict aggregations: A map from aggregator name to one of the
           ``pydruid.utils.aggregators`` e.g., ``doublesum``
         :param list dimensions: The dimensions to group by
+        :param list virtual_columns: A list of VirtualColumnSpec or dict to add
+          to the query
 
         :return: The query result
         :rtype: Query
@@ -599,6 +606,8 @@ class PyDruid(BaseDruidClient):
           empty, all columns are returned
         :param list metrics: The list of metrics to select. If left empty,
           all metrics are returned
+        :param list virtual_columns: A list of VirtualColumnSpec or dict to add
+          to the query
         :param dict context: A dict of query context options
 
         :return: The query result
