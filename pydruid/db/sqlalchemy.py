@@ -114,6 +114,7 @@ class DruidDialect(default.DefaultDialect):
             "scheme": self.scheme,
             "context": self.context,
             "header": url.query.get("header") == "true",
+            **url.query
         }
         return ([], kwargs)
 
