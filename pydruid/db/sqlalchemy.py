@@ -106,6 +106,7 @@ class DruidDialect(default.DefaultDialect):
 
     def create_connect_args(self, url):
         kwargs = {
+            **url.query,
             "host": url.host,
             "port": url.port or 8082,
             "user": url.username or None,
@@ -113,8 +114,7 @@ class DruidDialect(default.DefaultDialect):
             "path": url.database,
             "scheme": self.scheme,
             "context": self.context,
-            "header": url.query.get("header") == "true",
-            **url.query
+            "header": url.query.get("header") == "true"
         }
         return ([], kwargs)
 
