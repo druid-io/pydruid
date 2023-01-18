@@ -19,8 +19,8 @@ with io.open("README.md", encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="pydruid",
-    version="0.5.8s",
+    name="singular-pydruid",
+    version="0.5.8",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=["pydruid", "pydruid.db", "pydruid.utils"],
