@@ -204,8 +204,8 @@ class Cursor(object):
         context=None,
         header=False,
         ssl_verify_cert=True,
-        proxies=None,
         ssl_client_cert=None,
+        proxies=None
     ):
         self.url = url
         self.context = context or {}
