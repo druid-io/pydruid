@@ -247,7 +247,7 @@ class QueryBuilder(object):
                 "dict or list of strings"
             )
         if isinstance(datasource, str):
-            return datasource
+            return {"type": "table", "name": datasource}
         else:
             return {"type": "union", "dataSources": datasource}
 
@@ -310,6 +310,8 @@ class QueryBuilder(object):
                 query_dict[key] = build_dimension(val)
             elif key == "dimensions":
                 query_dict[key] = [build_dimension(v) for v in val]
+            elif key == "intervals":
+                query_dict[key] = {"type": "intervals", key: val}
             else:
                 query_dict[key] = val
 
