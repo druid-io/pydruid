@@ -1,5 +1,5 @@
 repos:
--   repo: https://github.com/ambv/black
+-   repo: https://github.com/psf/black
     rev: 19.10b0
     hooks:
     -   id: black
@@ -21,7 +21,13 @@ repos:
     -   id: check-yaml
     -   id: debug-statements
 
--   repo: https://gitlab.com/pycqa/flake8
+-   repo: https://github.com/pycqa/flake8
     rev: 3.8.2
     hooks:
     -   id: flake8
+        exclude:
+            docs
+            env
+            tests
+            .eggs
+            build

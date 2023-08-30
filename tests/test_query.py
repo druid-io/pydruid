@@ -16,7 +16,6 @@
 #
 
 import csv
-import os
 
 import pandas
 import pytest
@@ -62,7 +61,7 @@ class TestQueryBuilder:
         # given
         expected_query_dict = {
             "queryType": None,
-            "dataSource": "things",
+            "dataSource": {"name": "things", "type": "table"},
             "aggregations": [{"fieldName": "thing", "name": "count", "type": "count"}],
             "postAggregations": [
                 {
@@ -106,7 +105,7 @@ class TestQueryBuilder:
         # given
         expected_query_dict = {
             "queryType": None,
-            "dataSource": "things",
+            "dataSource": {"name": "things", "type": "table"},
             "aggregations": [{"fieldName": "thing", "name": "count", "type": "count"}],
             "filter": {"dimension": "one", "type": "selector", "value": 1},
             "having": {"aggregation": "sum", "type": "greaterThan", "value": 1},
@@ -153,7 +152,10 @@ class TestQueryBuilder:
 
     def test_union_datasource(self):
         # Given
-        expected_query_dict = {"queryType": None, "dataSource": "things"}
+        expected_query_dict = {
+            "queryType": None,
+            "dataSource": {"name": "things", "type": "table"},
+        }
         builder = QueryBuilder()
         # when
         builder_dict = {"datasource": "things"}
@@ -187,7 +189,7 @@ class TestQueryBuilder:
         expected_query_dict = {
             "query": {
                 "queryType": "groupBy",
-                "dataSource": "things",
+                "dataSource": {"name": "things", "type": "table"},
                 "aggregations": [
                     {"fieldName": "thing", "name": "count", "type": "count"}
                 ],
