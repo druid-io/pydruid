@@ -359,7 +359,11 @@ class Cursor(object):
                     "errorClass": "Unknown",
                     "errorMessage": r.text,
                 }
-            msg = "{error} ({errorClass}): {errorMessage}".format(**payload)
+
+            category = payload.pop("category", payload.pop("errorClass", "Unknown"))
+            msg = "{error} ({category}): {errorMessage}".format(
+                **payload, category=category
+            )
             raise exceptions.ProgrammingError(msg)
 
         # Druid will stream the data in chunks of 8k bytes, splitting the JSON
