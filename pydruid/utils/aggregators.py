@@ -25,6 +25,10 @@ def thetasketch(raw_column, isinputthetasketch=False, size=16384):
     }
 
 
+def quantilesDoublesSketch(raw_column, k=128):
+    return {"type": "quantilesDoublesSketch", "fieldName": raw_column, "k": k}
+
+
 def min(raw_metric):
     """
     .. note:: Deprecated use `longMin`, `doubleMin' instead
