@@ -1,5 +1,11 @@
 ## Change Log
 
+### 0.6.6 (2023/12/01 18:00 +00:00)
+- [#270](https://github.com/druid-io/pydruid/pull/270) Add offset to Scan query (@pantlavanya)
+- [#287](https://github.com/druid-io/pydruid/pull/287) Add quantile sketch aggregator and postaggregator (@jaimee07)
+- [#299](https://github.com/druid-io/pydruid/pull/299) Add support for subquery datasources (@nbehnam)
+- [#308](https://github.com/druid-io/pydruid/pull/308) Account for new error category field in JSON response (@cpcloud)
+
 ### 0.6.5 (2022/11/02 22:04 +00:00)
 - [#295](https://github.com/druid-io/pydruid/pull/295) Revert "feat: support new types from 0.23 (#290)" (#295) (@betodealmeida)
 
