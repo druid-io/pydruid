@@ -226,6 +226,75 @@ class TestQueryBuilder:
         # then
         assert subquery_dict == expected_query_dict
 
+        expected_nested_query_dict = {
+            "query": {
+                "queryType": "groupBy",
+                "dataSource": {
+                    "query": {
+                        "queryType": "groupBy",
+                        "dataSource": "things",
+                        "aggregations": [
+                            {"fieldName": "thing", "name": "count", "type": "count"}
+                        ],
+                        "postAggregations": [
+                            {
+                                "fields": [
+                                    {"fieldName": "sum", "type": "fieldAccess"},
+                                    {"fieldName": "count", "type": "fieldAccess"},
+                                ],
+                                "fn": "/",
+                                "name": "avg",
+                                "type": "arithmetic",
+                            }
+                        ],
+                        "filter": {"dimension": "one", "type": "selector", "value": 1},
+                        "having": {"aggregation": "sum", "type": "greaterThan", "value": 1},
+                    },
+                    "type": "query",
+                },
+                "aggregations": [
+                    {"fieldName": "thing", "name": "count", "type": "count"}
+                ],
+                "postAggregations": [
+                    {
+                        "fields": [
+                            {"fieldName": "sum", "type": "fieldAccess"},
+                            {"fieldName": "count", "type": "fieldAccess"},
+                        ],
+                        "fn": "/",
+                        "name": "avg",
+                        "type": "arithmetic",
+                    }
+                ],
+                "filter": {"dimension": "one", "type": "selector", "value": 1},
+                "having": {"aggregation": "sum", "type": "greaterThan", "value": 1},
+            },
+            "type": "query",
+        }
+
+        nested_subquery_dict = builder.subquery(
+            {
+                "datasource": builder.subquery(
+                    {
+                        "datasource": "things",
+                        "aggregations": {"count": aggregators.count("thing")},
+                        "post_aggregations": {
+                            "avg": (postaggregator.Field("sum") / postaggregator.Field("count"))
+                        },
+                        "filter": filters.Dimension("one") == 1,
+                        "having": having.Aggregation("sum") > 1,
+                    }
+                ),
+                "aggregations": {"count": aggregators.count("thing")},
+                "post_aggregations": {
+                    "avg": (postaggregator.Field("sum") / postaggregator.Field("count"))
+                },
+                "filter": filters.Dimension("one") == 1,
+                "having": having.Aggregation("sum") > 1,
+            }
+        )
+
+        assert nested_subquery_dict == expected_nested_query_dict
 
 class TestQuery:
     def test_export_tsv(self, tmpdir):

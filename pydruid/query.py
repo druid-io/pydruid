@@ -246,7 +246,7 @@ class QueryBuilder(object):
                 "Datasource definition not valid. Must be string or "
                 "dict or list of strings"
             )
-        if isinstance(datasource, str):
+        if isinstance(datasource, str) or isinstance(datasource, dict):
             return datasource
         else:
             return {"type": "union", "dataSources": datasource}
@@ -516,6 +516,7 @@ class QueryBuilder(object):
             "intervals",
             "limit",
             "order",
+            "offset"
         ]
         self.validate_query(query_type, valid_parts, args)
         return self.build_query(query_type, args)
