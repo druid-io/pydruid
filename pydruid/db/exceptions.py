@@ -1,6 +1,3 @@
-from sqlalchemy.exc import CompileError
-
-
 class Error(Exception):
     pass
 
@@ -10,6 +7,10 @@ class Warning(Exception):
 
 
 class InterfaceError(Error):
+    pass
+
+
+class CompileError(Error):
     pass
 
 
