@@ -37,17 +37,17 @@ def connect(
     context = context or {}
 
     return Connection(
-        host,
-        port,
-        path,
-        scheme,
-        user,
-        password,
-        context,
-        header,
-        ssl_verify_cert,
-        ssl_client_cert,
-        proxies,
+        host=host,
+        port=port,
+        path=path,
+        scheme=scheme,
+        user=user,
+        password=password,
+        context=context,
+        header=header,
+        ssl_verify_cert=ssl_verify_cert,
+        ssl_client_cert=ssl_client_cert,
+        proxies=proxies,
     )
 
 
@@ -167,14 +167,14 @@ class Connection(object):
         """Return a new Cursor Object using the connection."""
 
         cursor = Cursor(
-            self.url,
-            self.user,
-            self.password,
-            self.context,
-            self.header,
-            self.ssl_verify_cert,
-            self.ssl_client_cert,
-            self.proxies,
+            url=self.url,
+            user=self.user,
+            password=self.password,
+            context=self.context,
+            header=self.header,
+            ssl_verify_cert=self.ssl_verify_cert,
+            proxies=self.proxies,
+            ssl_client_cert=self.ssl_client_cert,
         )
 
         self.cursors.append(cursor)
