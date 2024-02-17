@@ -127,7 +127,7 @@ class AsyncPyDruid(BaseDruidClient):
             else:
                 err = err.get("error", None)
         raise IOError(
-            "{0} \n Druid Error: {1} \n Query is: {2}".format(
+            "{0}\n Druid Error: {1}\n Query is: {2}".format(
                 e, err, json.dumps(query.query_dict, indent=4)
             )
         )

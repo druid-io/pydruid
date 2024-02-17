@@ -564,7 +564,7 @@ class PyDruid(BaseDruidClient):
                     pass
 
             raise IOError(
-                "{0} \n Druid Error: {1} \n Query is: {2}".format(
+                "{0}\n Druid Error: {1}\n Query is: {2}".format(
                     e,
                     err,
                     json.dumps(
