@@ -106,6 +106,7 @@ class DruidDialect(default.DefaultDialect):
 
     def create_connect_args(self, url):
         kwargs = {
+            **url.query,
             "host": url.host,
             "port": url.port or 8082,
             "user": url.username or None,
