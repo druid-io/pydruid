@@ -38,5 +38,17 @@ class DataError(DatabaseError):
     pass
 
 
-class NotSupportedError(CompileError):
+# Allow for the support of using `sqlalchemy.exc.CompileError` when using the
+# `extra_require` of sqlalchemy - implemented in #243
+support_error_child_cls = None
+
+try:
+    from sqlalchemy.exc import CompileError
+
+    support_error_child_cls = CompileError
+except ImportError:
+    support_error_child_cls = DatabaseError
+
+
+class NotSupportedError(support_error_child_cls):
     pass
