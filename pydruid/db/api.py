@@ -429,7 +429,7 @@ def rows_from_chunks(chunks):
 
 def apply_parameters(operation, parameters):
     if not parameters:
-        return operation
+        return operation % ()
 
     escaped_parameters = {key: escape(value) for key, value in parameters.items()}
     return operation % escaped_parameters
