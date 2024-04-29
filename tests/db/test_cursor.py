@@ -121,11 +121,11 @@ class CursorTestSuite(unittest.TestCase):
 
     def test_apply_parameters(self):
         self.assertEqual(
-            apply_parameters('SELECT 100 AS "100%"', None), 'SELECT 100 AS "100%"'
+            apply_parameters('SELECT 100 AS "100%%"', None), 'SELECT 100 AS "100%"'
         )
 
         self.assertEqual(
-            apply_parameters('SELECT 100 AS "100%"', {}), 'SELECT 100 AS "100%"'
+            apply_parameters('SELECT 100 AS "100%%"', {}), 'SELECT 100 AS "100%"'
         )
 
         self.assertEqual(
@@ -145,6 +145,11 @@ class CursorTestSuite(unittest.TestCase):
 
         self.assertEqual(
             apply_parameters("SELECT %(key)s", {"key": False}), "SELECT FALSE"
+        )
+
+        self.assertEqual(
+            apply_parameters("SELECT * FROM t WHERE name LIKE '%%a'", None),
+            "SELECT * FROM t WHERE name LIKE '%a'",
         )
 
 
