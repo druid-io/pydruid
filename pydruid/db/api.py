@@ -14,6 +14,14 @@ class Type(object):
     BOOLEAN = 3
 
 
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token) -> None:
+        self.token = token
+
+    def __call__(self, r):
+        r.headers["Authorization"] = f"Bearer {self.token}"
+        return r
+
 def connect(
     host="localhost",
     port=8082,
@@ -26,6 +34,7 @@ def connect(
     ssl_verify_cert=True,
     ssl_client_cert=None,
     proxies=None,
+    jwt=None,
 ):  # noqa: E125
     """
     Constructor for creating a connection to the database.
@@ -48,6 +57,7 @@ def connect(
         ssl_verify_cert,
         ssl_client_cert,
         proxies,
+        jwt,
     )
 
 
@@ -130,6 +140,7 @@ class Connection(object):
         ssl_verify_cert=True,
         ssl_client_cert=None,
         proxies=None,
+        jwt=None,
     ):
         netloc = "{host}:{port}".format(host=host, port=port)
         self.url = parse.urlunparse((scheme, netloc, path, None, None, None))
@@ -142,6 +153,7 @@ class Connection(object):
         self.ssl_verify_cert = ssl_verify_cert
         self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
+        self.jwt = jwt
 
     @check_closed
     def close(self):
@@ -334,9 +346,13 @@ class Cursor(object):
 
         payload = {"query": query, "context": self.context, "header": self.header}
 
-        auth = (
-            requests.auth.HTTPBasicAuth(self.user, self.password) if self.user else None
-        )
+        if self.user:
+            auth = requests.auth.HTTPBasicAuth(self.user, self.password)
+        elif self.jwt:
+            auth = BearerAuth(self.jwt)
+        else:
+            auth = None
+
         r = requests.post(
             self.url,
             stream=True,
