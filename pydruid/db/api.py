@@ -187,6 +187,7 @@ class Connection(object):
             self.ssl_verify_cert,
             self.ssl_client_cert,
             self.proxies,
+            self.jwt,
         )
 
         self.cursors.append(cursor)
@@ -218,6 +219,7 @@ class Cursor(object):
         ssl_verify_cert=True,
         ssl_client_cert=None,
         proxies=None,
+        jwt=None,
     ):
         self.url = url
         self.context = context or {}
@@ -227,6 +229,7 @@ class Cursor(object):
         self.ssl_verify_cert = ssl_verify_cert
         self.ssl_client_cert = ssl_client_cert
         self.proxies = proxies
+        self.jwt = jwt
 
         # This read/write attribute specifies the number of rows to fetch at a
         # time with .fetchmany(). It defaults to 1 meaning to fetch a single
