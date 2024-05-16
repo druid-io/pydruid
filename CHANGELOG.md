@@ -1,5 +1,18 @@
 ## Change Log
 
+### next
+- [#320](https://github.com/druid-io/pydruid/pull/320) add tests for jwt (@eschutho)
+- [#319](https://github.com/druid-io/pydruid/pull/319) feat: JWT auth (@betodealmeida)
+
+### 0.6.8 (2024/04/29 21:20 +00:00)
+- [#318](https://github.com/druid-io/pydruid/pull/318) fix: revert #317 (@betodealmeida)
+
+### 0.6.7 (2024/04/29 19:35 +00:00)
+- [#298](https://github.com/druid-io/pydruid/pull/298) Include URL query params in create_connect_args() (@Wenzil)
+- [#301](https://github.com/druid-io/pydruid/pull/301) Correct order of parameters for Cursor's init (@shek1608)
+- [#317](https://github.com/druid-io/pydruid/pull/317) fix(SQLAlchemy): queries w/o parameters (@betodealmeida)
+- [#314](https://github.com/druid-io/pydruid/pull/314) remove hard dependency on sqlalchemy just for a single exception type ()
+
 ### 0.6.6 (2023/12/01 18:00 +00:00)
 - [#270](https://github.com/druid-io/pydruid/pull/270) Add offset to Scan query (@pantlavanya)
 - [#287](https://github.com/druid-io/pydruid/pull/287) Add quantile sketch aggregator and postaggregator (@jaimee07)
