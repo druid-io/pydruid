@@ -1,6 +1,8 @@
 ## Change Log
 
 ### next
+
+### 0.6.9
 - [#320](https://github.com/druid-io/pydruid/pull/320) add tests for jwt (@eschutho)
 - [#319](https://github.com/druid-io/pydruid/pull/319) feat: JWT auth (@betodealmeida)
 

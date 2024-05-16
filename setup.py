@@ -16,7 +16,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setup(
     name="pydruid",
-    version="0.999.0dev",
+    version="0.6.9",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=find_packages(),
