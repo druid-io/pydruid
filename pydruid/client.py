@@ -25,10 +25,11 @@ HTML_ERROR = re.compile("<pre>\\s*(.*?)\\s*</pre>", re.IGNORECASE)
 
 
 class BaseDruidClient(object):
-    def __init__(self, url, endpoint):
+    def __init__(self, url, endpoint, http_headers=None):
         self.url = url
         self.endpoint = endpoint
         self.query_builder = QueryBuilder()
+        self.http_headers = http_headers or {}
         self.username = None
         self.password = None
         self.proxies = None
@@ -54,6 +55,8 @@ class BaseDruidClient(object):
             authstring = "{}:{}".format(self.username, self.password)
             b64string = b64encode(authstring.encode()).decode()
             headers["Authorization"] = "Basic {}".format(b64string)
+
+        headers.update(self.http_headers)
 
         return headers, querystr, url
 
@@ -544,8 +547,8 @@ class PyDruid(BaseDruidClient):
                 1      6  2013-10-04T00:00:00.000Z         user_2
     """
 
-    def __init__(self, url, endpoint, cafile=None):
-        super(PyDruid, self).__init__(url, endpoint)
+    def __init__(self, url, endpoint, cafile=None, http_headers=None):
+        super(PyDruid, self).__init__(url, endpoint, http_headers=http_headers)
         self.cafile = cafile
 
     def _post(self, query):
