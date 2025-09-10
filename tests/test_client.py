@@ -12,8 +12,8 @@ from pydruid.utils.aggregators import doublesum
 from pydruid.utils.filters import Dimension
 
 
-def create_client():
-    return PyDruid("http://localhost:8083", "druid/v2/")
+def create_client(http_headers=None):
+    return PyDruid("http://localhost:8083", "druid/v2/", http_headers=http_headers)
 
 
 def create_blank_query():
@@ -189,10 +189,15 @@ class TestPyDruid:
         with pytest.raises(TypeError):
             client.export_tsv(None)
 
-    @patch("pydruid.client.urllib.request.urlopen")
-    def test_client_auth_creds(self, mock_urlopen):
+    def test_client_auth_creds(self):
         client = create_client()
         query = create_blank_query()
         client.set_basic_auth_credentials("myUsername", "myPassword")
         headers, _, _ = client._prepare_url_headers_and_body(query)
         assert headers["Authorization"] == "Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk"
+
+    def test_client_custom_headers(self):
+        client = create_client(http_headers = {"custom-header": "test"})
+        query = create_blank_query()
+        headers, _, _ = client._prepare_url_headers_and_body(query)
+        assert headers["custom-header"] == "test"
