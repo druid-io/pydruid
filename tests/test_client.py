@@ -201,3 +201,30 @@ class TestPyDruid:
         query = create_blank_query()
         headers, _, _ = client._prepare_url_headers_and_body(query)
         assert headers["custom-header"] == "test"
+
+    @patch("pydruid.client.urllib.request.urlopen")
+    @patch("pydruid.client.ssl.create_default_context")
+    def test_client_with_cafile(self, mock_create_default_context, mock_urlopen):
+        response = Mock()
+        response.read.return_value = """
+            [ {
+                "timestamp" : "2015-12-30T14:14:49.000Z",
+                "result" : [ {
+                    "dimension" : "aaaa",
+                    "metric" : 100
+                } ]
+            } ]
+        """.encode(
+            "utf-8"
+        )
+        mock_urlopen.return_value = response
+
+        client = PyDruid("http://localhost:8083", "druid/v2/", cafile="tests/cert.pem")
+
+        mock_create_default_context.assert_called_once()
+        context = mock_create_default_context.return_value
+        context.load_verify_locations.assert_called_once_with(cafile="tests/cert.pem")
+        assert client.context == context
+
+        client.topn()
+        assert mock_urlopen.called_with(context=client.context)
