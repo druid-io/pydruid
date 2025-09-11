@@ -15,7 +15,9 @@
 #
 import json
 import re
-from six.moves import urllib
+import ssl
+import urllib.error
+import urllib.request
 from base64 import b64encode
 
 from pydruid.query import QueryBuilder
@@ -549,13 +551,16 @@ class PyDruid(BaseDruidClient):
 
     def __init__(self, url, endpoint, cafile=None, http_headers=None):
         super(PyDruid, self).__init__(url, endpoint, http_headers=http_headers)
-        self.cafile = cafile
+        self.context = None
+        if cafile:
+            self.context = ssl.create_default_context()
+            self.context.load_verify_locations(cafile=cafile)
 
     def _post(self, query):
         try:
             headers, querystr, url = self._prepare_url_headers_and_body(query)
             req = urllib.request.Request(url, querystr, headers)
-            res = urllib.request.urlopen(url=req, cafile=self.cafile)
+            res = urllib.request.urlopen(url=req, context=self.context)
             data = res.read().decode("utf-8")
             res.close()
         except urllib.error.HTTPError as e:
