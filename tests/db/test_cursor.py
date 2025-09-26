@@ -355,7 +355,7 @@ class CursorTestSuite(unittest.TestCase):
             ANY,
             stream=True,
             headers={"Content-Type": "application/json"},
-            json={"query": "SELECT * FROM table", "context": {}, "header": False},
+            json={"query": "SELECT * FROM table", "context": {}, "header": True},
             auth=ANY,
             verify=True,
             cert="path/to/cert",
