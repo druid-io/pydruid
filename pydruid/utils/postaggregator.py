@@ -93,6 +93,12 @@ class Field(Postaggregator):
         self.post_aggregator = {"type": "fieldAccess", "fieldName": name}
 
 
+class FinalizingField(Postaggregator):
+    def __init__(self, name):
+        Postaggregator.__init__(self, None, None, name)
+        self.post_aggregator = {"type": "finalizingFieldAccess", "fieldName": name}
+
+
 class Const(Postaggregator):
     def __init__(self, value, output_name=None):
 
