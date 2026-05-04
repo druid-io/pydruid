@@ -246,6 +246,8 @@ class QueryBuilder(object):
                 "Datasource definition not valid. Must be string or "
                 "dict or list of strings"
             )
+        if isinstance(datasource, list):
+            return {"type": "union", "dataSources": datasource}
         return datasource
 
     @staticmethod
