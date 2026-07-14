@@ -17,6 +17,10 @@
 import six
 import ujson as json
 import collections
+try:
+    from collections.abc import MutableSequence
+except ImportError:  # Python 2 fallback
+    from collections import MutableSequence
 from pydruid.utils.aggregators import build_aggregators
 from pydruid.utils.filters import Filter
 from pydruid.utils.having import Having
@@ -26,7 +30,7 @@ from pydruid.utils.query_utils import UnicodeWriter
 from pydruid.utils.virtual_columns import VirtualColumn
 
 
-class Query(collections.MutableSequence):
+class Query(MutableSequence):
     """
     Query objects are produced by PyDruid clients and can be used for
     exporting query results into TSV files or

@@ -20,7 +20,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 setup(
     name="singular-pydruid",
-    version="0.5.8",
+    version="0.5.9",
     author="Druid Developers",
     author_email="druid-development@googlegroups.com",
     packages=["pydruid", "pydruid.db", "pydruid.utils"],
